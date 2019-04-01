@@ -1,0 +1,25 @@
+using ApproxFunOrthogonalPolynomials, InfiniteArrays, LinearAlgebra, Test
+
+@testset "Domain" begin
+    @test reverseorientation(Arc(1,2,(0.1,0.2))) == Arc(1,2,(0.2,0.1))
+end
+
+@time include("ClenshawTest.jl")
+@time include("ChebyshevTest.jl")
+@time include("FourierTest.jl")
+@time include("ComplexTest.jl")
+@time include("NumberTypeTest.jl")
+@time include("broadcastingtest.jl")
+@time include("OperatorTest.jl")
+@time include("ODETest.jl")
+@time include("EigTest.jl")
+@time include("VectorTest.jl")
+@time include("IntegralEquationsTest.jl")
+@time include("JacobiTest.jl")
+@time include("LaguerreTest.jl")
+@time include("HermiteTest.jl")
+@time include("SingularitiesTest.jl")
+@time include("ETDRK4Test.jl")
+@time include("MultivariateTest.jl")
+@time include("PDETest.jl")
+@time include("ExtrasTest.jl")
