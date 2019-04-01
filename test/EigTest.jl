@@ -1,5 +1,5 @@
-using ApproxFun, BandedMatrices, SpecialFunctions, Test
-    import ApproxFun: bandwidth
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, BandedMatrices, SpecialFunctions, Test
+    import ApproxFunBase: bandwidth
 
 #
 # Fix for BigFloat stackoverflow

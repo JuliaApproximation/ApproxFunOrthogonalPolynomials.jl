@@ -1,6 +1,6 @@
 module ApproxFunOrthogonalPolynomials
-using Base, LinearAlgebra, Reexport, AbstractFFTs, FFTW, InfiniteArrays, FillArrays, FastTransforms, IntervalSets, 
-            DomainSets, Statistics
+using Base, LinearAlgebra, Reexport, BandedMatrices, AbstractFFTs, FFTW, InfiniteArrays, FillArrays, FastTransforms, IntervalSets, 
+            DomainSets, Statistics, SpecialFunctions
             
 @reexport using ApproxFunBase
 
@@ -12,18 +12,20 @@ import ApproxFunBase: normalize!, flipsign, FiniteRange, Fun, MatrixFun, UnsetSp
                     UnivariateSpace, AmbiguousSpace, SumSpace, SubSpace, WeightSpace, NoSpace, Space,
                     HeavisideSpace, PointSpace,
                     IntervalOrSegment, RaggedMatrix, AlmostBandedMatrix,
-                    AnyDomain, ZeroSpace, TrivialInterlacer, BlockInterlacer, 
+                    AnyDomain, ZeroSpace, ArraySpace, TrivialInterlacer, BlockInterlacer, 
                     AbstractTransformPlan, TransformPlan, ITransformPlan,
                     ConcreteConversion, ConcreteMultiplication, ConcreteDerivative, ConcreteIntegral,
                     ConcreteVolterra, Volterra, VolterraWrapper,
-                    MultiplicationWrapper, ConversionWrapper, DerivativeWrapper, Evaluation,
+                    MultiplicationWrapper, ConversionWrapper, DerivativeWrapper, Evaluation, EvaluationWrapper,
                     Conversion, Multiplication, Derivative, Integral, bandwidths, 
                     ConcreteEvaluation, ConcreteDefiniteLineIntegral, ConcreteDefiniteIntegral, ConcreteIntegral,
                     DefiniteLineIntegral, DefiniteIntegral, ConcreteDefiniteIntegral, ConcreteDefiniteLineIntegral,
                     ReverseOrientation, ReverseOrientationWrapper, ReverseWrapper, Reverse, NegateEven, Dirichlet, ConcreteDirichlet,
                     TridiagonalOperator, SubOperator, Space, @containsconstants, spacescompatible,
                     hasfasttransform, canonicalspace, domain, setdomain, prectype, domainscompatible, 
-                    plan_transform, plan_itransform, plan_transform!, plan_itransform!, transform, itransform, hasfasttransform, Integral, 
+                    plan_transform, plan_itransform, plan_transform!, plan_itransform!, transform, itransform, hasfasttransform, 
+                    CanonicalTransformPlan,
+                    Integral, 
                     domainspace, rangespace, boundary, 
                     union_rule, conversion_rule, maxspace_rule, conversion_type, maxspace, hasconversion, points, 
                     rdirichlet, ldirichlet, lneumann, rneumann, ivp, bvp, 
@@ -34,14 +36,20 @@ import ApproxFunBase: normalize!, flipsign, FiniteRange, Fun, MatrixFun, UnsetSp
                     invfromcanonicalD, fromcanonical, tocanonical, fromcanonicalD, tocanonicalD, canonicaldomain, setcanonicaldomain, mappoint,
                     reverseorientation, checkpoints, evaluate, mul_coefficients, coefficients, isconvertible,
                     clenshaw, ClenshawPlan, sineshaw,
-                    toeplitz_getindex, toeplitz_axpy!, ToeplitzOperator, hankel_getindex, 
+                    toeplitz_getindex, toeplitz_axpy!, sym_toeplitz_axpy!, hankel_axpy!, ToeplitzOperator, SymToeplitzOperator, hankel_getindex, 
                     SpaceOperator, ZeroOperator, InterlaceOperator,
                     interlace!, reverseeven!, negateeven!, cfstype, pad!,
-                    extremal_args, hesseneigvals, chebyshev_clenshaw, recA, recB, recC, roots, chebmult_getindex, intpow, alternatingsum
+                    extremal_args, hesseneigvals, chebyshev_clenshaw, recA, recB, recC, roots, chebmult_getindex, intpow, alternatingsum,
+                    domaintype, diagindshift, rangetype, weight, isapproxinteger, default_Dirichlet, scal!
 
 import DomainSets: Domain, indomain, UnionDomain, ProductDomain, FullSpace, Point, elements, DifferenceDomain,
             Interval, ChebyshevInterval, boundary, ∂, rightendpoint, leftendpoint,
-            dimension, Domain1d, Domain2d         
+            dimension, Domain1d, Domain2d   
+            
+import BandedMatrices: bandrange, bandshift,
+                inbands_getindex, inbands_setindex!, bandwidth, AbstractBandedMatrix,
+                colstart, colstop, colrange, rowstart, rowstop, rowrange,
+                bandwidths, _BandedMatrix, BandedMatrix            
 
 import Base: values, convert, getindex, setindex!, *, +, -, ==, <, <=, >, |, !, !=, eltype, iterate,
                 >=, /, ^, \, ∪, transpose, size, reindex, tail, broadcast, broadcast!, copyto!, copy, to_index, (:),
@@ -66,10 +74,26 @@ import FastTransforms: ChebyshevTransformPlan, IChebyshevTransformPlan, plan_che
                         plan_chebyshevtransform!, plan_ichebyshevtransform, plan_ichebyshevtransform!,
                         pochhammer
 
+# we need to import all special functions to use Calculus.symbolic_derivatives_1arg
+# we can't do importall Base as we replace some Base definitions
+import SpecialFunctions: sinpi, cospi, airy, besselh,
+                    asinh, acosh,atanh, erfcx, dawson, erf, erfi,
+                    sin, cos, sinh, cosh, airyai, airybi, airyaiprime, airybiprime,
+                    hankelh1, hankelh2, besselj, besselj0, bessely, besseli, besselk,
+                    besselkx, hankelh1x, hankelh2x, exp2, exp10, log2, log10,
+                    tan, tanh, csc, asin, acsc, sec, acos, asec,
+                    cot, atan, acot, sinh, csch, asinh, acsch,
+                    sech, acosh, asech, tanh, coth, atanh, acoth,
+                    expm1, log1p, lfact, sinc, cosc, erfinv, erfcinv, beta, lbeta,
+                    eta, zeta, gamma,  lgamma, polygamma, invdigamma, digamma, trigamma,
+                    abs, sign, log, expm1, tan, abs2, sqrt, angle, max, min, cbrt, log,
+                    atan, acos, asin, erfc, inv
+
 include("ultraspherical.jl")
 include("Domains/Domains.jl")
 include("Spaces/Spaces.jl")
 include("roots.jl")
 include("specialfunctions.jl")
+include("fastops.jl")
 
 end

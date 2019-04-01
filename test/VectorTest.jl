@@ -1,5 +1,5 @@
-using ApproxFun, LazyArrays, FillArrays, LinearAlgebra, SpecialFunctions, Test
-    import ApproxFun: interlace, Multiplication, ConstantSpace, PointSpace,
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, LazyArrays, FillArrays, LinearAlgebra, SpecialFunctions, Test
+    import ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
                         ArraySpace, testblockbandedoperator, blocklengths, ∞,
                         testraggedbelowoperator, Vec
 

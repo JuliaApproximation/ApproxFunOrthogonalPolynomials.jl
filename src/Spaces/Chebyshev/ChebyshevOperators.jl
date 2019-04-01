@@ -1,5 +1,5 @@
 
-recA(::Type{T},::Chebyshev,k) where {T} = 2one(T)
+recA(::Type{T},::Chebyshev,k) where {T} = k == 0 ? one(T) : 2one(T)
 recB(::Type{T},::Chebyshev,_) where {T} = zero(T)
 recC(::Type{T},::Chebyshev,k) where {T} = one(T)   # one(T) ensures we get correct type
 
@@ -38,7 +38,7 @@ function evaluatechebyshev(n::Integer,x::T) where T<:Number
 end
 
 
-function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},typeof(leftendpoint)},j::Integer) where {DD<:IntervalOrSegment,RR}
+function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)},j::Integer) where {DD<:IntervalOrSegment,RR}
     T=eltype(op)
     if op.order == 0
         ifelse(isodd(j),  # right rule
@@ -50,7 +50,7 @@ function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},typeof(leftendpoint)},
     end
 end
 
-function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},typeof(rightendpoint)},j::Integer) where {DD<:IntervalOrSegment,RR}
+function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint)},j::Integer) where {DD<:IntervalOrSegment,RR}
     T=eltype(op)
     if op.order == 0
         one(T)
@@ -60,7 +60,7 @@ function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},typeof(rightendpoint)}
     end
 end
 
-function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},typeof(leftendpoint)},k::AbstractRange) where {DD<:IntervalOrSegment,RR}
+function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)},k::AbstractRange) where {DD<:IntervalOrSegment,RR}
     T=eltype(op)
     x = op.x
     d = domain(op)
@@ -86,7 +86,7 @@ function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},typeof(leftendpoint)},
 end
 
 
-function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},typeof(rightendpoint)},k::AbstractRange) where {DD<:IntervalOrSegment,RR}
+function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint)},k::AbstractRange) where {DD<:IntervalOrSegment,RR}
     T=eltype(op)
     x = op.x
     d = domain(op)

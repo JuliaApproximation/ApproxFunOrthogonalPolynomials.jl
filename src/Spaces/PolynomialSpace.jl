@@ -201,7 +201,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteMultiplication{C,PS,T},
         # for e_1^⊤ U_x\a == a[1]*I-(α-J)*a[2]/β == (a[1]-α*a[2]/β)*I + J*a[2]/β
         # implying
         α,β=recα(T,sp,1),recβ(T,sp,1)
-        ret=Operator{T}(ApproxFun.Recurrence(M.space))[kr,jr]::BandedMatrix{T}
+        ret=Operator{T}(Recurrence(M.space))[kr,jr]::BandedMatrix{T}
         lmul!(a[2]/β,ret)
         shft=kr[1]-jr[1]
         ret[band(shft)] .+= a[1]-α*a[2]/β
@@ -211,7 +211,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteMultiplication{C,PS,T},
     jkr=max(1,min(jr[1],kr[1])-(n-1)÷2):max(jr[end],kr[end])+(n-1)÷2
 
     #Multiplication is transpose
-    J=Operator{T}(ApproxFun.Recurrence(M.space))[jkr,jkr]
+    J=Operator{T}(Recurrence(M.space))[jkr,jkr]
 
     B=n-1  # final bandwidth
 
@@ -318,14 +318,14 @@ end
 function getindex(op::ConcreteEvaluation{J,typeof(leftendpoint)},kr::AbstractRange) where J<:PolynomialSpace
     sp=op.space
     T=eltype(op)
-
+    @assert op.order == 0
     forwardrecurrence(T,sp,kr.-1,-one(T))
 end
 
 function getindex(op::ConcreteEvaluation{J,typeof(rightendpoint)},kr::AbstractRange) where J<:PolynomialSpace
     sp=op.space
     T=eltype(op)
-
+    @assert op.order == 0
     forwardrecurrence(T,sp,kr.-1,one(T))
 end
 
@@ -334,8 +334,8 @@ function getindex(op::ConcreteEvaluation{J,TT},kr::AbstractRange) where {J<:Poly
     sp=op.space
     T=eltype(op)
     x=op.x
-
-    forwardrecurrence(T,sp,kr.-1,tocanonical(sp,x))
+    @assert op.order == 0
+    forwardrecurrence(T,sp,kr .- 1,tocanonical(sp,x))
 end
 
 

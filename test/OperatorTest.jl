@@ -1,6 +1,6 @@
-using ApproxFun, BlockBandedMatrices,  LinearAlgebra, Test
-    import ApproxFun: Multiplication,InterlaceOperator, Block, ∞
-    import ApproxFun: testfunctional, testbandedoperator, testraggedbelowoperator, testinfoperator, testblockbandedoperator
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, BlockBandedMatrices,  LinearAlgebra, Test
+    import ApproxFunBase: Multiplication,InterlaceOperator, Block, ∞,
+            testfunctional, testbandedoperator, testraggedbelowoperator, testinfoperator, testblockbandedoperator
 
 @testset "Operator" begin
     @testset "Evaluation" begin
@@ -110,7 +110,7 @@ using ApproxFun, BlockBandedMatrices,  LinearAlgebra, Test
     end
 
     @testset "Permutation" begin
-        P=ApproxFun.PermutationOperator([2,1])
+        P=ApproxFunBase.PermutationOperator([2,1])
         testbandedoperator(P)
         @test P[1:4,1:4] ≈ [0 1 0 0; 1 0 0 0; 0 0 0 1; 0 0 1 0]
     end
@@ -154,20 +154,20 @@ using ApproxFun, BlockBandedMatrices,  LinearAlgebra, Test
         S=Chebyshev()
         D=Derivative(S)
         @time for padding = [true,false]
-          co=ApproxFun.CachedOperator(D,ApproxFun.RaggedMatrix(Float64[],Int[1],0),(0,0),domainspace(D),rangespace(D),bandwidths(D),padding) #initialise with empty RaggedMatrix
+          co=ApproxFunBase.CachedOperator(D,ApproxFunBase.RaggedMatrix(Float64[],Int[1],0),(0,0),domainspace(D),rangespace(D),bandwidths(D),padding) #initialise with empty RaggedMatrix
           @test co[1:20,1:10] == D[1:20,1:10]
           @test size(co.data) == (20,10)
-          ApproxFun.resizedata!(co,10,30)
+          ApproxFunBase.resizedata!(co,10,30)
           @test size(co.data)[2] == 30 && size(co.data)[1] ≥ 20
         end
     end
 
     @testset "Reverse" begin
-        testbandedoperator(ApproxFun.Reverse(Chebyshev()))
-        testbandedoperator(ApproxFun.ReverseOrientation(Chebyshev()))
+        testbandedoperator(ApproxFunBase.Reverse(Chebyshev()))
+        testbandedoperator(ApproxFunBase.ReverseOrientation(Chebyshev()))
 
-        @test ApproxFun.Reverse(Chebyshev())*Fun(exp) ≈ Fun(x->exp(-x))
-        @test ApproxFun.ReverseOrientation(Chebyshev())*Fun(exp) ≈ Fun(exp,Segment(1,-1))
+        @test ApproxFunBase.Reverse(Chebyshev())*Fun(exp) ≈ Fun(x->exp(-x))
+        @test ApproxFunBase.ReverseOrientation(Chebyshev())*Fun(exp) ≈ Fun(exp,Segment(1,-1))
     end
 
     @testset "Sub-operator re-view bug" begin
@@ -217,17 +217,17 @@ using ApproxFun, BlockBandedMatrices,  LinearAlgebra, Test
     @testset "Projection and subspaces" begin
         S=Chebyshev()
         SS = S|(2:5)
-        @test ApproxFun.block(SS,3) == Block(4)
+        @test ApproxFunBase.block(SS,3) == Block(4)
 
         for C in (Operator(I,S)[3:end,:], Operator(I,S)[3:end,1:end])
-            @test ApproxFun.domaindimension(domainspace(C)) == 1
+            @test ApproxFunBase.domaindimension(domainspace(C)) == 1
             @test union(S,domainspace(C)) == S
 
             B=Dirichlet(S)
 
             Ai=[B;C]
 
-            @test ApproxFun.colstop(Ai,1) == 2
+            @test ApproxFunBase.colstop(Ai,1) == 2
 
             x=Fun()
             f=exp(x)
@@ -245,14 +245,14 @@ using ApproxFun, BlockBandedMatrices,  LinearAlgebra, Test
     end
 
     @testset "Zero operator has correct bandwidths" begin
-        Z=ApproxFun.ZeroOperator(Chebyshev())
-        @test ApproxFun.bandwidths(Z) == ApproxFun.bandwidths(Z+Z)
+        Z=ApproxFunBase.ZeroOperator(Chebyshev())
+        @test ApproxFunBase.bandwidths(Z) == ApproxFunBase.bandwidths(Z+Z)
     end
 
     @testset "hcat of functionals (#407)" begin
         x = Fun()
         B = [1 ldirichlet()]
-        @test (B*[1;x])[1] == Fun(ConstantSpace(ApproxFun.Point(-1.0)),[0.0])
+        @test (B*[1;x])[1] == Fun(ConstantSpace(ApproxFunBase.Point(-1.0)),[0.0])
     end
 
 
@@ -283,5 +283,10 @@ using ApproxFun, BlockBandedMatrices,  LinearAlgebra, Test
         @test lastindex(S) == 100
         @test S[end,end] ≈ 1
         @test S[end-1,end] ≈ 0
+    end
+
+    @testset "Chebyshev Neumann" begin
+        E = Evaluation(Chebyshev(),rightendpoint,1)
+        @test E[1:4] == [0,1,4,9]
     end
 end

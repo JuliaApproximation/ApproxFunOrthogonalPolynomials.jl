@@ -1,4 +1,4 @@
-using ApproxFun, SpecialFunctions, LinearAlgebra, Test
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, LinearAlgebra, Test
 
 
 
@@ -33,7 +33,7 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
 
         # since array broadcasting takes presidence, the following
         # does not try to call a constructor:
-        @test ApproxFun.tocanonical.(x,[0.1,0.2]) ≈ [0.1,0.2]
+        @test ApproxFunBase.tocanonical.(x,[0.1,0.2]) ≈ [0.1,0.2]
     end
 
     @testset "broadcast!" begin

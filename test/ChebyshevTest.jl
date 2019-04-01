@@ -1,7 +1,12 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
-    import ApproxFunBase: testspace
+    import ApproxFunBase: testspace, recA, recB, recC
+    import ApproxFunOrthogonalPolynomials: forwardrecurrence
 
 @testset "Chebyshev" begin
+    @testset "Forward recurrence" begin
+        @test forwardrecurrence(Float64,Chebyshev(),0:9,1.0) == ones(10)
+    end
+
     @testset "ChebyshevInterval" begin
         @test Fun(x->2,10)(.1) ≈ 2
         @test Fun(x->2)(.1) ≈ 2
@@ -151,6 +156,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
         x = Fun(identity,0..10)
         f = sin(x^2)
         g = cos(x)
+        @test exp(x)(0.1) ≈ exp(0.1)
         @test f(.1) ≈ sin(.1^2)
 
         x = Fun(identity,0..100)
@@ -160,7 +166,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
 
     @testset "Reverse" begin
         f=Fun(exp)
-        @test ApproxFunOrthogonalPolynomials.default_Fun(f, Chebyshev(Segment(1 , -1)), ncoefficients(f))(0.1) ≈ exp(0.1)
+        @test ApproxFunBase.default_Fun(f, Chebyshev(Segment(1 , -1)), ncoefficients(f))(0.1) ≈ exp(0.1)
         @test Fun(f,Chebyshev(Segment(1,-1)))(0.1) ≈ f(0.1)
     end
 

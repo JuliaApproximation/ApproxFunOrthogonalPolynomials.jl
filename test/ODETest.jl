@@ -1,5 +1,5 @@
-using ApproxFun, SpecialFunctions, LazyArrays, Test
-    import ApproxFun: Multiplication, testraggedbelowoperator, testbandedoperator, interlace, ∞
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, LazyArrays, Test
+    import ApproxFunBase: Multiplication, testraggedbelowoperator, testbandedoperator, interlace, ∞
 
 @testset "ODE" begin
     @testset "Airy" begin
@@ -38,6 +38,7 @@ using ApproxFun, SpecialFunctions, LazyArrays, Test
         @test ≈(u(0.),airyai(0.);atol=10ncoefficients(u)*eps())
 
         B=Neumann(d);
+        @which B.op[1,2]
         A=[B;D2-X];
         b=[[airyaiprime(leftendpoint(d)),airyaiprime(rightendpoint(d))],0.];
 
@@ -62,7 +63,7 @@ using ApproxFun, SpecialFunctions, LazyArrays, Test
         f=Fun(exp);
         D=Derivative(domain(f));
         w=10.;
-        B=ApproxFun.SpaceOperator(BasisFunctional(floor(w)),Chebyshev(),ApproxFun.ConstantSpace(Float64));
+        B=ApproxFunBase.SpaceOperator(BasisFunctional(floor(w)),Chebyshev(),ApproxFunBase.ConstantSpace(Float64));
         A=[B; D+1im*w*I];
 
         @time u = A\[0.,f];
@@ -126,13 +127,13 @@ using ApproxFun, SpecialFunctions, LazyArrays, Test
         B = [Dirichlet(sp);continuity(sp,0:1)]
 
         # We don't want to concat piecewise space
-        @test !(continuity(sp,0) isa ApproxFun.VectorInterlaceOperator)
-        @test B isa ApproxFun.VectorInterlaceOperator
+        @test !(continuity(sp,0) isa ApproxFunBase.VectorInterlaceOperator)
+        @test B isa ApproxFunBase.VectorInterlaceOperator
 
         D=Derivative(sp)
         A=[B;D^2-x]
 
-        ApproxFun.testraggedbelowoperator(A)
+        ApproxFunBase.testraggedbelowoperator(A)
         QR=qr(A)
 
         @time u=QR\[[airyai(-2.),0.0],zeros(4),0.0]
@@ -155,7 +156,7 @@ using ApproxFun, SpecialFunctions, LazyArrays, Test
            0 D+I]
 
         # makes sure ops are in right order
-        @test A.ops[4,1] isa ApproxFun.PlusOperator
+        @test A.ops[4,1] isa ApproxFunBase.PlusOperator
         QR=qr(A)
         v=Any[0.,0.,0.,f...]
         @test (QR\v)(0.0) ≈ [0.0826967758420519,0.5553968826533497]
@@ -168,7 +169,8 @@ using ApproxFun, SpecialFunctions, LazyArrays, Test
 
     @testset "Auto-space" begin
         t=Fun(identity,0..1000)
-        L=𝒟^2+2I  # our differential operator, 𝒟 is equivalent to Derivative()
+        D = Derivative()
+        L=D^2+2I  # our differential operator, 𝒟 is equivalent to Derivative()
 
         u=[ivp();L]\[0.;0.;cos(100t)]
         @test ≈(u(1000.0),0.00018788162639452911;atol=1000eps())
@@ -177,7 +179,7 @@ using ApproxFun, SpecialFunctions, LazyArrays, Test
         d=domain(x)
         B=Dirichlet()
         ν=100.
-        L=(x^2*𝒟^2) + x*𝒟 + (x^2 - ν^2)   # our differential operator
+        L=(x^2*D^2) + x*D + (x^2 - ν^2)   # our differential operator
 
         @time u=[B;L]\[[besselj(ν,leftendpoint(d)),besselj(ν,rightendpoint(d))],0.]
         @test ≈(u(1900.),besselj(ν,1900.);atol=1000eps())
@@ -223,11 +225,11 @@ using ApproxFun, SpecialFunctions, LazyArrays, Test
              [Evaluation(d,rightendpoint,k) for k=2:4]...]
 
         rs = rangespace(B)
-        @test ApproxFun.blocklengths(rs) == [10]
+        @test ApproxFunBase.blocklengths(rs) == [10]
 
         A = [B; L]
         rs = rangespace(A)
-        @test ApproxFun.blocklengths(rs) isa Vcat
+        @test ApproxFunBase.blocklengths(rs) isa Vcat
 
         u = [B; L] \ [ [0.,0.], [1.,1.], zeros(6)..., exp(x)]
         @test u(0.5) ≈ -0.4024723414410859 # Empirical

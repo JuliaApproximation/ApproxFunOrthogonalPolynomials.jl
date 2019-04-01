@@ -1,5 +1,5 @@
-using ApproxFun, IntervalSets, Random, LinearAlgebra, Test
-    import ApproxFun: testfunctional, testbandedbelowoperator, testbandedoperator
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, IntervalSets, Random, LinearAlgebra, Test
+    import ApproxFunBase: testfunctional, testbandedbelowoperator, testbandedoperator
 
 
 @testset "Integral equations" begin

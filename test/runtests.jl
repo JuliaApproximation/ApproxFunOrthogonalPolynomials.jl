@@ -6,9 +6,7 @@ end
 
 @time include("ClenshawTest.jl")
 @time include("ChebyshevTest.jl")
-@time include("FourierTest.jl")
 @time include("ComplexTest.jl")
-@time include("NumberTypeTest.jl")
 @time include("broadcastingtest.jl")
 @time include("OperatorTest.jl")
 @time include("ODETest.jl")
