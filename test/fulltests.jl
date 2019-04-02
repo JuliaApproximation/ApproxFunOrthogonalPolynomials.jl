@@ -12,14 +12,6 @@ include("runtests.jl")
 @time include("FractionalTest.jl")
 
 @testset "Full Operator" begin
-    @time for M in (Multiplication(Fun(CosSpace(),[1.]),CosSpace()),
-                    Multiplication(Fun(CosSpace(),[1.]),SinSpace()),
-                    Multiplication(Fun(SinSpace(),[1.]),SinSpace()),
-                    Multiplication(Fun(SinSpace(),[1.]),CosSpace()),
-                    Derivative(SinSpace()),Derivative(CosSpace()))
-          testbandedoperator(M)
-    end
-
     S=Chebyshev()
     @time for io in (
             [Dirichlet(S);Derivative(Chebyshev());lneumann(S)],
@@ -225,24 +217,6 @@ end
     F = LowRankFun((x,y)->hankelh1(0,10abs(y-x)),Chebyshev(1.0..2.0),Chebyshev(Segment(1.0im,2.0im)))
 
     @test F(1.5,1.5im) ≈ hankelh1(0,10abs(1.5im-1.5))
-
-
-    ## Periodic
-    f=LowRankFun((x,y)->cos(x)*sin(y),PeriodicSegment(),PeriodicSegment())
-    @test f(.1,.2) ≈ cos(.1)*sin(.2)
-
-    f=LowRankFun((x,y)->cos(cos(x)+sin(y)),PeriodicSegment(),PeriodicSegment())
-    @test f(.1,.2) ≈ cos(cos(.1)+sin(.2))
-    @test norm(Float64[cos(cos(x)+sin(y)) for x=ApproxFun.vecpoints(f,1),y=ApproxFun.vecpoints(f,2)]-values(f))<10000eps()
-
-    f=ProductFun((x,y)->cos(cos(x)+sin(y)),PeriodicSegment()^2)
-    @test f(.1,.2) ≈ cos(cos(.1)+sin(.2))
-    x,y=points(f)
-    @test norm(Float64[cos(cos(x[k,j])+sin(y[k,j])) for k=1:size(f,1),j=1:size(f,2)]-values(f))<10000eps()
-
-    d=PeriodicSegment()^2
-    f=ProductFun((x,y)->exp(-10(sin(x/2)^2+sin(y/2)^2)),d)
-    @test (transpose(f)-f|>coefficients|>norm)< 1000eps()
 
     @testset "Functional*Fun" begin
         d=ChebyshevInterval()

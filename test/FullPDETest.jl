@@ -250,36 +250,6 @@ import ApproxFun: resizedata!, CachedOperator, RaggedMatrix, testbandedblockband
         end
     end
 
-    @testset "Periodic Poisson" begin
-        d=PeriodicSegment()^2
-        S=Space(d)
-
-        f=Fun((x,y)->exp(-10(sin(x/2)^2+sin(y/2)^2)),d)
-        A=Laplacian(d)+0.1I
-        testbandedblockbandedoperator(A)
-        @time u=A\f
-        @test u(.1,.2) ≈ u(.2,.1)
-        @test (lap(u)+.1u-f)|>coefficients|>norm < 1000000eps()
-    end
-
-
-    @testset "periodic x interval" begin
-        dθ=PeriodicSegment(-2.,2.);dt=Interval(0,1.)
-        d=dθ×dt
-        Dθ=Derivative(d,[1,0]);Dt=Derivative(d,[0,1])
-        u0=Fun(θ->exp(-20θ^2),dθ)
-
-        ε = 0.1
-        @time u=\([I⊗ldirichlet(dt);Dt-ε*Dθ^2-Dθ],[u0;0.];tolerance=1E-4)
-        @test ≈(u(0.1,0.2),0.3103472600253807;atol=1E-2)
-
-        A=Dt+Dθ
-        testbandedblockbandedoperator(A)
-
-        @time u=\([I⊗ldirichlet(dt);Dt+Dθ],[u0;0.0];tolerance=1E-6)
-        @test ≈(u(0.2,0.1),u0(0.1);atol=1E-6)
-    end
-
     @testset "Small diffusion" begin
         dx=ChebyshevInterval();dt=Interval(0,0.2)
         d=dx×dt
@@ -299,25 +269,6 @@ import ApproxFun: resizedata!, CachedOperator, RaggedMatrix, testbandedblockband
         V=B+C*x
         u=\([timedirichlet(d);Dt-ε*Dx^2-V*Dx],[f;zeros(3)];tolerance=1E-7)
         @test u(.1,.2) ≈ 0.46810331039791464
-    end
-
-    @testset "Laplace in a strip" begin
-        d=PeriodicSegment() × ChebyshevInterval()
-        g=Fun((x,y)->real(cos(x+im*y)),∂(d))  # boundary data
-
-
-        @test g(0.1,1.0) ≈ real(cos(0.1+im))
-        @test g(0.1,-1.0) ≈ real(cos(0.1-im))
-        v=[g;0]
-        @test v(0.1,-1) ≈ [real(cos(0.1-im));0]
-
-        A=[Dirichlet(d);Laplacian(d)]
-        a = space(v)
-        b = rangespace(A)
-
-        @test Fun(component(v[1],1), component(b[1],1))(0.1,-1.0) ≈ v(0.1,-1.0)[1]
-        @test Fun(component(v[1],2), component(b[1],2))(0.1,-1.0) ≈ v(0.1,-1.0)[1]
-        @test ApproxFun.default_Fun(v[1] , b[1])(0.1,1.0) ≈ v(0.1,1.0)[1]
     end
 
     @testset "concatenate InterlaceOperator" begin

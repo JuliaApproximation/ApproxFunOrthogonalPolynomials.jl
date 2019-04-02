@@ -38,7 +38,6 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, LazyArray
         @test ≈(u(0.),airyai(0.);atol=10ncoefficients(u)*eps())
 
         B=Neumann(d);
-        @which B.op[1,2]
         A=[B;D2-X];
         b=[[airyaiprime(leftendpoint(d)),airyaiprime(rightendpoint(d))],0.];
 

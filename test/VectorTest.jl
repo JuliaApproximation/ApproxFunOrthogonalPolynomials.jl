@@ -75,55 +75,6 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LazyArrays, FillArrays, Lin
         @test (m+I)(0.1) ≈ m(0.1)+I
     end
 
-    @testset "CosSpace Vector" begin
-        a = [1 2; 3 4]
-        f = Fun(θ->[1,cos(θ)],CosSpace())
-        @test (a*f)(0.1) ≈ [1+2cos(0.1); 3+4cos(0.1)]
-        @test (a*f)(0.1) ≈ a*f(0.1)
-        @test Fun(a)*f ≈ a*f
-        @test Fun(a*Array(f)) ≈ a*f
-    end
-
-    @testset "CosSpace Matrix" begin
-        a = [1 2; 3 4]
-        m = Fun(θ->[1 cos(θ); cos(2θ) cos(cos(θ))],CosSpace())
-        @test (a*m)(0.1) ≈ a*m(0.1)
-        @test (m*a)(0.1) ≈ m(0.1)*a
-        @test Fun(a)*m   ≈ a*m
-        @test Fun(a*Array(m))   ≈ a*m
-
-        @test (a+m)(0.1) ≈ a+m(0.1)
-        @test (m+a)(0.1) ≈ m(0.1)+a
-
-        @test (m+I)(0.1) ≈ m(0.1)+I
-    end
-
-    @testset "SinSpace Vector" begin
-        a = [1 2; 3 4]
-        f = Fun(θ->[sin(θ),sin(2θ)],SinSpace())
-        @test (a*f)(0.1) ≈ a*f(0.1)
-        @test Fun(a)*f ≈ a*f
-        @test Fun(a*Array(f)) ≈ a*f
-
-        @test all(sp -> sp isa SinSpace, space(a*f).spaces)
-    end
-
-    @testset "CosSpace Matrix" begin
-        a = [1 2; 3 4]
-        m = Fun(θ->[sin(3θ) sin(θ); sin(2θ) sin(sin(θ))],SinSpace())
-        @test (a*m)(0.1) ≈ a*m(0.1)
-        @test (m*a)(0.1) ≈ m(0.1)*a
-        @test Fun(a)*m   ≈ a*m
-        @test Fun(a*Array(m))   ≈ a*m
-
-        @test all(sp -> sp isa SinSpace, space(a*m).spaces)
-
-        @test (a+m)(0.1) ≈ a+m(0.1)
-        @test (m+a)(0.1) ≈ m(0.1)+a
-
-        @test (m+I)(0.1) ≈ m(0.1)+I
-end
-
     @testset "Matrix{Fun}*Matrix{Fun}" begin
     # note that 2x2 and 3x3 mult are special cases
         x=Fun()
@@ -220,71 +171,7 @@ end
         @test norm((([1 2;3 4]*f)-Fun(t->[t^2+2sin(t),3t^2+4sin(t)])).coefficients)<100eps()
     end
 
-    @testset "Two circles" begin
-        Γ = Circle() ∪ Circle(0.5)
-
-        f = Fun(z -> in(z,component(Γ,2)) ? 1 : z,Γ)
-        @test f(exp(0.1im)) ≈ exp(0.1im)
-        @test f(0.5exp(0.1im)) ≈ 1
-
-        G = Fun(z -> in(z,component(Γ,2)) ? [1 -z^(-1); 0 1] :
-                                            [z 0; 0 z^(-1)], Γ);
-
-        @test G(exp(0.1im)) ≈ [exp(0.1im) 0 ; 0 exp(-0.1im)]
-        @test G(0.5exp(0.1im)) ≈ [1 -2exp(-0.1im) ; 0 1]
-
-        G1=Fun(Array(G)[:,1])
-
-        @test G1(exp(0.1im)) ≈ [exp(0.1im),0.]
-        @test G1(0.5exp(0.1im)) ≈ [1,0.]
-
-        M = Multiplication(G, space(G1))
-        testblockbandedoperator(M)
-
-        for z in (0.5exp(0.1im),exp(0.2im))
-            @test G[1,1](z) ≈ G[1](z)
-            @test (M.op.ops[1,1]*G1[1])(z) ≈ M.f[1,1](z)*G1[1](z)
-            @test (M.op.ops[2,1]*G1[1])(z) ≈ M.f[2,1](z)*G1[1](z)
-            @test (M.op.ops[1,2]*G1[2])(z) ≈ M.f[1,2](z)*G1[2](z)
-            @test (M.op.ops[2,2]*G1[2])(z) ≈ M.f[2,2](z)*G1[2](z)
-        end
-
-        u = M*G1
-        @test norm(u(exp(.1im))-[exp(.2im),0])<100eps()
-        @test norm(u(.5exp(.1im))-[1,0])<100eps()
-    end
-
-    @testset "Circle" begin
-        G = Fun(z->[-1 -3; -3 -1]/z +
-                   [ 2  2;  1 -3] +
-                   [ 2 -1;  1  2]*z, Circle())
-
-        @test G[1,1](exp(0.1im)) == G(exp(0.1im))[1,1]
-
-        F̃ = Array((G-I)[:,1])
-        F = (G-I)[:,1]
-
-        @test Fun(F) ≡ F
-
-        @test F(exp(0.1im)) ≈ [-exp(-0.1im)+1+2exp(0.1im);-3exp(-0.1im)+1+1exp(0.1im)]
-        @test Fun(F̃,space(F))(exp(0.1im)) ≈ [-exp(-0.1im)+1+2exp(0.1im);-3exp(-0.1im)+1+1exp(0.1im)]
-
-        @test coefficients(F̃,space(F)) == F.coefficients
-        @test Fun(F̃,space(F)) == F
-
-        @test F == Fun(vec(F),space(F))
-
-        @test inv(G(exp(0.1im))) ≈ inv(G)(exp(0.1im))
-
-        @test Fun(Matrix(I,2,2),space(G))(exp(0.1im)) ≈ Matrix(I,2,2)
-        @test Fun(I,space(G))(exp(0.1im)) ≈ Matrix(I,2,2)
-    end
-
     @testset "Conversion" begin
-        f=Fun(t->[cos(t) 0;sin(t) 1],-π..π)
-        g=Fun(f,Space(PeriodicSegment(-π,π)))
-        @test g(.1) ≈ f(.1)
-
         a = ArraySpace(JacobiWeight(1/2,1/2, Chebyshev()), 2)
         b = ArraySpace(JacobiWeight(1/2,1/2, Ultraspherical(1)), 2)
         C = Conversion(a, b)

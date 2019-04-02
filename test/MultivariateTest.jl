@@ -222,28 +222,6 @@ using ApproxFun, LinearAlgebra, SpecialFunctions, Test
         testbandedblockbandedoperator(L)
     end
 
-    @testset "Bug in Multiplication" begin
-        dom = Interval(0.001, 1) × PeriodicSegment(-pi, pi)
-
-        @test blocklengths(Space(dom)) == 2:2:∞
-
-        r,r2 = Fun((r,t) -> [r;r^2], dom)
-
-        @test r(0.1,0.2) ≈ 0.1
-        @test r2(0.1,0.2) ≈ 0.1^2
-
-        sp = Space(dom)
-        Dr = Derivative(sp, [1,0])
-        @test ApproxFun.blockbandwidths(Dr) == (-1,1)
-        @test ApproxFun.subblockbandwidths(Dr)  == (1,3)
-
-        Dθ = Derivative(sp, [0,1])
-        Mr = Multiplication(Fun( (r, θ) -> r, sp ), sp)
-        rDr = Mr * Dr
-
-        testbandedblockbandedoperator(rDr)
-    end
-
     @testset "Cheby * Interval" begin
         d = ChebyshevInterval()^2
         x,y = Fun(∂(d))
@@ -255,12 +233,6 @@ using ApproxFun, LinearAlgebra, SpecialFunctions, Test
         @test (x+im*y)(1.0,0.1) ≈ 1+0.1im
 
         @test exp(x+im*y)(1.0,0.1) ≈ exp(1.0+0.1im)
-    end
-
-
-    @testset "Taylor()^2, checks bug in type of plan_transform" begin
-        f = Fun((x,y)->exp((x-0.1)*cos(y-0.2)),Taylor()^2)
-        @test f(0.2,0.3) ≈ exp(0.1*cos(0.1))
     end
 
     @testset "DefiniteIntegral" begin
@@ -297,10 +269,6 @@ using ApproxFun, LinearAlgebra, SpecialFunctions, Test
 
     @testset "off domain evaluate" begin
         g = Fun(1, Segment(Vec(0,-1) , Vec(π,-1)))
-        @test g(0.1,-1) ≈ 1
-        @test g(0.1,1) ≈ 0
-
-        g = Fun(1, PeriodicSegment(Vec(0,-1) , Vec(π,-1)))
         @test g(0.1,-1) ≈ 1
         @test g(0.1,1) ≈ 0
     end

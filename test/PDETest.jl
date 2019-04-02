@@ -80,26 +80,6 @@ using ApproxFun, LinearAlgebra, Test
         @test u(0.1,0.2) ≈ 1.0
     end
 
-    @testset "Periodic x Interval" begin
-        d=PeriodicSegment() × ChebyshevInterval()
-
-        u_ex=Fun((x,y)->real(cos(x+im*y)),d)
-        @test u_ex(1.0,0.1) ≈ real(cos(1.0+im*0.1)) atol=10eps()
-
-        B=Dirichlet(Space(d))
-
-        @test B.order == 0  # tests stupid bug
-        g=Fun((x,y)->real(cos(x+im*y)),rangespace(B))  # boundary data
-
-        @test norm((B*u_ex-g).coefficients) < 100eps()
-
-        testbandedblockbandedoperator(Laplacian(d))
-
-        @time u=[B;Laplacian(d)]\[g;0.]
-
-        @test u(.1,.2) ≈ real(cos(.1+.2im))
-    end
-
     @testset "Schrodinger" begin
         dx=0..1; dt=0.0..0.001
         C=Conversion(Chebyshev(dx)*Ultraspherical(1,dt),Ultraspherical(2,dx)*Ultraspherical(1,dt))

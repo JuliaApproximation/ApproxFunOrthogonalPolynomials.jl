@@ -161,16 +161,6 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
         @test f(0.1) ≈ (C*f)(0.1)
     end
 
-    @testset "Piecewise + Constant" begin
-        Γ=Circle() ∪ Circle(0.0,0.4)
-        o=ones(Γ)
-        @test o(1.) ≈ 1.0
-        @test o(0.4) ≈ 1.0
-
-        @time G=Fun(z->in(z,component(Γ,2)) ? [1 0; -1/z 1] : [z 0; 0 1/z],Γ)
-        @test (G-I)(exp(0.1im)) ≈ (G(exp(0.1im))-I)
-    end
-
     @testset "Previoius segfault" begin
         x=Fun(identity,-1..1)
         @time f=x+sin(2x)*sqrt(1-x^2)
@@ -223,19 +213,7 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
         @test exp(z)(0.1exp(0.2im)) ≈ exp(0.1exp(0.2im))
     end
 
-    @testset "Extending function" begin
-        Γ = Segment(-im,1.0-im) ∪ Curve(Fun(x->exp(0.8im)*(x+x^2-1+im*(x-4x^3+x^4)/6))) ∪ Circle(2.0,0.2)
-
-        @test isempty(component(Γ,1)\component(Γ,1))
-        @test Γ \ component(Γ,1) == component(Γ,2) ∪ component(Γ,3)
-
-        @test norm(Fun(ones(component(Γ,1)),Γ) - Fun(x->x ∈ component(Γ,1) ? 1.0 : 0.0,Γ)) == 0
-    end
-
     @testset "Line" begin
-        f=Fun(z->2exp(z^2),PeriodicLine(0.,π/2))
-        @test f(1.1im) ≈ 2exp(-1.1^2)
-
         f=Fun(z->2exp(z^2),Line(0.,π/2))
         @test f(1.1im) ≈ 2exp(-1.1^2)
     end

@@ -117,20 +117,6 @@ using ApproxFun, IntervalSets, SpecialFunctions, LinearAlgebra, Random, Test
             @test f'(0.1) ≈ -2*0.1exp(-0.1^2)
             @test (Derivative()*f)(0.1) ≈ -2*0.1exp(-0.1^2)
         end
-
-        @testset "PeriodicLine" begin
-            d=PeriodicLine()
-            D=Derivative(d)
-
-            f = Fun(x->sech(x-0.1),d,200)
-            @test f(1.) ≈ sech(1-0.1)
-
-            f=Fun(x->sech(x-0.1),d)
-            @test f(1.) ≈ sech(1-0.1)
-
-            @test ≈((D*f)(.2),-0.0991717226583897;atol=100000eps())
-            @test ≈((D^2*f)(.2),-0.9752522555114987;atol=1000000eps())
-        end
     end
 
     @testset "LogWeight" begin
