@@ -9,8 +9,6 @@ include("runtests.jl")
 @time include("SpacesTest.jl")
 
 
-@time include("FractionalTest.jl")
-
 @testset "Full Operator" begin
     S=Chebyshev()
     @time for io in (
@@ -41,7 +39,7 @@ include("runtests.jl")
 
         D=Derivative(S)
 
-        Z=ApproxFun.ZeroOperator(ApproxFun.ConstantSpace())
+        Z=ApproxFunBase.ZeroOperator(ApproxFunBase.ConstantSpace())
 
         testfunctional(Evaluation(S,0))
         testfunctional(Evaluation(S,ω)-Evaluation(S,0))
@@ -52,11 +50,11 @@ include("runtests.jl")
                              u''(ω)   Evaluation(S,ω,1)-Evaluation(S,0,1);
                               0         D^2+I+3u^2]
 
-        ApproxFun.backend_testinfoperator(A)
+        ApproxFunBase.backend_testinfoperator(A)
 
         DS=WeightedJacobi(0.1+1,0.2+1)
         D=Derivative(DS)[2:end,:]
-        @time ApproxFun.testbandedoperator(D)
+        @time ApproxFunBase.testbandedoperator(D)
     end
 end
 
@@ -176,8 +174,8 @@ end
     C=Conversion(Ultraspherical(1//2),Ultraspherical(1))
     @time testbandedbelowoperator(C)
 
-    λ1 = ApproxFun.order(domainspace(C))
-    λ2 = ApproxFun.order(rangespace(C))
+    λ1 = ApproxFunBase.order(domainspace(C))
+    λ2 = ApproxFunBase.order(rangespace(C))
 
     # test against version that doesn't use lgamma
     Cex = Float64[(if j ≥ k && iseven(k-j)

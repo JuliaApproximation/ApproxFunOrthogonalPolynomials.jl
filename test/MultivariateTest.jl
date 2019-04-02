@@ -1,5 +1,5 @@
-using ApproxFun, LinearAlgebra, SpecialFunctions, Test
-    import ApproxFun: testbandedblockbandedoperator, testraggedbelowoperator, factor, Block, cfstype,
+using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunctions, BlockBandedMatrices, Test
+    import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, factor, Block, cfstype,
                         blocklengths, block, tensorizer, Vec, ArraySpace, ∞,
                         testblockbandedoperator
 
@@ -82,8 +82,8 @@ using ApproxFun, LinearAlgebra, SpecialFunctions, Test
     @testset  "Vec segment" begin
         d = Segment(Vec(0.,0.) , Vec(1.,1.))
         x = Fun()
-        @test (ApproxFun.complexlength(d)*x/2)(0.1)  ≈ (d.b - d.a)*0.1/2
-        @test ApproxFun.fromcanonical(d,x)(0.1) ≈ (d.b+d.a)/2 + (d.b - d.a)*0.1/2
+        @test (ApproxFunBase.complexlength(d)*x/2)(0.1)  ≈ (d.b - d.a)*0.1/2
+        @test ApproxFunBase.fromcanonical(d,x)(0.1) ≈ (d.b+d.a)/2 + (d.b - d.a)*0.1/2
 
         x,y = Fun(Segment(Vec(0.,0.) , Vec(2.,1.)))
         @test x(0.2,0.1) ≈ 0.2
@@ -121,7 +121,7 @@ using ApproxFun, LinearAlgebra, SpecialFunctions, Test
         My = Multiplication(Fun(sin),Chebyshev())
         K = Mx⊗My
 
-        @test ApproxFun.BandedBlockBandedMatrix(view(K,1:10,1:10)) ≈ [K[k,j] for k=1:10,j=1:10]
+        @test BandedBlockBandedMatrix(view(K,1:10,1:10)) ≈ [K[k,j] for k=1:10,j=1:10]
         C = Conversion(Chebyshev()⊗Chebyshev(),Ultraspherical(1)⊗Ultraspherical(1))
         @test C[1:100,1:100] ≈ Float64[C[k,j] for k=1:100,j=1:100]
     end
@@ -226,8 +226,8 @@ using ApproxFun, LinearAlgebra, SpecialFunctions, Test
         d = ChebyshevInterval()^2
         x,y = Fun(∂(d))
 
-        @test ApproxFun.rangetype(Space(∂(d))) == Float64
-        @test ApproxFun.rangetype(space(y)) == Float64
+        @test ApproxFunBase.rangetype(Space(∂(d))) == Float64
+        @test ApproxFunBase.rangetype(space(y)) == Float64
 
         @test (im*y)(1.0,0.1) ≈ 0.1im
         @test (x+im*y)(1.0,0.1) ≈ 1+0.1im

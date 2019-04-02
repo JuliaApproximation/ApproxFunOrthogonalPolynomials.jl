@@ -1,5 +1,5 @@
-using ApproxFun, Test
-    import ApproxFun: Block, BlockBandedMatrix
+using ApproxFunOrthogonalPolynomials, Test
+    import ApproxFunOrthogonalPolynomials: Block, BlockBandedMatrix
 
 ## PDEs
 
@@ -10,11 +10,11 @@ S = JacobiWeight(1.,1.,Jacobi(1.,1.))^2
 f = Fun((x,y)->sin(π*x)*sin(π*y),S)
 
 QR1=qr(Δ)
-    ApproxFun.resizedata!(QR1,:,400)
+ApproxFunBase.resizedata!(QR1,:,400)
     \(QR1,f; tolerance=1E-10)
 QR1=qr(Δ)
     @time Δ[Block.(1:40), Block.(1:40)]
-    @time ApproxFun.resizedata!(QR1,:,400)
+    @time ApproxFunBase.resizedata!(QR1,:,400)
     @time \(QR1,f; tolerance=1E-10)
 println("Laplace Dirichlet: should be ~0.015, 0.015, 0.001")
 
@@ -23,11 +23,11 @@ A=[Dirichlet(d); Laplacian(d)]
 f=Fun((x,y)->real(exp(x+im*y)),∂(d))
 
 QR=qr(A)
-    ApproxFun.resizedata!(QR,:,150)
+ApproxFunBase.resizedata!(QR,:,150)
     \(QR,[f; 0.];tolerance=1E-10)
 
 QR=qr(A)
-    @time ApproxFun.resizedata!(QR,:,150)
+    @time ApproxFunBase.resizedata!(QR,:,150)
     @time u=\(QR,[f; 0.];tolerance=1E-10)
 
 println("Laplace: should be ~0.06, 0.001")

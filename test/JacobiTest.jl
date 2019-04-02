@@ -1,7 +1,8 @@
-using ApproxFun, Test, StaticArrays, SpecialFunctions, LinearAlgebra
-    import ApproxFun: testbandedbelowoperator, testbandedoperator, testspace, testtransforms, Vec,
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, Test, StaticArrays, SpecialFunctions, LinearAlgebra, InfiniteArrays
+    import ApproxFunBase: testbandedbelowoperator, testbandedoperator, testspace, testtransforms, Vec,
                         maxspace, NoSpace, hasconversion, testfunctional,
-                        jacobip, reverseorientation, ReverseOrientation
+                        reverseorientation, ReverseOrientation
+    import ApproxFunOrthogonalPolynomials: jacobip
 
 @testset "Jacobi" begin
     @testset "Basic" begin
@@ -138,10 +139,10 @@ using ApproxFun, Test, StaticArrays, SpecialFunctions, LinearAlgebra
     @testset "subspace bug" begin
         f=Fun(WeightedJacobi(0.1,0.2),rand(10))  # convert to Legendre expansion
 
-        g=(f|(2:ApproxFun.∞))
+        g=(f|(2:∞))
 
-        @test ApproxFun.coefficients(g.coefficients,space(g),ApproxFun.canonicalspace(g))[1] ==0.
-        @test norm((Fun(g,space(f))|(2:ApproxFun.∞)-g).coefficients) < 10eps()
+        @test ApproxFunBase.coefficients(g.coefficients,space(g),ApproxFunBase.canonicalspace(g))[1] ==0.
+        @test norm((Fun(g,space(f))|(2:∞)-g).coefficients) < 10eps()
     end
 
     @testset "conversion for non-compatible paramters" begin
@@ -150,7 +151,7 @@ using ApproxFun, Test, StaticArrays, SpecialFunctions, LinearAlgebra
 
         p=(S,k)->Fun(S,[zeros(k);1.])
         n=1;
-        @test norm(x*p(S,n-1)-(ApproxFun.recα(Float64,S,n)*p(S,n-1) + ApproxFun.recβ(Float64,S,n)*p(S,n))) < 10eps()
+        @test norm(x*p(S,n-1)-(ApproxFunOrthogonalPolynomials.recα(Float64,S,n)*p(S,n-1) + ApproxFunOrthogonalPolynomials.recβ(Float64,S,n)*p(S,n))) < 10eps()
     end
 
     @testset "Log with squareroot singularities" begin
@@ -239,7 +240,7 @@ using ApproxFun, Test, StaticArrays, SpecialFunctions, LinearAlgebra
         for S in (WeightedJacobi(0,0), JacobiWeight(0,0, Legendre(1.1..2.3)), Legendre())
             B = DefiniteIntegral(S)
             testfunctional(B)
-            @test ApproxFun.rowstop(B,1) == 1
+            @test ApproxFunBase.rowstop(B,1) == 1
             B[1] == arclength(domain(S))
             f = Fun(exp, S)
             B*f == sum(Fun(exp,domain(S)))

@@ -1,5 +1,5 @@
-using ApproxFun, SpecialFunctions, Test
-    import ApproxFun: testbandedoperator
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, Test
+    import ApproxFunBase: testbandedoperator
 
 @testset "Hermite and GaussWeight" begin
     @testset "Evaluation" begin
@@ -23,7 +23,7 @@ using ApproxFun, SpecialFunctions, Test
         w̃ = Fun(Hermite(2), [1.0,2.0,3.0]);
         @test w(0.1) == w̃(0.1)
 
-        @test ApproxFun.Recurrence(Hermite())[1:10,1:10]/sqrt(2) ≈ ApproxFun.Recurrence(Hermite(2))[1:10,1:10]
+        @test ApproxFunOrthogonalPolynomials.Recurrence(Hermite())[1:10,1:10]/sqrt(2) ≈ ApproxFunOrthogonalPolynomials.Recurrence(Hermite(2))[1:10,1:10]
 
         @test points(Hermite(),10) == sqrt(2)points(Hermite(2),10)
 

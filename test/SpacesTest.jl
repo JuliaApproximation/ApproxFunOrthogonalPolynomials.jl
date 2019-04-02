@@ -1,17 +1,11 @@
-using ApproxFun, SpecialFunctions, LinearAlgebra, Test
+using ApproxFunOrthogonalPolynomials, SpecialFunctions, LinearAlgebra, Test
     import DomainSets
     import DomainSets: UnionDomain
-    import ApproxFun: ChebyshevDirichlet, Ultraspherical, PiecewiseSegment, ContinuousSpace, space, SpaceOperator,
+    import ApproxFunBase: space, SpaceOperator,
                         testspace, testbandedoperator, testraggedbelowoperator, testcalculus, testtransforms,
                         testfunctional
 
 @testset "Spaces" begin
-    @testset "Chebyshev and Fourier" begin
-        @test norm(Fun(x->Fun(cos,Fourier(-π .. π),20)(x),20)-Fun(cos,20)) <100eps()
-        @test norm(Fun(x->Fun(cos,Fourier(-π .. π))(x))-Fun(cos)) <100eps()
-        @test norm(Fun(x->Fun(cos,Laurent)(x))-Fun(cos)) <100eps()
-    end
-
     @testset "ChebyshevDirichlet" begin
         testtransforms(ChebyshevDirichlet{1,1}())
 
@@ -131,9 +125,9 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
 
         # narrow down bug
         @test s isa ContinuousSpace
-        @test ApproxFun.rangetype(s) == Float64
-        cs=ApproxFun.canonicalspace(s)
-        @test ApproxFun.rangetype(cs) == Float64
+        @test ApproxFunBase.rangetype(s) == Float64
+        cs=ApproxFunBase.canonicalspace(s)
+        @test ApproxFunBase.rangetype(cs) == Float64
 
         @test conversion_type(s,cs) == s
 
@@ -220,7 +214,7 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
 
     @testset "Exp Curve" begin
         a = 1+10*im; b = 2-6*im
-        d = Curve(Fun(x->1+a*x+x^2+b*x^3))
+        d = IntervalCurve(Fun(x->1+a*x+x^2+b*x^3))
 
         x=Fun(d)
 
@@ -230,7 +224,7 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
     @testset "ChebyshevDirichlet multiplication" begin
         S=ChebyshevDirichlet()
         x=Fun()
-        @test norm((ApproxFun.Recurrence(S)*Fun(exp,S)-Fun(x->x*exp(x),S)).coefficients) < 100eps()
+        @test norm((ApproxFunOrthogonalPolynomials.Recurrence(S)*Fun(exp,S)-Fun(x->x*exp(x),S)).coefficients) < 100eps()
         @test norm((x*Fun(exp,S)-Fun(x->x*exp(x),S)).coefficients) < 100eps()
 
         @test Integral(S,1)*Fun(S,[1.,2.,3.]) ≈ integrate(Fun(Fun(S,[1.,2.,3.]),Chebyshev()))
@@ -245,7 +239,7 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
             QS = QuotientSpace(B)
             A = Conversion(QS, S)
 
-            @test norm(B[1:size(B,1),1:10]*A[1:10,1:10-size(B,1)]) < 1000eps()
+            @test norm(B[1:size(B,1),1:10]*A[1:10,1:10-size(B,1)]) < 10000eps()
         end
     end
 
@@ -268,14 +262,14 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
         g = Fun(exp)
 
 
-        @test ApproxFun.hasfasttransform(f)
-        @test ApproxFun.pointscompatible(f,g)
-        @test ApproxFun.hasfasttransformtimes(f,g)
-        @test ApproxFun.transformtimes(f,g)(0.1) ≈ exp(0.2)
+        @test ApproxFunBase.hasfasttransform(f)
+        @test ApproxFunBase.pointscompatible(f,g)
+        @test ApproxFunBase.hasfasttransformtimes(f,g)
+        @test ApproxFunBase.transformtimes(f,g)(0.1) ≈ exp(0.2)
     end
 
     @testset "PointSpace" begin
-        δ = Fun(ApproxFun.PointSpace([2.0]),[1.0])
+        δ = Fun(ApproxFunBase.PointSpace([2.0]),[1.0])
         f = Fun(x->cos(50x)) + δ
         g = Fun(x->cos(50x),Ultraspherical(1)) + δ
         @test domain(f) == domain(g)
@@ -316,14 +310,9 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
         @test o(0.5) ≈ 1
     end
 
-    @testset "blockbandwidths for FiniteOperator of pointscompatibleace bug" begin
-        S = ApproxFun.PointSpace([1.0,2.0])
-        @test ApproxFun.blockbandwidths(FiniteOperator([1 2; 3 4],S,S)) == (0,0)
-    end
-
     @testset "SumSpace Conversion" begin
-        H = ApproxFun.HeavisideSpace([-1.0,0.0,1.0])
-        C = ApproxFun.ContinuousSpace(ApproxFun.PiecewiseSegment([-1.0,0,1]))
+        H = ApproxFunBase.HeavisideSpace([-1.0,0.0,1.0])
+        C = ContinuousSpace(ApproxFunBase.PiecewiseSegment([-1.0,0,1]))
         S = H + C
         P = Ultraspherical(1,Segment(-1.0,0.0)) ∪ Ultraspherical(1,Segment(0.0,1.0))
         f = Fun(S, randn(100))
@@ -335,30 +324,13 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
         @test Conversion(S,P)[1,2] == 0.5
         @test rangespace(Conversion(S,P)) == Ultraspherical(1,Segment(-1.0,0.0)) ∪ Ultraspherical(1,Segment(0.0,1.0))
         @test domainspace(Conversion(S,P)) ==
-            ApproxFun.SumSpace(ApproxFun.HeavisideSpace([-1.0,0.0,1.0]),
-                    ApproxFun.ContinuousSpace(ApproxFun.PiecewiseSegment([-1.0,0,1])))
+        ApproxFunBase.SumSpace(ApproxFunBase.HeavisideSpace([-1.0,0.0,1.0]),
+            ContinuousSpace(ApproxFunBase.PiecewiseSegment([-1.0,0,1])))
 
-        D = ApproxFun.DiracSpace([-1.0,0.0,1.0])
-        S2 = ApproxFun.SumSpace(D , P)
+        D = ApproxFunBase.DiracSpace([-1.0,0.0,1.0])
+        S2 = ApproxFunBase.SumSpace(D , P)
         f = Fun(S, randn(100))
         @test (Conversion(S,S2) * f)(0.1) ≈ f(0.1)
-    end
-
-    @testset "Mix Fourier-Chebyshev (#602)" begin
-        s = Chebyshev(-π..π)
-        a = Fun(t-> 1+sin(cos(2t)), s)
-        L = Derivative() + a
-        f = Fun(t->exp(sin(10t)), s)
-        B = periodic(s,0)
-        @time uChebyshev = [B;L] \ [0.;f]
-
-        s = Fourier(-π..π)
-        a = Fun(t-> 1+sin(cos(2t)), s)
-        L = Derivative() + a
-        f = Fun(t->exp(sin(10t)), s)
-        @time uFourier = L\f
-
-        @test norm(uFourier-uChebyshev) ≤ 100eps()
     end
 
     @testset "real line integral" begin
@@ -396,14 +368,5 @@ using ApproxFun, SpecialFunctions, LinearAlgebra, Test
         @test ncoefficients(g) == 3
         @test g(0.1) ≈ 0.2
         @test g(-0.2) ≈ 0.0
-    end
-
-    @testset "piecewise sample (#635)" begin
-        f = abs(Fun(sin, -5..5))
-        @test integrate(f)(-4.0) ≈ -(cos(-4.0) - cos(-5.0))
-        @test -(cos(-π) - cos(-5.0)) + cos(-3.0) - cos(-π) ≈ integrate(f)(-3.0)
-        r = ApproxFun.sample(f,10)
-        @test maximum(r) ≤ 5
-        @test minimum(r) ≥ -5
     end
 end

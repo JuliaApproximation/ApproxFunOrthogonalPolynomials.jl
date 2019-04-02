@@ -171,9 +171,9 @@ import ApproxFun: resizedata!, CachedOperator, RaggedMatrix, testbandedblockband
 
         KO=Δ.op.ops[1].ops[1].op
 
-        M=ApproxFun.BandedBlockBandedMatrix(view(KO,1:4,1:4))
-        @test norm(ApproxFun.BandedBlockBandedMatrix(view(KO,1:4,2:4))-M[:,2:4]) < 10eps()
-        @test norm(ApproxFun.BandedBlockBandedMatrix(view(KO,1:4,3:4))-M[:,3:4]) < 10eps()
+        M=BandedBlockBandedMatrix(view(KO,1:4,1:4))
+        @test norm(BandedBlockBandedMatrix(view(KO,1:4,2:4))-M[:,2:4]) < 10eps()
+        @test norm(BandedBlockBandedMatrix(view(KO,1:4,3:4))-M[:,3:4]) < 10eps()
     end
 
 
@@ -181,52 +181,52 @@ import ApproxFun: resizedata!, CachedOperator, RaggedMatrix, testbandedblockband
         d=ChebyshevInterval()^2
         A=[Dirichlet(d);Laplacian()+100I]
         QRR = qr(A)
-        @time ApproxFun.resizedata!(QRR.R_cache,:,2000)
+        @time ApproxFunBase.resizedata!(QRR.R_cache,:,2000)
         @test norm(QRR.R_cache.data[1:200,1:200] - A[1:200,1:200]) ==0
 
-        @time ApproxFun.resizedata!(QRR,:,200)
+        @time ApproxFunBase.resizedata!(QRR,:,200)
         j=56
         v=QRR.R_cache.op[1:100,j]
         @test norm(ldiv_coefficients(QRR.Q,v;maxlength=300)[j+1:end]) < 100eps()
 
         j=195
-        v=QRR.R_cache.op[1:ApproxFun.colstop(QRR.R_cache.op,j),j]
+        v=QRR.R_cache.op[1:ApproxFunBase.colstop(QRR.R_cache.op,j),j]
         @test norm(ldiv_coefficients(QRR.Q,v;maxlength=1000)[j+1:end]) < 100eps()
 
 
         j=300
-        v=QRR.R_cache.op[1:ApproxFun.colstop(QRR.R_cache.op,j),j]
+        v=QRR.R_cache.op[1:ApproxFunBase.colstop(QRR.R_cache.op,j),j]
         @test norm(ldiv_coefficients(QRR.Q,v;maxlength=1000)[j+1:end]) < j*20eps()
 
-        @test ApproxFun.colstop(QRR.R_cache.op,195)-194 == ApproxFun.colstop(QRR.H,195)
+        @test ApproxFunBase.colstop(QRR.R_cache.op,195)-194 == ApproxFunBase.colstop(QRR.H,195)
 
 
         QR1 = qr(A)
-        @time ApproxFun.resizedata!(QR1.R_cache,:,1000)
+        @time ApproxFunBase.resizedata!(QR1.R_cache,:,1000)
         QR2 = qr([Dirichlet(d);Laplacian()+100I])
-        @time ApproxFun.resizedata!(QR2.R_cache,:,500)
+        @time ApproxFunBase.resizedata!(QR2.R_cache,:,500)
         n=450;QR1.R_cache.data[1:n,1:n]-QR2.R_cache.data[1:n,1:n]|>norm
-        @time ApproxFun.resizedata!(QR2.R_cache,:,1000)
+        @time ApproxFunBase.resizedata!(QR2.R_cache,:,1000)
         N=450;QR1.R_cache.data[1:N,1:N]-QR2.R_cache.data[1:N,1:N]|>norm
         N=1000;QR1.R_cache.data[1:N,1:N]-QR2.R_cache.data[1:N,1:N]|>norm
 
         QR1 = qr(A)
-        @time ApproxFun.resizedata!(QR1,:,1000)
+        @time ApproxFunBase.resizedata!(QR1,:,1000)
         QR2 = qr([Dirichlet(d);Laplacian()+100I])
-        @time ApproxFun.resizedata!(QR2,:,500)
-        @time ApproxFun.resizedata!(QR2,:,1000)
+        @time ApproxFunBase.resizedata!(QR2,:,500)
+        @time ApproxFunBase.resizedata!(QR2,:,1000)
 
         @test norm(QR1.H[1:225,1:1000]-QR2.H[1:225,1:1000]) ≤ 10eps()
 
         QR1 = qr(A)
-        @time ApproxFun.resizedata!(QR1,:,5000)
+        @time ApproxFunBase.resizedata!(QR1,:,5000)
         @time u=\(QR1,[ones(∂(d));0.];tolerance=1E-7)
 
         @test norm((Dirichlet(d)*u-ones(∂(d))).coefficients) < 1E-7
         @test norm((A*u-Fun([ones(∂(d));0.])).coefficients) < 1E-7
         @test norm(((A*u)[2]-(Laplacian(space(u))+100I)*u).coefficients) < 1E-10
-        @test eltype(ApproxFun.promotedomainspace(Laplacian(),space(u))) == Float64
-        @test eltype(ApproxFun.promotedomainspace(Laplacian()+100I,space(u))) == Float64
+        @test eltype(ApproxFunBase.promotedomainspace(Laplacian(),space(u))) == Float64
+        @test eltype(ApproxFunBase.promotedomainspace(Laplacian()+100I,space(u))) == Float64
         @test norm(((A*u)[2]-(Laplacian()+100I)*u).coefficients) < 1E-10
         @test norm((Laplacian()*u+100*u - (A*u)[2]).coefficients) < 10E-10
         @time v=\(A,[ones(∂(d));0.];tolerance=1E-7)
@@ -282,9 +282,9 @@ import ApproxFun: resizedata!, CachedOperator, RaggedMatrix, testbandedblockband
         Dx=Derivative(s);Dt=Derivative(dt)
         Bx=[ldirichlet(s);continuity(s,0)]
 
-        @test ApproxFun.rangetype(rangespace(continuity(s,0))) == Vector{Float64}
-        @test ApproxFun.rangetype(rangespace(Bx)) == Vector{Any}
-        @test ApproxFun.rangetype(rangespace(Bx⊗Operator(I,Chebyshev()))) == Vector{Any}
+        @test ApproxFunBase.rangetype(rangespace(continuity(s,0))) == Vector{Float64}
+        @test ApproxFunBase.rangetype(rangespace(Bx)) == Vector{Any}
+        @test ApproxFunBase.rangetype(rangespace(Bx⊗Operator(I,Chebyshev()))) == Vector{Any}
 
         rhs = Fun([0,[0,[0,0]],0],rangespace([I⊗ldirichlet(dt);Bx⊗I;I⊗Dt+(a*Dx)⊗I]))
         @test rhs(-0.5,0.0) == [0,[0,[0,0]],0]

@@ -222,7 +222,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LazyArrays, FillArrays, Lin
 
         f=Fun(exp,d)
         @test norm((B_row*[f;f;f;f])[1]) ≤ 1000eps()
-        @test B_row isa ApproxFun.MatrixInterlaceOperator
+        @test B_row isa ApproxFunBase.MatrixInterlaceOperator
 
         @test size([B_row;B_row].ops) == (2,4)
 
@@ -231,7 +231,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LazyArrays, FillArrays, Lin
         n=4
         Dg = Operator(diagm(0 => fill(ldirichlet(d),n)))
 
-        @test Dg isa ApproxFun.MatrixInterlaceOperator
+        @test Dg isa ApproxFunBase.MatrixInterlaceOperator
         @test size([Dg; B_row].ops) == (5,4)
 
         L = [Dg; B_row]

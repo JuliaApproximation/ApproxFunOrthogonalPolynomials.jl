@@ -266,14 +266,6 @@ extrema(f::Fun{ContinuousSpace{T,R},T}) where {T<:Real,R<:Real} =
     mapreduce(extrema,(x,y)->extrema([x...;y...]),components(f))
 
 
-
-
-
-
-## Root finding for Laurent expansion
-
-
-
 function roots(f::Fun{P}) where P<:ContinuousSpace
     rts=mapreduce(roots,vcat,components(f))
     k=1

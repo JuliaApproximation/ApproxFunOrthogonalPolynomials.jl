@@ -1,4 +1,4 @@
-
+export ContinuousSpace
 
 struct ContinuousSpace{T,R} <: Space{PiecewiseSegment{T},R}
     domain::PiecewiseSegment{T}

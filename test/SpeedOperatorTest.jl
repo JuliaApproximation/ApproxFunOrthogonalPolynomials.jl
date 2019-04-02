@@ -1,4 +1,4 @@
-using ApproxFun, Test
+using ApproxFunOrthogonalPolynomials, Test
 
 
 d=Interval(-1000.,5.)

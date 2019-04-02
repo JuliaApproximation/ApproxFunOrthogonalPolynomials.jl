@@ -1,5 +1,5 @@
-using ApproxFun, SpecialFunctions, Test
-    import ApproxFun: ldiv_coefficients
+using ApproxFunOrthogonalPolynomials, SpecialFunctions, Test
+    import ApproxFunOrthogonalPolynomials: ldiv_coefficients
 
 ## ODEs
 
@@ -18,7 +18,7 @@ u=[Dirichlet(d);Derivative(d)^2-x]\[[1,0],0]
 println("Airy: 0.014356 seconds (1.08 k allocations: 8.015 MB)")
 
 M=cache([Dirichlet(d);Derivative(d)^2-x];padding=true)
-@time ApproxFun.resizedata!(M,12500,:)
+@time ApproxFunBase.resizedata!(M,12500,:)
 println("Airy construct op: 0.003200 seconds (131 allocations: 3.723 MiB)")
 
 S=Chebyshev()

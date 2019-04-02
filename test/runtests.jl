@@ -17,7 +17,6 @@ end
 @time include("LaguerreTest.jl")
 @time include("HermiteTest.jl")
 @time include("SingularitiesTest.jl")
-@time include("ETDRK4Test.jl")
+@time include("SpacesTest.jl")
 @time include("MultivariateTest.jl")
 @time include("PDETest.jl")
-@time include("ExtrasTest.jl")

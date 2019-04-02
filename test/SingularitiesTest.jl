@@ -1,5 +1,5 @@
-using ApproxFun, IntervalSets, SpecialFunctions, LinearAlgebra, Random, Test
-    import ApproxFun: HeavisideSpace, PointSpace, DiracSpace, PiecewiseSegment
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, IntervalSets, SpecialFunctions, LinearAlgebra, Random, Test
+    import ApproxFunBase: HeavisideSpace, PointSpace, DiracSpace, PiecewiseSegment
 
 
 @testset "Singularities" begin
@@ -143,7 +143,7 @@ using ApproxFun, IntervalSets, SpecialFunctions, LinearAlgebra, Random, Test
 
     @testset "Complex domains sqrt" begin
         a=1+10*im; b=2-6*im
-        d=Curve(Fun(x->1+a*x+b*x^2))
+        d = IntervalCurve(Fun(x->1+a*x+b*x^2))
 
         x=Fun(d)
         w=sqrt(abs(leftendpoint(d)-x))*sqrt(abs(rightendpoint(d)-x))
@@ -174,9 +174,9 @@ using ApproxFun, IntervalSets, SpecialFunctions, LinearAlgebra, Random, Test
         ## PointSpace
         f=Fun(x->(x-0.1),PointSpace([0,0.1,1]))
         g = f + Fun(2..3)
-        @test f(0.0) ≈ g(0.0) ≈ 1.0
-        @test f(0.1) ≈ g(0.1) ≈ 2.0
-        @test f(1.0) ≈ g(1.0) ≈ 3.0
+        @test f(0.0) ≈ g(0.0) ≈ -0.1
+        @test f(0.1) ≈ g(0.1) ≈ 0.0
+        @test f(1.0) ≈ g(1.0) ≈ 0.9
 
         @test g(2.3) ≈ 2.3
 
@@ -184,17 +184,6 @@ using ApproxFun, IntervalSets, SpecialFunctions, LinearAlgebra, Random, Test
 
         # for some reason this test is broken only on Travis
         @test_skip g/h ≈ f/a + Fun(1,2..3)
-    end
-
-    @testset "DiracDelta sampling" begin
-        δ = 0.3DiracDelta(0.1) + 3DiracDelta(2.3)
-        Random.seed!(0)
-        for _=1:10
-            @test sample(δ) ∈ [0.1, 2.3]
-        end
-        Random.seed!(0)
-        r = sample(δ, 10_000)
-        @test count(i -> i == 0.1, r)/length(r) ≈ 0.3/(3.3) atol=0.01
     end
 
     @testset "Multiple roots" begin

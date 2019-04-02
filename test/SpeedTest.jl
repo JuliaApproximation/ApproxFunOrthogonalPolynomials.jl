@@ -1,4 +1,4 @@
-using ApproxFun, Test
+using ApproxFunOrthogonalPolynomials, Test
 
 
 c = rand(1000)
@@ -21,14 +21,6 @@ println("Clenshaw large coeffs, 1 point: Time should be ~6e-6")
 
 # @time is 8.853e-6 seconds
 
-
-f=Fun(exp)
-x=sample(f,100000)
-x=sample(f,100000)
-@time x=sample(f,100000)
-println("Sample: Time should be ~0.13")
-# 0.213793292 with unsafe_view
-# 0.268162181 with inbounds
 
 
 f=Fun(x->cos(x),20)

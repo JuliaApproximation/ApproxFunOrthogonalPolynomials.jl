@@ -15,7 +15,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, IntervalSets, Random, Linea
 
         ⨍ = DefiniteLineIntegral(dom)
         S = domainspace(⨍)
-        @test ApproxFun.blockbandwidths(⨍) == (0,0)
+        @test ApproxFunBase.blockbandwidths(⨍) == (0,0)
 
         f = Fun(S,rand(20))
 
@@ -76,16 +76,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, IntervalSets, Random, Linea
 
         @test norm(u-usol) ≤ 200eps()
     end
-
-    @testset "definite integral" begin
-        Σ = DefiniteIntegral()
-
-        f1 = Fun(t->cos(cos(t)),-π..π)
-        f = Fun(t->cos(cos(t)),Laurent(-π..π))
-
-        @test sum(f1) ≈ Σ*f
-    end
-
+    
     @testset "arcs" begin
         d = exp(im*Segment(0.1,0.2))
         x = Fun(d)
@@ -134,7 +125,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, IntervalSets, Random, Linea
     end
 
     @testset "union domain" begin
-        dom = ApproxFun.UnionDomain(0..1, 2..3)
+        dom = ApproxFunBase.UnionDomain(0..1, 2..3)
         ⨍ = DefiniteLineIntegral(union(JacobiWeight.(-0.5,-0.5,ChebyshevDirichlet{1,1}.(components(dom)))...))
 
         x = Fun(dom)

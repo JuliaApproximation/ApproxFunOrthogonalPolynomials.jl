@@ -1,5 +1,5 @@
-using ApproxFun, LinearAlgebra, Test
-    import ApproxFun: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator, Block
+using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
+    import ApproxFunBase: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator, Block
 
 @testset "PDE" begin
     @testset "Zero Dirichlet" begin
@@ -12,14 +12,14 @@ using ApproxFun, LinearAlgebra, Test
         f = -2π^2*u
 
         F = qr(Δ)
-        ApproxFun.resizedata!(F,:,1000)
+        ApproxFunBase.resizedata!(F,:,1000)
         @time v=F\f
         @test norm((u-v).coefficients)<100eps()
 
 
         F=qr(Δ)
-        ApproxFun.resizedata!(F.R_cache,:,100)
-        ApproxFun.resizedata!(F.R_cache,:,1000)
+        ApproxFunBase.resizedata!(F.R_cache,:,100)
+        ApproxFunBase.resizedata!(F.R_cache,:,1000)
         @time v=F \ f
         @test norm((u-v).coefficients)<100eps()
 
@@ -109,6 +109,6 @@ using ApproxFun, LinearAlgebra, Test
         S = JacobiWeight(1.,1.,Jacobi(1.,1.))^2
         Δ = Laplacian(S)
         @time S = view(Δ.op.ops[1].ops[1].op,Block.(1:40), Block.(1:40))
-        @test typeof(S.parent.domaintensorizer) == ApproxFun.Trivial2DTensorizer
+        @test typeof(S.parent.domaintensorizer) == ApproxFunBase.Trivial2DTensorizer
     end
 end

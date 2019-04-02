@@ -1,6 +1,4 @@
-
-
-
+export IntervalCurve
 
 struct IntervalCurve{S<:Space,T,VT} <: SegmentDomain{T}
     curve::Fun{S,T,VT}
