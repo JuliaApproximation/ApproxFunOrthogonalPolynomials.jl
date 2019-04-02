@@ -1,3 +1,5 @@
+export LogWeight
+
 """
     LogWeight(β,α,s::Space)
 

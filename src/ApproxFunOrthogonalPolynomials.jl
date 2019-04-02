@@ -34,7 +34,7 @@ import ApproxFunBase: normalize!, flipsign, FiniteRange, Fun, MatrixFun, UnsetSp
                     Segment, IntervalOrSegmentDomain, PiecewiseSegment, isambiguous, Vec, eps, isperiodic,
                     arclength, complexlength,
                     invfromcanonicalD, fromcanonical, tocanonical, fromcanonicalD, tocanonicalD, canonicaldomain, setcanonicaldomain, mappoint,
-                    reverseorientation, checkpoints, evaluate, mul_coefficients, coefficients, isconvertible,
+                    reverseorientation, checkpoints, evaluate, extrapolate, mul_coefficients, coefficients, isconvertible,
                     clenshaw, ClenshawPlan, sineshaw,
                     toeplitz_getindex, toeplitz_axpy!, sym_toeplitz_axpy!, hankel_axpy!, ToeplitzOperator, SymToeplitzOperator, hankel_getindex, 
                     SpaceOperator, ZeroOperator, InterlaceOperator,
@@ -43,7 +43,7 @@ import ApproxFunBase: normalize!, flipsign, FiniteRange, Fun, MatrixFun, UnsetSp
                     chebmult_getindex, intpow, alternatingsum,
                     domaintype, diagindshift, rangetype, weight, isapproxinteger, default_Dirichlet, scal!, dotu,
                     components, promoterangespace, promotedomainspace,
-                    block, blockstart, blockstop, blocklengths, isblockbanded, pointscompatible
+                    block, blockstart, blockstop, blocklengths, isblockbanded, pointscompatible, affine_setdiff, complexroots
 
 import DomainSets: Domain, indomain, UnionDomain, ProductDomain, FullSpace, Point, elements, DifferenceDomain,
             Interval, ChebyshevInterval, boundary, ∂, rightendpoint, leftendpoint,
