@@ -453,8 +453,8 @@ function getindex(C::ConcreteConversion{US,J,T},k::Integer,j::Integer) where {US
     if j==k
         S=rangespace(C)
         jp=jacobip(T,k-1,S.a,S.b,one(T))
-        um=Evaluation(setcanonicaldomain(domainspace(C)),rightendpoint,0)[k]
-        um/jp::T
+        um=convert(Operator{T}, Evaluation(setcanonicaldomain(domainspace(C)),rightendpoint,0))[k]::T
+        (um/jp)::T
     else
         zero(T)
     end
