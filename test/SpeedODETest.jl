@@ -64,7 +64,8 @@ x=Fun(identity,1..2000)
 d=domain(x)
 B=Dirichlet()
 ν=1000.0
-L=x^2*𝒟^2 + x*𝒟 + (x^2 - ν^2)   # our differential operator
+D = Derivative()
+L=x^2*D^2 + x*D + (x^2 - ν^2)   # our differential operator
 u=[B;L]\[[besselj.(ν,endpoints(d))...],0]
 @time u=[B;L]\[[besselj.(ν,endpoints(d))...],0]
 println("Bessel: should be ~0.008441 seconds (6.14 k allocations: 4.765 MiB)")

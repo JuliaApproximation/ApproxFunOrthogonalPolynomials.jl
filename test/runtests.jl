@@ -18,3 +18,8 @@ end
 @time include("SpacesTest.jl")
 @time include("MultivariateTest.jl")
 @time include("PDETest.jl")
+
+include("SpeedTest.jl")
+include("SpeedODETest.jl")
+include("SpeedPDETest.jl")
+include("SpeedOperatorTest.jl")

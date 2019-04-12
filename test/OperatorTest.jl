@@ -281,4 +281,17 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, BlockBandedMatrices,  Linea
         E = Evaluation(Chebyshev(),rightendpoint,1)
         @test E[1:4] == [0,1,4,9]
     end
+
+    @testset "Chebyshev Dirichlet" begin
+        S=Chebyshev()
+        @time for io in (
+                [Dirichlet(S);Derivative(Chebyshev());lneumann(S)],
+                [Dirichlet(S);Derivative(Chebyshev())+Fun(cos);lneumann(S)],
+                [Dirichlet(S);Derivative(Chebyshev())],
+                [Dirichlet(S);Derivative(Chebyshev())+Fun(cos)],
+                [Derivative(Chebyshev());Dirichlet(S)],
+                [Derivative(Chebyshev())+Fun(cos);Dirichlet(S)])
+            testraggedbelowoperator(io)
+        end
+    end
 end

@@ -1,7 +1,7 @@
 using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunctions, BlockBandedMatrices, Test
     import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, factor, Block, cfstype,
                         blocklengths, block, tensorizer, Vec, ArraySpace, ∞,
-                        testblockbandedoperator
+                        testblockbandedoperator, chebyshevtransform
 
 
 @testset "Multivariate" begin
@@ -275,5 +275,68 @@ using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunct
         testblockbandedoperator(Dirichlet((0..1) × (0.0 .. 1)))
         testraggedbelowoperator(Dirichlet(Chebyshev()^2))
         testraggedbelowoperator(Dirichlet(Chebyshev(0..1) * Chebyshev(0.0..1)))
+    end
+
+    @testset "2d derivative (issue #346)" begin
+        d = Chebyshev()^2
+        f = Fun((x,y) -> sin(x) * cos(y), d)
+        C=Conversion(Chebyshev()⊗Chebyshev(),Ultraspherical(1)⊗Ultraspherical(1))
+        @test (C*f)(0.1,0.2) ≈ f(0.1,0.2)
+        Dx = Derivative(d, [1,0])
+        f = Fun((x,y) -> sin(x) * cos(y), d)
+        fx = Fun((x,y) -> cos(x) * cos(y), d)
+        @test (Dx*f)(0.2,0.3) ≈ fx(0.2,0.3)
+        Dy = Derivative(d, [0,1])
+        fy = Fun((x,y) -> -sin(x) * sin(y), d)
+        @test (Dy*f)(0.2,0.3) ≈ fy(0.2,0.3)
+        L=Dx+Dy
+        testbandedblockbandedoperator(L)
+
+        @test (L*f)(0.2,0.3) ≈ (fx(0.2,0.3)+fy(0.2,0.3))
+
+        B=ldirichlet(factor(d,1))⊗ldirichlet(factor(d,2))
+        @test Number(B*f) ≈ f(-1.,-1.)
+
+        B=Evaluation(factor(d,1),0.1)⊗ldirichlet(factor(d,2))
+        @test Number(B*f) ≈ f(0.1,-1.)
+
+        B=Evaluation(factor(d,1),0.1)⊗Evaluation(factor(d,2),0.3)
+        @test Number(B*f) ≈ f(0.1,0.3)
+
+        B=Evaluation(d,(0.1,0.3))
+        @test Number(B*f) ≈ f(0.1,0.3)
+    end
+
+    @testset "ProductFun" begin
+        u0   = ProductFun((x,y)->cos(x)+sin(y) +exp(-50x.^2-40(y-0.1)^2)+.5exp(-30(x+0.5)^2-40(y+0.2)^2))
+
+
+        @test values(u0)-values(u0|>LowRankFun)|>norm < 1000eps()
+        @test chebyshevtransform(values(u0))-coefficients(u0)|>norm < 100eps()
+
+        ##TODO: need to do adaptive to get better accuracy
+        @test sin(u0)(.1,.2)-sin(u0(.1,.2))|>abs < 10e-4
+
+
+        F = LowRankFun((x,y)->hankelh1(0,10abs(y-x)),Chebyshev(1.0..2.0),Chebyshev(Segment(1.0im,2.0im)))
+
+        @test F(1.5,1.5im) ≈ hankelh1(0,10abs(1.5im-1.5))
+    end
+
+    @testset "Functional*Fun" begin
+        d=ChebyshevInterval()
+        B=ldirichlet(d)
+        f=ProductFun((x,y)->cos(cos(x)*sin(y)),d^2)
+
+        @test norm(B*f-Fun(y->cos(cos(-1)*sin(y)),d))<20000eps()
+        @test norm(f*B-Fun(x->cos(cos(x)*sin(-1)),d))<20000eps()
+    end
+
+    @testset "matrix" begin
+        f=Fun((x,y)->[exp(x*cos(y));cos(x*sin(y));2],ChebyshevInterval()^2)
+        @test f(0.1,0.2) ≈ [exp(0.1*cos(0.2));cos(0.1*sin(0.2));2]
+
+        f=Fun((x,y)->[exp(x*cos(y)) cos(x*sin(y)); 2 1],ChebyshevInterval()^2)
+        @test f(0.1,0.2) ≈ [exp(0.1*cos(0.2)) cos(0.1*sin(0.2));2 1]
     end
 end

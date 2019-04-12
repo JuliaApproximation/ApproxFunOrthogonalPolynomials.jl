@@ -233,4 +233,21 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, LazyArray
         u = [B; L] \ [ [0.,0.], [1.,1.], zeros(6)..., exp(x)]
         @test u(0.5) ≈ -0.4024723414410859 # Empirical
     end
+
+    @testset "constant forcing" begin
+        d = Interval(0.,50.)
+        D = Derivative(d)
+        t = Fun(identity,d)
+
+        F = D^2 +.5D + I
+
+        A= [ 0    ldirichlet(d);
+            0    lneumann(d);
+            0    rdirichlet(d);
+            -1    F; ]
+
+        @time u,x=A\[1.,0.,2.,0.]
+
+        @test norm(F*x-u)<1000eps()
+    end
 end
