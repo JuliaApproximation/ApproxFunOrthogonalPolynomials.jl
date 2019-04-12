@@ -216,10 +216,6 @@ using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunct
 
         @test g2[1](-0.1,-1.0) ≈ g[1](-0.1,-1.0)
         @test g2[3](-0.1,1.0)  ≈ g[3](-0.1,1.0)
-
-        S=WeightedJacobi(1,1)^2
-        L=Laplacian(S)
-        testbandedblockbandedoperator(L)
     end
 
     @testset "Cheby * Interval" begin

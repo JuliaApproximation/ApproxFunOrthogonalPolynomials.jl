@@ -108,22 +108,6 @@ getindex(T::ConcreteDerivative{J},k::Integer,j::Integer) where {J<:Jacobi} =
 
 
 
-function Derivative(S::WeightedJacobi{DDD,RR}) where {DDD<:IntervalOrSegment,RR}
-    if S.β>0 && S.β>0 && S.β==S.space.b && S.α==S.space.a
-        ConcreteDerivative(S,1)
-    else
-        jacobiweightDerivative(S)
-    end
-end
-
-bandwidths(D::ConcreteDerivative{WeightedJacobi{DDD,RR}}) where {DDD<:IntervalOrSegment,RR} = 1,0
-rangespace(D::ConcreteDerivative{WeightedJacobi{DDD,RR}}) where {DDD<:IntervalOrSegment,RR} =
-    WeightedJacobi(domainspace(D).β-1,domainspace(D).α-1,domain(D))
-
-getindex(D::ConcreteDerivative{WeightedJacobi{DDD,RR}},k::Integer,j::Integer) where {DDD<:IntervalOrSegment,RR} =
-    j==k-1 ? eltype(D)(-4(k-1)./complexlength(domain(D))) : zero(eltype(D))
-
-
 
 ## Integral
 
@@ -198,27 +182,6 @@ for (Func,Len,Sum) in ((:DefiniteIntegral,:complexlength,:sum),(:DefiniteLineInt
                 k == 1 ? convert(T,$Sum(Fun(dsp,[one(T)]))) : zero(T)
             else
                 convert(T,$Sum(Fun(dsp,[zeros(T,k-1);1])))
-            end
-        end
-
-
-        function getindex(Σ::$ConcFunc{JacobiWeight{Jacobi{D,R},D,R,TT},T},k::Integer) where {D<:IntervalOrSegment,R,T,TT}
-            dsp = domainspace(Σ)
-
-            if dsp.β == dsp.space.b && dsp.α == dsp.space.a
-                # TODO: copy and paste
-                k == 1 ? convert(T,$Sum(Fun(dsp,[one(T)]))) : zero(T)
-            else
-                convert(T,$Sum(Fun(dsp,[zeros(T,k-1);1])))
-            end
-        end
-
-        function bandwidths(Σ::$ConcFunc{JacobiWeight{Jacobi{D,R},D,R,TT}}) where {D<:IntervalOrSegment,R,TT}
-            β,α = domainspace(Σ).β,domainspace(Σ).α
-            if domainspace(Σ).β == domainspace(Σ).space.b && domainspace(Σ).α == domainspace(Σ).space.a
-                0,0  # first entry
-            else
-                0,∞
             end
         end
 
@@ -581,94 +544,6 @@ hasconversion(a::Ultraspherical,b::Jacobi) = hasconversion(Jacobi(a),b)
 # (1+x) or (1-x) by _decreasing_ the parameter.  Thus the
 
 
-## <: IntervalOrSegment avoids a julia bug
-function Multiplication(f::Fun{JacobiWeight{C,DD,RR,TT}}, S::Jacobi) where {C<:ConstantSpace,DD<:IntervalOrSegmentDomain,RR,TT}
-    # this implements (1+x)*P and (1-x)*P special case
-    # see DLMF (18.9.6)
-    d=domain(f)
-    if ((space(f).β==1 && space(f).α==0 && S.b >0) ||
-                        (space(f).β==0 && space(f).α==1 && S.a >0))
-        ConcreteMultiplication(f,S)
-    elseif isapproxinteger(space(f).β) && space(f).β ≥ 1 && S.b >0
-        # decrement β and multiply again
-        M=Multiplication(f.coefficients[1]*jacobiweight(1.,0.,d),S)
-        MultiplicationWrapper(f,Multiplication(jacobiweight(space(f).β-1,space(f).α,d),rangespace(M))*M)
-    elseif isapproxinteger(space(f).α) && space(f).α ≥ 1 && S.a >0
-        # decrement α and multiply again
-        M=Multiplication(f.coefficients[1]*jacobiweight(0.,1.,d),S)
-        MultiplicationWrapper(f,Multiplication(jacobiweight(space(f).β,space(f).α-1,d),rangespace(M))*M)
-    else
-# default JacobiWeight
-        M=Multiplication(Fun(space(f).space,f.coefficients),S)
-        rsp=JacobiWeight(space(f).β,space(f).α,rangespace(M))
-        MultiplicationWrapper(f,SpaceOperator(M,S,rsp))
-    end
-end
-
-Multiplication(f::Fun{JacobiWeight{C,DD,RR,TT}},
-               S::Union{Ultraspherical,Chebyshev}) where {C<:ConstantSpace,DD<:IntervalOrSegmentDomain,RR,TT} =
-    MultiplicationWrapper(f,Multiplication(f,Jacobi(S))*Conversion(S,Jacobi(S)))
-
-function rangespace(M::ConcreteMultiplication{JacobiWeight{C,DD,RR,TT},J}) where {J<:Jacobi,C<:ConstantSpace,DD<:IntervalOrSegmentDomain,RR,TT}
-    S=domainspace(M)
-    if space(M.f).β==1
-        # multiply by (1+x)
-        Jacobi(S.b-1,S.a,domain(S))
-    elseif space(M.f).α == 1
-        # multiply by (1-x)
-        Jacobi(S.b,S.a-1,domain(S))
-    else
-        error("Not implemented")
-    end
-end
-
-bandwidths(::ConcreteMultiplication{JacobiWeight{C,DD,RR,TT},J}) where {J<:Jacobi,C<:ConstantSpace,DD<:IntervalOrSegmentDomain,RR,TT} = 1,0
-
-
-function getindex(M::ConcreteMultiplication{JacobiWeight{C,DD,RR,TT},J},k::Integer,j::Integer) where {J<:Jacobi,C<:ConstantSpace,DD<:IntervalOrSegmentDomain,RR,TT}
-    @assert ncoefficients(M.f)==1
-    a,b=domainspace(M).a,domainspace(M).b
-    c=M.f.coefficients[1]
-    if space(M.f).β==1
-        @assert space(M.f).α==0
-        # multiply by (1+x)
-        if j==k
-            c*2(k+b-1)/(2k+a+b-1)
-        elseif k > 1 && j==k-1
-            c*(2k-2)/(2k+a+b-3)
-        else
-            zero(eltype(M))
-        end
-    elseif space(M.f).α == 1
-        @assert space(M.f).β==0
-        # multiply by (1-x)
-        if j==k
-            c*2(k+a-1)/(2k+a+b-1)
-        elseif k > 1 && j==k-1
-            -c*(2k-2)/(2k+a+b-3)
-        else
-            zero(eltype(M))
-        end
-    else
-        error("Not implemented")
-    end
-end
-
-
-# We can exploit the special multiplication to construct a Conversion
-
-
-for FUNC in (:maxspace_rule,:union_rule,:hasconversion)
-    @eval function $FUNC(A::WeightedJacobi{DD},B::Jacobi) where DD<:IntervalOrSegment
-        if A.β==A.α+1 && A.space.b>0
-            $FUNC(Jacobi(A.space.b-1,A.space.a,domain(A)),B)
-        elseif A.α==A.β+1 && A.space.a>0
-            $FUNC(Jacobi(A.space.b,A.space.a-1,domain(A)),B)
-        else
-            $FUNC(A,JacobiWeight(0.,0.,B))
-        end
-    end
-end
 
 
 

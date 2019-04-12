@@ -281,21 +281,4 @@ function roots(f::Fun{P}) where P<:ContinuousSpace
 end
 
 
-## Root finding for JacobiWeight expansion
-
-# Add endpoints for JacobiWeight
-# TODO: what about cancellation?
-function roots(f::Fun{S,T}) where {S<:JacobiWeight,T}
-    sp=space(f)
-    d=domain(sp)
-    rts=roots(Fun(sp.space,f.coefficients))
-    if sp.β > 0
-        rts=[leftendpoint(d);rts]
-    end
-    if sp.α > 0
-        rts=[rts;rightendpoint(d)]
-    end
-    rts
-end
-
 

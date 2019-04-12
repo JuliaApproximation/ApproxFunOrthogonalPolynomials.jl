@@ -176,11 +176,6 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, BlockBandedMatrices,  Linea
         @test parent(S) == D
         @test parentindices(S) == (3:4,2:4)
         @test bandwidths(S)  == (-2,2)
-
-        DS=JacobiWeight(1,1,Jacobi(1,1))
-        D=Derivative(DS)[2:end,:]
-        @test domainspace(D) == DS | (1:∞)
-        testbandedoperator(D)
     end
 
     @testset "Sub-operators" begin
@@ -271,9 +266,6 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, BlockBandedMatrices,  Linea
         @test exp(-M).f == Multiplication(exp(-x), Chebyshev()).f
         @test (M/3).f == (3\M).f == Multiplication(x/3, Chebyshev()).f
         @test (M*3).f == (3*M).f == Multiplication(x*3, Chebyshev()).f
-
-        M = Multiplication(x, JacobiWeight(0,0,Chebyshev()))
-        @test exp(M).f == Multiplication(exp(x), Chebyshev()).f
     end
 
     @testset "lastindex" begin

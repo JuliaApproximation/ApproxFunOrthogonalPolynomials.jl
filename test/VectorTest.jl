@@ -170,23 +170,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LazyArrays, FillArrays, Lin
         @test norm(((Derivative(space(f))*f)-Fun(t->[2t,cos(t)])).coefficients)<100eps()
         @test norm((([1 2;3 4]*f)-Fun(t->[t^2+2sin(t),3t^2+4sin(t)])).coefficients)<100eps()
     end
-
-    @testset "Conversion" begin
-        a = ArraySpace(JacobiWeight(1/2,1/2, Chebyshev()), 2)
-        b = ArraySpace(JacobiWeight(1/2,1/2, Ultraspherical(1)), 2)
-        C = Conversion(a, b)
-
-        f = Fun(a, rand(10))
-        @test f(0.1) ≈ (C*f)(0.1)
-
-        a = ArraySpace(JacobiWeight(1/2,1/2, Chebyshev()), 2,3)
-        b = ArraySpace(JacobiWeight(1/2,1/2, Ultraspherical(1)), 2,3)
-        C = Conversion(a, b)
-
-        f = Fun(a, rand(10))
-        @test f(0.1) ≈ (C*f)(0.1)
-    end
-
+    
     @testset "Interlace" begin
         S1 = Chebyshev()^2
         S2 = Chebyshev()

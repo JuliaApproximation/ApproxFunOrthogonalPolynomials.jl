@@ -2,32 +2,6 @@ using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
     import ApproxFunBase: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator, Block
 
 @testset "PDE" begin
-    @testset "Zero Dirichlet" begin
-        S = JacobiWeight(1.,1.,Jacobi(1.,1.))^2
-        Δ = Laplacian(S)
-
-        testbandedblockbandedoperator(Δ)
-
-        u = Fun((x,y)->sin(π*x)*sin(π*y),S)
-        f = -2π^2*u
-
-        F = qr(Δ)
-        ApproxFunBase.resizedata!(F,:,1000)
-        @time v=F\f
-        @test norm((u-v).coefficients)<100eps()
-
-
-        F=qr(Δ)
-        ApproxFunBase.resizedata!(F.R_cache,:,100)
-        ApproxFunBase.resizedata!(F.R_cache,:,1000)
-        @time v=F \ f
-        @test norm((u-v).coefficients)<100eps()
-
-        F=qr(Δ)
-        @time v=F\f
-        @test norm((u-v).coefficients)<100eps()
-    end
-
     @testset "Rectangle Laplace/Poisson" begin
         dx = dy = ChebyshevInterval()
         d = dx × dy
@@ -103,12 +77,5 @@ using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
 
         @time u = \([timedirichlet(d);L],[u0,[0.,0.],0.];tolerance=1E-5)
         @test u(0.5,0.001) ≈ 0.857215539785593+0.08694948835021317im  # empircal from ≈ schurfact
-    end
-
-    @testset "check we dispatch correctly to get fast build" begin
-        S = JacobiWeight(1.,1.,Jacobi(1.,1.))^2
-        Δ = Laplacian(S)
-        @time S = view(Δ.op.ops[1].ops[1].op,Block.(1:40), Block.(1:40))
-        @test typeof(S.parent.domaintensorizer) == ApproxFunBase.Trivial2DTensorizer
     end
 end
