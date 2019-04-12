@@ -3,9 +3,6 @@
 # project to interval if we are not on the interview
 # TODO: need to work out how to set piecewise domain
 
-
-scaleshiftdomain(f::Fun,sc,sh) = setdomain(f,sc*domain(f)+sh)
-
 /(c::Number,f::Fun{S}) where {S<:ContinuousSpace} = Fun(map(f->c/f,components(f)),PiecewiseSpace)
 ^(f::Fun{S},c::Integer) where {S<:ContinuousSpace} = Fun(map(f->f^c,components(f)),PiecewiseSpace)
 ^(f::Fun{S},c::Number) where {S<:ContinuousSpace} = Fun(map(f->f^c,components(f)),PiecewiseSpace)
