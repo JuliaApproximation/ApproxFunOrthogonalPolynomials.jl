@@ -10,4 +10,4 @@ Support for orthogonal polynomial-based spaces in ApproxFun
 
 
 
-[ApproxFun.jl](https://github.com/JuliaApproximation/ApproxFun.jl) is a package for approximating functions. This package implements orthogonal polynomial based spaces to ApproxFun, including Chebyshev, Jacobi, 
+[ApproxFun.jl](https://github.com/JuliaApproximation/ApproxFun.jl) is a package for approximating functions. This package implements orthogonal polynomial based spaces to ApproxFun, including Chebyshev, Jacobi, Laguerre, and Hermite.
