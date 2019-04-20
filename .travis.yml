@@ -13,8 +13,6 @@ matrix:
     - julia: nightly
 notifications:
   email: false
-after_script:
-  - bash ./docs/travis.sh
 codecov: true
 
 # uncomment the following lines to override the default test script

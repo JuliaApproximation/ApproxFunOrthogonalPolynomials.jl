@@ -1,5 +1,5 @@
 using ApproxFunOrthogonalPolynomials, SpecialFunctions, Test
-    import ApproxFunOrthogonalPolynomials: ldiv_coefficients
+import ApproxFunBase: ldiv_coefficients
 
 ## ODEs
 
