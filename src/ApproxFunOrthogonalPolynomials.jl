@@ -47,7 +47,7 @@ import ApproxFunBase: normalize!, flipsign, FiniteRange, Fun, MatrixFun, UnsetSp
 
 import DomainSets: Domain, indomain, UnionDomain, ProductDomain, FullSpace, Point, elements, DifferenceDomain,
             Interval, ChebyshevInterval, boundary, ∂, rightendpoint, leftendpoint,
-            dimension
+            dimension, WrappedDomain
             
 import BandedMatrices: bandrange, bandshift,
                 inbands_getindex, inbands_setindex!, bandwidth, AbstractBandedMatrix,
