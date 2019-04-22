@@ -34,10 +34,10 @@ include("CurveSpace.jl")
 conversion_rule(sp::HeavisideSpace,sp2::PiecewiseSpace{NTuple{k,PS}}) where {k,PS<:PolynomialSpace} = sp
 
 
-Conversion(a::HeavisideSpace,b::PiecewiseSpace{NTuple{kk,CC},DD,RR}) where {kk,CC<:PolynomialSpace,DD<:EuclideanDomain{1},RR<:Real} =
+Conversion(a::HeavisideSpace,b::PiecewiseSpace{NTuple{kk,CC},DD,RR}) where {kk,CC<:PolynomialSpace,DD<:Domain{<:Number},RR<:Real} =
     ConcreteConversion(a,b)
-bandwidths(::ConcreteConversion{HS,PiecewiseSpace{NTuple{kk,CC},DD,RR}}) where {HS<:HeavisideSpace,CC<:PolynomialSpace,DD<:EuclideanDomain{1},RR<:Real,kk} =
+bandwidths(::ConcreteConversion{HS,PiecewiseSpace{NTuple{kk,CC},DD,RR}}) where {HS<:HeavisideSpace,CC<:PolynomialSpace,DD<:Domain{<:Number},RR<:Real,kk} =
     0,0
 
-getindex(C::ConcreteConversion{HS,PiecewiseSpace{NTuple{kk,CC},DD,RR}},k::Integer,j::Integer) where {HS<:HeavisideSpace,CC<:PolynomialSpace,DD<:EuclideanDomain{1},RR<:Real,kk} =
+getindex(C::ConcreteConversion{HS,PiecewiseSpace{NTuple{kk,CC},DD,RR}},k::Integer,j::Integer) where {HS<:HeavisideSpace,CC<:PolynomialSpace,DD<:Domain{<:Number},RR<:Real,kk} =
     k ≤ dimension(domainspace(C)) && j==k ? one(eltype(C)) : zero(eltype(C))
