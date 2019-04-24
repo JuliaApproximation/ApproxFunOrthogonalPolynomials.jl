@@ -1,5 +1,5 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, LazyArrays, Test
-    import ApproxFunBase: Multiplication, testraggedbelowoperator, testbandedoperator, interlace, ∞
+import ApproxFunBase: Multiplication, testraggedbelowoperator, testbandedoperator, interlace, ∞
 
 @testset "ODE" begin
     @testset "Airy" begin
@@ -120,7 +120,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, LazyArray
     end
 
     @testset "Union of intervals" begin
-        x=Fun(identity,Domain(-2..15) \ [-1,0])
+        x=Fun(identity,(-2..15) \ [-1,0])
         sp=space(x)
 
         B = [Dirichlet(sp);continuity(sp,0:1)]
