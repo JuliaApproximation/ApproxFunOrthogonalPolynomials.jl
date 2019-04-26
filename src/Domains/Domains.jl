@@ -18,3 +18,6 @@ Base.setdiff(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::WrappedDomain{<
 
 Base.setdiff(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::AbstractVector{<:Number}) = 
     ApproxFunBase._affine_setdiff(d, ptsin)
+
+Base.setdiff(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::Number) = 
+    ApproxFunBase._affine_setdiff(d, ptsin)    

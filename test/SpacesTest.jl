@@ -1,9 +1,9 @@
 using ApproxFunOrthogonalPolynomials, SpecialFunctions, LinearAlgebra, Test
-    import DomainSets
-    import DomainSets: UnionDomain
-    import ApproxFunBase: space, SpaceOperator,
-                        testspace, testbandedoperator, testraggedbelowoperator, testcalculus, testtransforms,
-                        testfunctional
+import DomainSets
+import DomainSets: UnionDomain
+import ApproxFunBase: space, SpaceOperator,
+                    testspace, testbandedoperator, testraggedbelowoperator, testcalculus, testtransforms,
+                    testfunctional
 
 @testset "Spaces" begin
     @testset "ChebyshevDirichlet" begin
@@ -293,5 +293,12 @@ using ApproxFunOrthogonalPolynomials, SpecialFunctions, LinearAlgebra, Test
         @test ncoefficients(g) == 3
         @test g(0.1) ≈ 0.2
         @test g(-0.2) ≈ 0.0
+    end
+
+    @testset "remove point" begin
+        @test (-1..1) \ 0 == UnionDomain(-1..0, 0..1)
+        f = Fun(identity, (-1..1) \ 0)
+        @test f(0.1) ≈ 0.1
+        @test f(-0.1) ≈ -0.1
     end
 end
