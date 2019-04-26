@@ -1,6 +1,7 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, BlockBandedMatrices,  LinearAlgebra, Test
-    import ApproxFunBase: Multiplication,InterlaceOperator, Block, ∞,
-            testfunctional, testbandedoperator, testraggedbelowoperator, testinfoperator, testblockbandedoperator
+import ApproxFunBase: Multiplication,InterlaceOperator, Block, ∞,
+        testfunctional, testbandedoperator, testraggedbelowoperator, testinfoperator, testblockbandedoperator
+import ApproxFunOrthogonalPolynomials: JacobiZ
 
 @testset "Operator" begin
     @testset "Evaluation" begin
@@ -294,4 +295,10 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, BlockBandedMatrices,  Linea
             testraggedbelowoperator(io)
         end
     end
+
+    @testset "JacobiZ" begin
+        testbandedoperator(JacobiZ(Chebyshev(), 0.1))
+    end
 end
+
+
