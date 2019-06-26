@@ -25,7 +25,7 @@ Chebyshev(d) = Chebyshev(Domain(d))
 NormalizedChebyshev() = NormalizedPolynomialSpace(Chebyshev())
 NormalizedChebyshev(d) = NormalizedPolynomialSpace(Chebyshev(d))
 
-function Base.getproperty(S::Chebyshev{<:Any,<:Any},v::symbol)
+function Base.getproperty(S::Chebyshev{<:Any,<:Any},v::Symbol)
     if v==:b || v==:a
         -0.5
     else
