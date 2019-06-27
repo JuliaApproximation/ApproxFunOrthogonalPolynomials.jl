@@ -6,6 +6,9 @@ import ApproxFunBase: space, SpaceOperator,
                     testfunctional
 
 @testset "Spaces" begin
+    @testset "evaluate" begin
+        @test evaluate([1],Legendre(),0)==evaluate([1.0],Legendre(),0)
+    end
     @testset "ChebyshevDirichlet" begin
         testtransforms(ChebyshevDirichlet{1,1}())
 
