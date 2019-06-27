@@ -265,7 +265,7 @@ clenshaw(sp::PolynomialSpace,c::AbstractMatrix,x) = clenshaw(c,x,ClenshawPlan(pr
 clenshaw!(sp::PolynomialSpace,c::AbstractVector,x::AbstractVector)=clenshaw!(c,x,ClenshawPlan(promote_type(eltype(c),eltype(x)),sp,length(x)))
 
 function clenshaw(sp::PolynomialSpace,c::AbstractVector,x)
-    N,T = length(c),promote_type(eltype(c),typeof(x))
+    N,T = length(c),promote_type(prectype(sp),eltype(c),typeof(x))
     TT = eltype(T)
     if isempty(c)
         return zero(T)
