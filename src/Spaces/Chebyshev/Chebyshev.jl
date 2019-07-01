@@ -25,6 +25,14 @@ Chebyshev(d) = Chebyshev(Domain(d))
 NormalizedChebyshev() = NormalizedPolynomialSpace(Chebyshev())
 NormalizedChebyshev(d) = NormalizedPolynomialSpace(Chebyshev(d))
 
+function Base.getproperty(S::Chebyshev{<:Any,<:Any},v::Symbol)
+    if v==:b || v==:a
+        -0.5
+    else
+        getfield(S,v)
+    end
+end
+
 normalization(::Type{T}, sp::Chebyshev, k::Int) where T = T(π)/(2-FastTransforms.δ(k,0))
 
 Space(d::SegmentDomain) = Chebyshev(d)
