@@ -24,9 +24,9 @@ JacobiITransformPlan(chebplan::CPLAN, cjtplan::CJT) where {CPLAN,CJT} =
 
 
 
-plan_itransform(S::Jacobi,v::AbstractVector) =
+plan_itransform(S::Jacobi, v::AbstractVector) =
     JacobiITransformPlan(plan_itransform(Chebyshev(), v), plan_cjt(v, S.a, S.b))
-*(P::JacobiITransformPlan,cfs) = P.ichebplan*(P.icjtplan*cfs)
+*(P::JacobiITransformPlan, cfs::AbstractVector) = P.ichebplan*(P.icjtplan*cfs)
 
 
 function coefficients(f::AbstractVector,a::Jacobi,b::Chebyshev)
