@@ -132,6 +132,7 @@ end
 function colleague_matrix( c::Vector{T} ) where T<:Number
 #TODO: This is command isn't typed correctly
 # COMPUTE THE ROOTS OF A LOW DEGREE POLYNOMIAL BY USING THE COLLEAGUE MATRIX:
+    c = chop(c,0) # prune exact zeros
     n = length(c) - 1
     A=zeros(T,n,n)
 
