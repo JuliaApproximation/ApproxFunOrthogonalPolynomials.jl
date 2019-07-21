@@ -38,6 +38,9 @@ function BandedMatrix(V::SubOperator{T,ConcreteConversion{Ultraspherical{LT,DD,R
     V_l, V_u = bandwidths(V)
     ret = BandedMatrix{eltype(V)}(undef, (n,m), (V_l,V_u))
     kr,jr = parentindices(V)
+
+    (isempty(kr) || isempty(jr)) && return ret
+
     dg = diagindshift(V)
 
 
