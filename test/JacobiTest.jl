@@ -1,4 +1,4 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, Test, StaticArrays, SpecialFunctions, LinearAlgebra, InfiniteArrays
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, Test, SpecialFunctions, LinearAlgebra
     import ApproxFunBase: testbandedbelowoperator, testbandedoperator, testspace, testtransforms, Vec,
                         maxspace, NoSpace, hasconversion, testfunctional,
                         reverseorientation, ReverseOrientation

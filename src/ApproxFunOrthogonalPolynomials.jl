@@ -1,5 +1,5 @@
 module ApproxFunOrthogonalPolynomials
-using Base, LinearAlgebra, Reexport, BandedMatrices, BlockBandedMatrices, AbstractFFTs, FFTW, InfiniteArrays, BlockArrays, FillArrays, FastTransforms, IntervalSets, 
+using Base, LinearAlgebra, Reexport, BandedMatrices, BlockBandedMatrices, AbstractFFTs, FFTW, BlockArrays, FillArrays, FastTransforms, IntervalSets, 
             DomainSets, Statistics, SpecialFunctions, FastGaussQuadrature
             
 @reexport using ApproxFunBase
@@ -44,7 +44,7 @@ import ApproxFunBase: normalize!, flipsign, FiniteRange, Fun, MatrixFun, UnsetSp
                     domaintype, diagindshift, rangetype, weight, isapproxinteger, default_Dirichlet, scal!, dotu,
                     components, promoterangespace, promotedomainspace,
                     block, blockstart, blockstop, blocklengths, isblockbanded, pointscompatible, affine_setdiff, complexroots,
-                    ℓ⁰, recα, recβ, recγ
+                    ℓ⁰, recα, recβ, recγ, ∞
 
 import DomainSets: Domain, indomain, UnionDomain, ProductDomain, FullSpace, Point, elements, DifferenceDomain,
             Interval, ChebyshevInterval, boundary, ∂, rightendpoint, leftendpoint,
@@ -70,9 +70,7 @@ import Base: values, convert, getindex, setindex!, *, +, -, ==, <, <=, >, |, !, 
 import LinearAlgebra: BlasInt, BlasFloat, norm, ldiv!, mul!, det, eigvals, dot, cross,
                 qr, qr!, rank, isdiag, istril, istriu, issymmetric, ishermitian,
                 Tridiagonal, diagm, diagm_container, factorize, nullspace,
-                Hermitian, Symmetric, adjoint, transpose, char_uplo                
-
-import InfiniteArrays: Infinity, InfRanges, AbstractInfUnitRange, OneToInf                    
+                Hermitian, Symmetric, adjoint, transpose, char_uplo                        
 
 import FastTransforms: ChebyshevTransformPlan, IChebyshevTransformPlan, plan_chebyshevtransform,
                         plan_chebyshevtransform!, plan_ichebyshevtransform, plan_ichebyshevtransform!,

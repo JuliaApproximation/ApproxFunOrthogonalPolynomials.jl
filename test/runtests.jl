@@ -1,4 +1,4 @@
-using ApproxFunOrthogonalPolynomials, InfiniteArrays, LinearAlgebra, Test
+using ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
 
 @testset "Domain" begin
     @test reverseorientation(Arc(1,2,(0.1,0.2))) == Arc(1,2,(0.2,0.1))
