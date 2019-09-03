@@ -1,6 +1,6 @@
 name = "ApproxFunOrthogonalPolynomials"
 uuid = "b70543e2-c0d9-56b8-a290-0d4d6d4de211"
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
 AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
@@ -32,7 +32,7 @@ FastTransforms = "0.5, 0.6"
 FillArrays = "0.6, 0.7"
 IntervalSets = "0.3.1"
 Reexport = "0.2"
-SpecialFunctions = "0.7"
+SpecialFunctions = "0.7,0.8"
 julia = "1"
 
 [extras]
