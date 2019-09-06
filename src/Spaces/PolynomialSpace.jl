@@ -195,17 +195,17 @@ function BandedMatrix(S::SubOperator{T,ConcreteMultiplication{C,PS,T},
         ret = BandedMatrix(Zeros, S)
         shft=kr[1]-jr[1]
         ret[band(shft)] .= a[1]
-        return ret::BandedMatrix{T}
+        return ret::BandedMatrix{T,Matrix{T},Base.OneTo{Int}}
     elseif n==2
         # we have U_x = [1 α-x; 0 β]
         # for e_1^⊤ U_x\a == a[1]*I-(α-J)*a[2]/β == (a[1]-α*a[2]/β)*I + J*a[2]/β
         # implying
         α,β=recα(T,sp,1),recβ(T,sp,1)
-        ret=Operator{T}(Recurrence(M.space))[kr,jr]::BandedMatrix{T}
+        ret=Operator{T}(Recurrence(M.space))[kr,jr]::BandedMatrix{T,Matrix{T},Base.OneTo{Int}}
         lmul!(a[2]/β,ret)
         shft=kr[1]-jr[1]
         ret[band(shft)] .+= a[1]-α*a[2]/β
-        return ret::BandedMatrix{T}
+        return ret::BandedMatrix{T,Matrix{T},Base.OneTo{Int}}
     end
 
     jkr=max(1,min(jr[1],kr[1])-(n-1)÷2):max(jr[end],kr[end])+(n-1)÷2
