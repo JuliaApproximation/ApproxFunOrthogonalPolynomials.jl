@@ -44,7 +44,7 @@ import ApproxFunBase: normalize!, flipsign, FiniteRange, Fun, MatrixFun, UnsetSp
                     domaintype, diagindshift, rangetype, weight, isapproxinteger, default_Dirichlet, scal!, dotu,
                     components, promoterangespace, promotedomainspace,
                     block, blockstart, blockstop, blocklengths, isblockbanded, pointscompatible, affine_setdiff, complexroots,
-                    ℓ⁰, recα, recβ, recγ, ∞
+                    ℓ⁰, recα, recβ, recγ, ∞, uninfer
 
 import DomainSets: Domain, indomain, UnionDomain, ProductDomain, FullSpace, Point, elements, DifferenceDomain,
             Interval, ChebyshevInterval, boundary, ∂, rightendpoint, leftendpoint,

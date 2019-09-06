@@ -13,15 +13,15 @@ recγ(::Type{T},::Chebyshev,k) where {T} = one(T)/2   # one(T) ensures we get co
 
 ## Evaluation
 
-Evaluation(S::Chebyshev,x::typeof(leftendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-Evaluation(S::Chebyshev,x::typeof(rightendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
+Evaluation(S::Chebyshev, x::typeof(leftendpoint), o::Integer) =
+    ConcreteEvaluation(S, x, o)
+Evaluation(S::Chebyshev, x::typeof(rightendpoint), o::Integer) =
+    ConcreteEvaluation(S, x, o)
 
-Evaluation(S::Chebyshev,x::Number,o::Integer) =
-    o==0 ? ConcreteEvaluation(S,x,o) : EvaluationWrapper(S,x,o,Evaluation(x)*Derivative(S,o))
+Evaluation(S::Chebyshev, x::Number, o::Integer) =
+    uninfer(o==0 ? ConcreteEvaluation(S,x,o) : EvaluationWrapper(S,x,o,uninfer(Evaluation(x)*Derivative(S,o))))
 
-function evaluatechebyshev(n::Integer,x::T) where T<:Number
+function evaluatechebyshev(n::Integer, x::T) where T<:Number
     if n == 1
         [one(T)]
     else
