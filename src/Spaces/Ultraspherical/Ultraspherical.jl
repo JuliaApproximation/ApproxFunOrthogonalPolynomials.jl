@@ -58,7 +58,7 @@ end
 function UltrasphericalPlan(λ::Number,vals)
     if λ == 0.5
         cp = plan_transform(Chebyshev(),vals)
-        c2lp = FastTransforms.th_cheb2legplan(eltype(vals),length(vals))
+        c2lp = plan_cheb2leg(eltype(vals),length(vals))
         UltrasphericalPlan{typeof(cp),typeof(c2lp)}(cp,c2lp)
     else
         error("Not implemented")
@@ -68,7 +68,7 @@ end
 function UltrasphericalIPlan(λ::Number,cfs)
     if λ == 0.5
         cp=plan_itransform(Chebyshev(),cfs)
-        c2lp=FastTransforms.th_leg2chebplan(eltype(cfs),length(cfs))
+        c2lp=leg2cheb(eltype(cfs),length(cfs))
         UltrasphericalIPlan{typeof(cp),typeof(c2lp)}(cp,c2lp)
     else
         error("Not implemented")
