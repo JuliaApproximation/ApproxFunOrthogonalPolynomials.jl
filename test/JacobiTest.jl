@@ -1,8 +1,8 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, Test, SpecialFunctions, LinearAlgebra
-    import ApproxFunBase: testbandedbelowoperator, testbandedoperator, testspace, testtransforms, Vec,
-                        maxspace, NoSpace, hasconversion, testfunctional,
-                        reverseorientation, ReverseOrientation
-    import ApproxFunOrthogonalPolynomials: jacobip
+import ApproxFunBase: testbandedbelowoperator, testbandedoperator, testspace, testtransforms, Vec,
+                    maxspace, NoSpace, hasconversion, testfunctional,
+                    reverseorientation, ReverseOrientation
+import ApproxFunOrthogonalPolynomials: jacobip
 
 @testset "Jacobi" begin
     @testset "Basic" begin
