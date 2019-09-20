@@ -22,7 +22,7 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 [compat]
 AbstractFFTs = "0.4"
 ApproxFunBase = "0.1.6"
-BandedMatrices = "0.11"
+BandedMatrices = "0.11, 0.12"
 BlockArrays = "0.9, 0.10"
 BlockBandedMatrices = "0.5"
 DomainSets = "0.1"
