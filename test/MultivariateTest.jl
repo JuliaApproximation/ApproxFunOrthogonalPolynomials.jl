@@ -1,8 +1,8 @@
 using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunctions, BlockBandedMatrices, Test
-    import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, factor, Block, cfstype,
-                        blocklengths, block, tensorizer, Vec, ArraySpace, ∞,
-                        testblockbandedoperator, chebyshevtransform
-
+import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, factor, Block, cfstype,
+                    blocklengths, block, tensorizer, Vec, ArraySpace, ∞,
+                    testblockbandedoperator
+import ApproxFunOrthogonalPolynomials: chebyshevtransform
 
 @testset "Multivariate" begin
     @testset "Square" begin
