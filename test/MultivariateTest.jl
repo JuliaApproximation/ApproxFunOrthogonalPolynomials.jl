@@ -4,7 +4,6 @@ import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, fa
                     testblockbandedoperator
 import ApproxFunOrthogonalPolynomials: chebyshevtransform                    
 
-
 @testset "Multivariate" begin
     @testset "Square" begin
         S = Space(ChebyshevInterval()^2)
