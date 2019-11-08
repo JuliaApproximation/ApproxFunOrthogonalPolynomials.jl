@@ -119,7 +119,7 @@ function *(plan::LaguerreTransformPlan,vals)
 end
 
 
-points(L::Laguerre,n) = gausslaguerre(n,1.0L.α)[1]
+points(L::Laguerre,n) = map(x -> mappoint(Ray(),L.domain,x), gausslaguerre(n,1.0L.α)[1])
 
 
 
@@ -300,6 +300,3 @@ function Multiplication(f::Fun{LaguerreWeight{H,T}},S::Laguerre) where {H<:Lague
     rs=rangespace(M)
     MultiplicationWrapper(f,SpaceOperator(M,S,LaguerreWeight(space(f).α, space(f).L, rs)))
 end
-
-
-
