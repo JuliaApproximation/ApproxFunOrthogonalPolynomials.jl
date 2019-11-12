@@ -1,5 +1,4 @@
 include("Ray.jl")
-include("SRay.jl")
 include("Arc.jl")
 include("Line.jl")
 include("IntervalCurve.jl")

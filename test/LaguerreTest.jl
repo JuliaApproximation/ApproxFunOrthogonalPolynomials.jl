@@ -1,20 +1,39 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, Test
     import ApproxFunBase: testbandedoperator
 
+
 @testset "Laguerre and WeightedLaguerre" begin
 
-    @testset "General rays" begin
-        r = Ray(-3.0,0.0)
+    @testset "General scaled rays" begin
+        r = Ray(-1.0,0.0,2.0,true)
         L = Laguerre(1.0,r)
         f = x -> exp.(-x)
-        F = Fun(f, L, 190)  # overflow/underflow issues beyond 190ish
+        F = Fun(f, L)
+        @test F(.3) ≈ -F'(.3)
+
+        r = Ray(1.0,0.0,2.0,false)
+        L = Laguerre(1.0,r)
+        f = x -> exp.(-x)
+        F = Fun(f, L, 100)
+        @test F(1.3) ≈ -F'(1.3)
+
+        r = Ray(1.0,π,2.0,true)
+        L = Laguerre(1.0,r)
+        f = x -> exp.(x)
+        F = Fun(f, L, 100)
+        @test F(.3) ≈ F'(.3)
+
+        r = Ray(-3.0,0.0,2.0,true)
+        L = Laguerre(1.0,r)
+        f = x -> exp.(-x)
+        F = Fun(f, L)  # overflow/underflow issues beyond 190ish
         @test abs(F(0.0) - f(0.)) < 1e-5
         @test abs(F(-2.0) - f(-2.)) < 1e-5
 
-        r = Ray(3.0,π)
+        r = Ray(3.0,π,.1,false)
         L = Laguerre(1.0,r)
         f = x -> exp.(-x^2)
-        F = Fun(f, L, 190)  # overflow/underflow issues beyond 190ish
+        F = Fun(f, L)  # overflow/underflow issues beyond 190ish
         @test abs(F(-1.0) - f(-1.0)) < 1e-5
     end
 
