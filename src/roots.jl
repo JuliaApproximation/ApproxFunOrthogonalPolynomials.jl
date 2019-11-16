@@ -251,7 +251,7 @@ function rootsunit_coeffs(c::Vector{T}, htol::Float64,clplan::ClenshawPlan{S,T})
 end
 
 
-extremal_args(f::Fun{S}) where {S<:ContinuousSpace} = cat(1,[extremal_args(fp) for fp in components(f)]...)
+extremal_args(f::Fun{S}) where {S<:ContinuousSpace} = cat(1,[extremal_args(fp) for fp in components(f)]..., dims=1)
 
 for op in (:(maximum),:(minimum))
     @eval begin
