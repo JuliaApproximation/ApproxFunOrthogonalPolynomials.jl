@@ -74,7 +74,7 @@ import LinearAlgebra: BlasInt, BlasFloat, norm, ldiv!, mul!, det, eigvals, dot, 
 
 import FastTransforms: ChebyshevTransformPlan, IChebyshevTransformPlan, plan_chebyshevtransform,
                         plan_chebyshevtransform!, plan_ichebyshevtransform, plan_ichebyshevtransform!,
-                        pochhammer, lgamma
+                        pochhammer, lgamma, chebyshevtransform!, ichebyshevtransform!
 
 import BlockBandedMatrices: blockbandwidths, subblockbandwidths
 
