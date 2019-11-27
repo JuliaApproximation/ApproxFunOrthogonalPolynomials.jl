@@ -74,7 +74,7 @@ import LinearAlgebra: BlasInt, BlasFloat, norm, ldiv!, mul!, det, eigvals, dot, 
 
 import FastTransforms: ChebyshevTransformPlan, IChebyshevTransformPlan, plan_chebyshevtransform,
                         plan_chebyshevtransform!, plan_ichebyshevtransform, plan_ichebyshevtransform!,
-                        pochhammer, lgamma
+                        pochhammer, lgamma, chebyshevtransform!, ichebyshevtransform!
 
 import BlockBandedMatrices: blockbandwidths, subblockbandwidths
 
@@ -94,51 +94,11 @@ import SpecialFunctions: sinpi, cospi, airy, besselh,
                     atan, acos, asin, erfc, inv
 
 points(d::IntervalOrSegmentDomain{T},n::Integer; kind::Int=1) where {T} =
-     fromcanonical.(Ref(d), chebyshevpoints(float(real(eltype(T))), n; kind=kind))  # eltype to handle point
-bary(v::AbstractVector{Float64}, d::IntervalOrSegmentDomain, x::Float64) = bary(v,tocanonical(d,x))
+    fromcanonical.(Ref(d), chebyshevpoints(float(real(eltype(T))), n; kind=kind))  # eltype to handle point
+bary(v::AbstractVector{Float64},d::IntervalOrSegmentDomain,x::Float64) = bary(v,tocanonical(d,x))
+                    
+include("bary.jl")
 
-function FastTransforms.chebyshevtransform!(X::AbstractMatrix{T};kind::Integer=1) where T<:fftwNumber		
-    if kind == 1		
-        if size(X) == (1,1)		
-            X		
-        else		
-            X=r2r!(X,REDFT10)		
-            X[:,1]/=2;X[1,:]/=2;		
-            lmul!(1/(size(X,1)*size(X,2)),X)		
-        end		
-    elseif kind == 2		
-        if size(X) == (1,1)		
-            X		
-        else		
-            X=r2r!(X,REDFT00)		
-            lmul!(1/((size(X,1)-1)*(size(X,2)-1)),X)		
-            X[:,1]/=2;X[:,end]/=2		
-            X[1,:]/=2;X[end,:]/=2		
-            X		
-        end		
-    end		
- end		
-
-function FastTransforms.ichebyshevtransform!(X::AbstractMatrix{T};kind::Integer=1) where T<:fftwNumber		
-    if kind == 1		
-        if size(X) == (1,1)		
-            X		
-        else		
-            X[1,:]*=2;X[:,1]*=2		
-            X = r2r(X,REDFT01)		
-            lmul!(1/4,X)		
-        end		
-    elseif kind == 2		
-        if size(X) == (1,1)		
-            X		
-        else		
-            X[1,:]*=2;X[end,:]*=2;X[:,1]*=2;X[:,end]*=2		
-            X=chebyshevtransform!(X;kind=kind)		
-            X[1,:]*=2;X[end,:]*=2;X[:,1]*=2;X[:,end]*=2		
-            lmul!((size(X,1)-1)*(size(X,2)-1)/4,X)		
-        end		
-    end		
-end
 
 include("ultraspherical.jl")
 include("Domains/Domains.jl")

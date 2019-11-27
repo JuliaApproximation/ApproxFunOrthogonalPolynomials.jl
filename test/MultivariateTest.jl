@@ -2,7 +2,7 @@ using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunct
 import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, factor, Block, cfstype,
                     blocklengths, block, tensorizer, Vec, ArraySpace, ∞,
                     testblockbandedoperator
-import ApproxFunOrthogonalPolynomials: chebyshevtransform
+import ApproxFunOrthogonalPolynomials: chebyshevtransform                    
 
 @testset "Multivariate" begin
     @testset "Square" begin
