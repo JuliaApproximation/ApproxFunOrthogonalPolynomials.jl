@@ -14,6 +14,7 @@ export Laguerre, NormalizedLaguerre, LaguerreWeight, WeightedLaguerre
 # p_{n+1} = (A_n x + B_n)p_n - C_n p_{n-1}
 #####
 
+
 """
 `Laguerre(α)` is a space spanned by generalized Laguerre polynomials `Lₙᵅ(x)` 's
 on `(0, Inf)`, which satisfy the differential equations
@@ -33,7 +34,7 @@ Laguerre() = Laguerre(0)
 NormalizedLaguerre(α) = NormalizedPolynomialSpace(Laguerre(α))
 NormalizedLaguerre() = NormalizedLaguerre(0)
 
-spacescompatible(A::Laguerre,B::Laguerre) = A.α ≈ B.α
+spacescompatible(A::Laguerre,B::Laguerre) = A.α ≈ B.α && B.domain == A.domain
 
 canonicaldomain(::Laguerre) = Ray()
 domain(d::Laguerre) = d.domain
@@ -101,31 +102,62 @@ laguerrel(n::AbstractRange,S::Laguerre,v) = laguerrel(n,S.a,S.b,v)
 laguerrel(n,S::Laguerre,v) = laguerrel(n,S.a,S.b,v)
 
 
+#struct LaguerreTransformPlan{T,TT}
+#    space::Laguerre{TT}
+#    points::Vector{T}
+#    weights::Vector{T}
+#end
+
 struct LaguerreTransformPlan{T,TT}
     space::Laguerre{TT}
     points::Vector{T}
-    weights::Vector{T}
+    transform::Array{T}
+    c1::Vector{T}
+    c2::Vector{T}
 end
 
-plan_transform(S::Laguerre,v::AbstractVector) = LaguerreTransformPlan(S,gausslaguerre(length(v),1.0S.α)...)
-function *(plan::LaguerreTransformPlan,vals)
+function Lag_conv(n::Int64,α::Float64)
+    out = ones(Float64,n)
+    out[1] = 1/gamma(α+1)
+    for i in 2:n
+        out[i] = out[i-1]*(i-1.0)/(i-1.0+α)
+    end
+    return sqrt.(out)
+end
+
+function lag_transform(n::Int64,α::Float64)
+    egn = eigen(SymTridiagonal([(2i + α + 1.) for i = 0:n-1],[-sqrt(i*(i+α)) for i = 1:n-1]))
+    U = egn.vectors
+    ns = sqrt(gamma(α+1))*U[1,:]
+    egn.values, U, Lag_conv(n,α), ns
+end
+
+# The old transform plan.  Is this faster for n < 150?
+#plan_transform(S::Laguerre,v::AbstractVector) = LaguerreTransformPlan(S,gausslaguerre(length(v),1.0S.α)...)
+#function *(plan::LaguerreTransformPlan,vals)
 #    @assert S==plan.space
-    x,w = plan.points, plan.weights
-    V=laguerrel(0:length(vals)-1,plan.space.α,x)'
-    #w2=w.*x.^(S.α-plan.space.α)   # need to weight if plan is different
-    w2=w
-    nrm=(V.^2)*w2
-    V*(w2.*vals)./nrm
+#    x,w = plan.points, plan.weights
+#    V=laguerrel(0:length(vals)-1,plan.space.α,x)'
+#    #w2=w.*x.^(S.α-plan.space.α)   # need to weight if plan is different
+#    w2=w
+#    nrm=(V.^2)*w2
+#    V*(w2.*vals)./nrm
+#end
+
+plan_transform(S::Laguerre,v::AbstractVector) = LaguerreTransformPlan(S,lag_transform(length(v),1.0S.α)...)
+function *(plan::LaguerreTransformPlan,vals)
+    x,w,c1,c2 = plan.points, plan.transform, plan.c1, plan.c2
+    c1.*(w*(c2.*vals))
 end
 
 
-points(L::Laguerre,n) = gausslaguerre(n,1.0L.α)[1]
+points(L::Laguerre,n) = map(x -> mappoint(Ray(),L.domain,x), gausslaguerre(n,1.0L.α)[1])
 
 
-
+# TODO: Separate off a real case for the real axis.
 Derivative(L::Laguerre,k) =
-    DerivativeWrapper(SpaceOperator(ToeplitzOperator(Float64[],[zeros(k);(-1.)^k]),
-                                    L,Laguerre(L.α+k)))
+    DerivativeWrapper(SpaceOperator(ToeplitzOperator(Complex{Float64}[],[zeros(k);(-1.)^k]*conj(cisangle(L.domain))/L.domain.L),
+                                    L,Laguerre(L.α+k,L.domain)))
 
 
 union_rule(A::Laguerre,B::Laguerre) = Laguerre(min(A.α,B.α))
@@ -164,15 +196,12 @@ struct LaguerreWeight{S,T} <: WeightSpace{S,Ray{false,Float64},Float64}
     L::T
     space::S
 end
-
-
 """
     LaguerreWeight(α, space)
 
 weights `space` by `x^α * exp(-x)`.
 """
 LaguerreWeight(α, space::Space) = LaguerreWeight(α, one(α),space)
-
 """
     WeightedLaguerre(α)
 
@@ -214,8 +243,9 @@ last(f::Fun{<:LaguerreWeight,T}) where T = zero(T)
 function Derivative(sp::LaguerreWeight,k)
     @assert sp.α == 0
     if k==1
+        c = conj(cisangle(sp.space.domain))/sp.space.domain.L
         D=Derivative(sp.space)
-        D2=D-sp.L*I
+        D2=c*D-(c*sp.L)*I
         DerivativeWrapper(SpaceOperator(D2,sp,LaguerreWeight(sp.α,sp.L,rangespace(D2))),1)
     else
         D=Derivative(sp)
@@ -300,6 +330,3 @@ function Multiplication(f::Fun{LaguerreWeight{H,T}},S::Laguerre) where {H<:Lague
     rs=rangespace(M)
     MultiplicationWrapper(f,SpaceOperator(M,S,LaguerreWeight(space(f).α, space(f).L, rs)))
 end
-
-
-
