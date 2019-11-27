@@ -32,13 +32,13 @@ FastTransforms = "0.5, 0.6"
 FillArrays = "0.7, 0.8"
 IntervalSets = "0.3.1"
 Reexport = "0.2"
-SpecialFunctions = "0.7, 0.8"
+SpecialFunctions = "0.7, 0.8, 0.9"
 julia = "1"
 
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 LazyArrays = "5078a376-72f3-5289-bfd5-ec5146d43c02"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test","StaticArrays","LazyArrays"]
+test = ["Test", "StaticArrays", "LazyArrays"]
