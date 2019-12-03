@@ -219,11 +219,11 @@ using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
 
         @test norm((Dirichlet(d)*u-ones(∂(d))).coefficients) < 1E-7
         @test norm((A*u-Fun([ones(∂(d));0.])).coefficients) < 1E-7
-        @test norm(((A*u)[2]-(Laplacian(space(u))+100I)*u).coefficients) < 1E-10
+        @test norm(((A*u)[2]-(Laplacian(space(u))+100I)*u).coefficients) < 1E-9
         @test eltype(ApproxFunBase.promotedomainspace(Laplacian(),space(u))) == Float64
         @test eltype(ApproxFunBase.promotedomainspace(Laplacian()+100I,space(u))) == Float64
-        @test norm(((A*u)[2]-(Laplacian()+100I)*u).coefficients) < 1E-10
-        @test norm((Laplacian()*u+100*u - (A*u)[2]).coefficients) < 10E-10
+        @test norm(((A*u)[2]-(Laplacian()+100I)*u).coefficients) < 1E-8
+        @test norm((Laplacian()*u+100*u - (A*u)[2]).coefficients) < 1E-8
         @time v=\(A,[ones(∂(d));0.];tolerance=1E-7)
         @test norm((u-v).coefficients) < 100eps()
 
