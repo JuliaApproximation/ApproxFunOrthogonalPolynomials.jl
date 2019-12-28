@@ -31,7 +31,7 @@ import ApproxFunOrthogonalPolynomials: JacobiZ
         A=Conversion(Chebyshev(d),Ultraspherical(2,d))
         x = Fun()
         f=Fun(exp)
-        @test AbstractMatrix(view(A.op, Block.(1:3), Block.(1:3))) isa BlockBandedMatrix
+        @test AbstractMatrix(view(A.op, Block.(1:3), Block.(1:3))) isa BlockSkylineMatrix
         testbandedoperator(A)
 
         @test norm(A\Fun(x.*f,rangespace(A))-(x.*f)) < 100eps()
