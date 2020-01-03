@@ -230,10 +230,10 @@ transform(S::TensorSpace{<:Tuple{<:Chebyshev,<:Chebyshev}},v::AbstractVector,
         plan=plan_transform(S,v)) = plan*copy(v)
 
 plan_itransform(S::TensorSpace{<:Tuple{<:Chebyshev,<:Chebyshev}},v::AbstractVector) =
-     plan_ipaduatransform!(eltype(v),sum(1:nblocks(Fun(S,v))),Val{false})
+     plan_ipaduatransform!(eltype(v),sum(1:Int(block(S,length(v)))),Val{false})
 
 itransform(S::TensorSpace{<:Tuple{<:Chebyshev,<:Chebyshev}},v::AbstractVector,
-         plan=plan_itransform(S,v)) = plan*pad(v,sum(1:nblocks(Fun(S,v))))
+         plan=plan_itransform(S,v)) = plan*pad(v,sum(1:Int(block(S,length(v)))))
 
 
 #TODO: adaptive
