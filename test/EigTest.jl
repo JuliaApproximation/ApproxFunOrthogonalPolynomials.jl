@@ -99,6 +99,53 @@ Base._range(a::T, step::T, ::Nothing, len::Integer) where {T <: AbstractFloat} =
         @test norm((λ[1:4] - λtrue)./λ[1:4]) < 1e-5
     end
 
+    @testset "Schrödinger with linear + Dirac potential with Robin boundary conditions" begin
+        #
+        # [-𝒟² + V] u = λu,  u(-1) = u(1) + u'(1) = 0,
+        #
+        # where V = x + 100δ(x-0.25).
+        #
+        d = Segment(-1..0.25)∪Segment(0.25..1)
+        S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
+        NS = PiecewiseSpace(NormalizedUltraspherical.(0.5, d.domains))
+        V = Fun(identity, S)
+        L = -Derivative(S, 2) + V
+        C = Conversion(domainspace(L), rangespace(L))
+        B4 = zeros(Operator{ApproxFun.prectype(S)}, 1, 2)
+        B4[1, 1] = -Evaluation(component(S, 1), rightendpoint, 1) - 100*0.5*Evaluation(component(S, 1), rightendpoint)
+        B4[1, 2] = Evaluation(component(S, 2), leftendpoint, 1)  - 100*0.5*Evaluation(component(S, 2), leftendpoint)
+        B4 = ApproxFun.InterlaceOperator(B4, PiecewiseSpace, ApproxFun.ArraySpace)
+        B = [Evaluation(S, -1); Evaluation(S, 1) + Evaluation(S, 1, 1); continuity(S, 0); B4]
+        QS = QuotientSpace(B)
+        Q = Conversion(QS, S)
+        D1 = Conversion(S, NS)
+        D2 = Conversion(NS, S)
+        R = D1*Q
+        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
+        A = R'D1*P*L*D2*R
+        B = R'R
+
+        n = 100
+        SA = Symmetric(A[1:n,1:n], :L)
+        SB = Symmetric(B[1:n,1:n], :L)
+
+        k = 3
+
+        λ, Q = eigen(SA, SB);
+        u_QS = Fun(QS, Q[:, k])
+        u_S = Fun(u_QS, S)
+        u = Fun(u_S, PiecewiseSpace(Chebyshev.(d.domains)))
+        u /= sign(u'(-1))
+        u1, u2 = components(u)
+
+        @test norm(u(-1)) < 100eps()
+        @test u(1) ≈ -u'(1)
+        @test u1(0.25) ≈ u2(0.25)
+        @test u2'(0.25) - u1'(0.25) ≈ 100*u(0.25)
+        @test -u1'' + component(V, 1)*u1 ≈ λ[k]*u1
+        @test -u2'' + component(V, 2)*u2 ≈ λ[k]*u2
+    end
+
     @testset "BigFloat negative Laplacian with Dirichlet boundary conditions" begin
         #
         # -𝒟² u = λu,  u(±1) = 0.
