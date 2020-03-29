@@ -141,9 +141,9 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
     a=order(A); b=order(B)
     if b==a
         ConversionWrapper(Operator(I,A))
-    elseif a<b≤a+1  || b<a≤b+1
+    elseif -1 ≤ b-a ≤ 1 && b ≠ 1
         ConcreteConversion(A,B)
-    elseif b ≠ 1
+    elseif b-a > 1
         d=domain(A)
         ConversionWrapper(TimesOperator(Conversion(Ultraspherical(b-1,d),B),
                                         Conversion(A,Ultraspherical(b-1,d))))
