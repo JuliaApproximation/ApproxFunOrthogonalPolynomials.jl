@@ -1,6 +1,6 @@
 name = "ApproxFunOrthogonalPolynomials"
 uuid = "b70543e2-c0d9-56b8-a290-0d4d6d4de211"
-version = "0.3.2"
+version = "0.3.3"
 
 [deps]
 AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
@@ -22,10 +22,10 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 [compat]
 AbstractFFTs = "0.5"
 ApproxFunBase = "0.2, 0.3"
-BandedMatrices = "0.14"
-BlockArrays = "0.10, 0.11"
-BlockBandedMatrices = "0.6, 0.7.1"
-DomainSets = "0.1"
+BandedMatrices = "0.14, 0.15"
+BlockArrays = "0.10, 0.11, 0.12"
+BlockBandedMatrices = "0.6, 0.7.1, 0.8"
+DomainSets = "0.1, 0.2, 0.3"
 FFTW = "1.1"
 FastGaussQuadrature = "0.4"
 FastTransforms = "0.8"

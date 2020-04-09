@@ -52,7 +52,7 @@ import ApproxFunOrthogonalPolynomials: JacobiZ
         @test exp(0.1) ≈ (Derivative()*Fun(exp,Ultraspherical(1)))(0.1)
         D=Derivative(d)
         f = Fun(exp,d)
-        @test norm((Conversion(Chebyshev(d),Ultraspherical(2,d))\(D^2*f))-f'') < 100eps()
+        @test norm((Conversion(Chebyshev(d),Ultraspherical(2,d))\(D^2*f))-f'') < 200eps()
 
         f=Fun(x->x^2)
         D=Derivative(domain(f))
