@@ -148,7 +148,7 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
         ConversionWrapper(TimesOperator(Conversion(Ultraspherical(b-1,d),B),
                                         Conversion(A,Ultraspherical(b-1,d))))
     else
-        error("Cannot convert from $A to $B")
+        throw(ArgumentError("Cannot convert from $A to $B"))
     end
 end
 
