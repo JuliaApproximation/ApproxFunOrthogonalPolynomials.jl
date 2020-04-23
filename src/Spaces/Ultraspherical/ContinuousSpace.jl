@@ -235,7 +235,7 @@ const TensorChebyshevDirichlet = TensorSpace{<:Tuple{<:ChebyshevDirichlet{1,1,<:
 
 Dirichlet(S::TensorChebyshevDirichlet,k) = k == 0 ? ConcreteDirichlet(S,0) : tensor_Dirichlet(S,k)
 
-Dirichlet(d::ProductDomain{<:Tuple{<:IntervalOrSegment,<:IntervalOrSegment}}) =
+Dirichlet(d::RectDomain) =
     Dirichlet(ChebyshevDirichlet{1,1}(factor(d,1))*ChebyshevDirichlet{1,1}(factor(d,2)))
 
 isblockbanded(::Dirichlet{<:TensorChebyshevDirichlet}) = true

@@ -2,7 +2,7 @@ using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunct
 import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, factor, Block, cfstype,
                     blocklengths, block, tensorizer, Vec, ArraySpace, ∞,
                     testblockbandedoperator
-import ApproxFunOrthogonalPolynomials: chebyshevtransform                    
+import ApproxFunOrthogonalPolynomials: chebyshevtransform
 
 @testset "Multivariate" begin
     @testset "Square" begin
@@ -194,19 +194,18 @@ import ApproxFunOrthogonalPolynomials: chebyshevtransform
         @test x(0.1,0.2) ≈ 0.1
         @test y(0.1,0.2) ≈ 0.2
 
+        @test ∂(d) isa PiecewiseSegment
         x,y = Fun(∂(d))
         x,y = components(x),components(y)
-
-        g = [real(exp(x[1]-1im));0.0y[2];real(exp(x[3]+1im));real(exp(-1+1im*y[4]))]
+        @test (x[1]-1im)(0.1,-1.0) ≈ 0.1-im
+        g = [real(exp(x[1]-1im)); 0.0y[2]; real(exp(x[3]+1im)); real(exp(-1+1im*y[4]))]
         B = [ Operator(I,dx)⊗ldirichlet(dy);
              ldirichlet(dx)⊗Operator(I,dy);
              Operator(I,dx)⊗rdirichlet(dy);
              rneumann(dx)⊗Operator(I,dy)    ]
 
-
         @test Fun(g[1],rangespace(B)[1])(-0.1,-1.0) ≈ g[1](-0.1,-1.0)
         @test Fun(g[3],rangespace(B)[3])(-0.1,1.0)  ≈ g[3](-0.1,1.0)
-
 
         A = [B; Laplacian()]
 
