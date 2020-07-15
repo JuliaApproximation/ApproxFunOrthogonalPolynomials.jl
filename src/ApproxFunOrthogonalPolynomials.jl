@@ -1,50 +1,14 @@
 module ApproxFunOrthogonalPolynomials
 using Base, LinearAlgebra, Reexport, BandedMatrices, BlockBandedMatrices, AbstractFFTs, FFTW, BlockArrays, FillArrays, FastTransforms, IntervalSets, 
-            DomainSets, Statistics, SpecialFunctions, FastGaussQuadrature
+            DomainSets, Statistics, SpecialFunctions, FastGaussQuadrature, OrthogonalPolynomialsQuasi
             
 @reexport using ApproxFunBase
+
+import ApproxFunBase: Space, Fun
 
 import AbstractFFTs: Plan, fft, ifft
 import FFTW: plan_r2r!, fftwNumber, REDFT10, REDFT01, REDFT00, RODFT00, R2HC, HC2R,
                 r2r!, r2r,  plan_fft, plan_ifft, plan_ifft!, plan_fft!
-
-import ApproxFunBase: normalize!, flipsign, FiniteRange, Fun, MatrixFun, UnsetSpace, VFun, RowVector,
-                    UnivariateSpace, AmbiguousSpace, SumSpace, SubSpace, WeightSpace, NoSpace, Space,
-                    HeavisideSpace, PointSpace,
-                    IntervalOrSegment, RaggedMatrix, AlmostBandedMatrix,
-                    AnyDomain, ZeroSpace, ArraySpace, TrivialInterlacer, BlockInterlacer, 
-                    AbstractTransformPlan, TransformPlan, ITransformPlan,
-                    ConcreteConversion, ConcreteMultiplication, ConcreteDerivative, ConcreteIntegral,
-                    ConcreteVolterra, Volterra, VolterraWrapper,
-                    MultiplicationWrapper, ConversionWrapper, DerivativeWrapper, Evaluation, EvaluationWrapper,
-                    Conversion, defaultConversion, defaultcoefficients, default_Fun, Multiplication, Derivative, Integral, bandwidths, 
-                    ConcreteEvaluation, ConcreteDefiniteLineIntegral, ConcreteDefiniteIntegral, ConcreteIntegral,
-                    DefiniteLineIntegral, DefiniteIntegral, ConcreteDefiniteIntegral, ConcreteDefiniteLineIntegral, IntegralWrapper,
-                    ReverseOrientation, ReverseOrientationWrapper, ReverseWrapper, Reverse, NegateEven, Dirichlet, ConcreteDirichlet,
-                    TridiagonalOperator, SubOperator, Space, @containsconstants, spacescompatible,
-                    hasfasttransform, canonicalspace, domain, setdomain, prectype, domainscompatible, 
-                    plan_transform, plan_itransform, plan_transform!, plan_itransform!, transform, itransform, hasfasttransform, 
-                    CanonicalTransformPlan, ICanonicalTransformPlan,
-                    Integral, 
-                    domainspace, rangespace, boundary, 
-                    union_rule, conversion_rule, maxspace_rule, conversion_type, maxspace, hasconversion, points, 
-                    rdirichlet, ldirichlet, lneumann, rneumann, ivp, bvp, 
-                    linesum, differentiate, integrate, linebilinearform, bilinearform, 
-                    UnsetNumber, coefficienttimes, subspace_coefficients, sumspacecoefficients, specialfunctionnormalizationpoint,
-                    Segment, IntervalOrSegmentDomain, PiecewiseSegment, isambiguous, Vec, eps, isperiodic,
-                    arclength, complexlength,
-                    invfromcanonicalD, fromcanonical, tocanonical, fromcanonicalD, tocanonicalD, canonicaldomain, setcanonicaldomain, mappoint,
-                    reverseorientation, checkpoints, evaluate, extrapolate, mul_coefficients, coefficients, isconvertible,
-                    clenshaw, ClenshawPlan, sineshaw,
-                    toeplitz_getindex, toeplitz_axpy!, sym_toeplitz_axpy!, hankel_axpy!, ToeplitzOperator, SymToeplitzOperator, hankel_getindex, 
-                    SpaceOperator, ZeroOperator, InterlaceOperator,
-                    interlace!, reverseeven!, negateeven!, cfstype, pad!, alternatesign!, mobius,
-                    extremal_args, hesseneigvals, chebyshev_clenshaw, recA, recB, recC, roots,splitatroots,
-                    chebmult_getindex, intpow, alternatingsum,
-                    domaintype, diagindshift, rangetype, weight, isapproxinteger, default_Dirichlet, scal!, dotu,
-                    components, promoterangespace, promotedomainspace,
-                    block, blockstart, blockstop, blocklengths, isblockbanded, pointscompatible, affine_setdiff, complexroots,
-                    ℓ⁰, recα, recβ, recγ, ∞, RectDomain
 
 import DomainSets: Domain, indomain, UnionDomain, ProductDomain, FullSpace, Point, elements, DifferenceDomain,
             Interval, ChebyshevInterval, boundary, ∂, rightendpoint, leftendpoint,
@@ -93,18 +57,22 @@ import SpecialFunctions: sinpi, cospi, airy, besselh,
                     abs, sign, log, expm1, tan, abs2, sqrt, angle, max, min, cbrt, log,
                     atan, acos, asin, erfc, inv
 
-points(d::IntervalOrSegmentDomain{T},n::Integer; kind::Int=1) where {T} =
-    fromcanonical.(Ref(d), chebyshevpoints(float(real(eltype(T))), n; kind=kind))  # eltype to handle point
-bary(v::AbstractVector{Float64},d::IntervalOrSegmentDomain,x::Float64) = bary(v,tocanonical(d,x))
+
+Space(::ChebyshevInterval{T}) where T = ChebyshevT{T}()
+Fun(x::Number, sp::OrthogonalPolynomial) = Fun(sp, [x; zeros(typeof(x),∞)])
+
+# points(d::IntervalOrSegmentDomain{T},n::Integer; kind::Int=1) where {T} =
+#     fromcanonical.(Ref(d), chebyshevpoints(float(real(eltype(T))), n; kind=kind))  # eltype to handle point
+# bary(v::AbstractVector{Float64},d::IntervalOrSegmentDomain,x::Float64) = bary(v,tocanonical(d,x))
                     
-include("bary.jl")
+# include("bary.jl")
 
 
-include("ultraspherical.jl")
-include("Domains/Domains.jl")
-include("Spaces/Spaces.jl")
-include("roots.jl")
-include("specialfunctions.jl")
-include("fastops.jl")
+# include("ultraspherical.jl")
+# include("Domains/Domains.jl")
+# include("Spaces/Spaces.jl")
+# include("roots.jl")
+# include("specialfunctions.jl")
+# include("fastops.jl")
 
 end

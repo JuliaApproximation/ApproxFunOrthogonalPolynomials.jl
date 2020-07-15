@@ -1,6 +1,7 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
-    import ApproxFunBase: testspace, recA, recB, recC
-    import ApproxFunOrthogonalPolynomials: forwardrecurrence
+using ApproxFunOrthogonalPolynomials, ApproxFunBase, OrthogonalPolynomialsQuasi, LinearAlgebra, Test
+import ApproxFunBase: testspace, recA, recB, recC
+import ApproxFunOrthogonalPolynomials: forwardrecurrence
+
 
 @testset "Chebyshev" begin
     @testset "Forward recurrence" begin
@@ -8,16 +9,13 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
     end
 
     @testset "ChebyshevInterval" begin
-        @test Fun(x->2,10)(.1) ≈ 2
-        @test Fun(x->2)(.1) ≈ 2
-        @test Fun(Chebyshev,Float64[]).([0.,1.]) ≈ [0.,0.]
-        @test Fun(Chebyshev,[])(0.) ≈ 0.
-        @test Fun(x->4,Chebyshev(),1).coefficients == [4.0]
-        @test Fun(x->4).coefficients == [4.0]
+        @test Fun(x -> 2)(.1) ≈ 2
+        @test Fun(x -> 4,Chebyshev(),1).coefficients == [4.0]
+        @test Fun(x -> 4).coefficients == [4.0]
         @test Fun(4).coefficients == [4.0]
 
 
-        @test Fun(x->4).coefficients == [4.0]
+        @test Fun(x -> 4).coefficients == [4.0]
         @test Fun(4).coefficients == [4.0]
 
         f = Fun(ChebyshevInterval(), [1])
@@ -25,48 +23,34 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
 
         ef = Fun(exp)
         @test ef(0.1) ≈ exp(0.1)
+    end
 
-        for d in (ChebyshevInterval(),Interval(1.,2.),Segment(1.0+im,2.0+2im))
-            testspace(Chebyshev(d))
-        end
-
-        ef = Fun(exp,ChebyshevInterval())
-
-        @test ef == -(-ef)
-        @test ef == (ef-1) + 1
-
-        ef = Fun(exp)
-
-        cf = Fun(cos)
-
-        ecf = Fun(x->cos(x).*exp(x))
-        eocf = Fun(x->cos(x)./exp(x))
-
-        @test ef(.5) ≈ exp(.5)
-        @test ecf(.123456) ≈ cos(.123456).*exp(.123456)
+    @testset "Number" begin
+        x = Fun(5, Chebyshev())
+        @test x(0.5) ≡ 5.0
+        x = Fun(5+im, Chebyshev())
+        @test x(0.5) ≡ 5.0 + 1.0im
     end
 
     @testset "Algebra" begin
-        ef = Fun(exp,ChebyshevInterval())
+        ef = Fun(exp, ChebyshevInterval())
 
         @test ef == -(-ef)
         @test ef == (ef-1) + 1
 
         @test ef / 3 == (3 \ ef)
 
-
-        cf = Fun(cos)
-
-        ecf = Fun(x->cos(x).*exp(x))
-        eocf = Fun(x->cos(x)./exp(x))
+        cf = Fun(cos, Chebyshev())
+        ecf = Fun(x->cos(x).*exp(x), Chebyshev())
+        eocf = Fun(x->cos(x)./exp(x), Chebyshev())
 
         @test ef(.5) ≈ exp(.5)
         @test ecf(.123456) ≈ cos(.123456).*exp(.123456)
 
-        r=2 .* rand(100) .- 1
+        r = 2 .* rand(100) .- 1
 
-        @test maximum(abs,ef.(r)-exp.(r))<200eps()
-        @test maximum(abs,ecf.(r).-cos.(r).*exp.(r))<200eps()
+        @test maximum(abs,ef.(r)-exp.(r)) < 200eps()
+        @test maximum(abs,ecf.(r).-cos.(r).*exp.(r)) < 200eps()
 
         @test (cf .* ef)(0.1) ≈ ecf(0.1) ≈ cos(0.1)*exp(0.1)
         @test domain(cf.*ef) ≈ domain(ecf)
@@ -78,8 +62,9 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
     end
 
     @testset "Diff and cumsum" begin
-        ef = Fun(exp)
-        cf = Fun(cos)
+        ef = Fun(exp, Chebyshev())
+        cf = Fun(cos, Chebyshev())
+        @test Fun(ef, ChebyshevU())(0.1) ≈ exp(0.1)
         @test norm((ef - ef').coefficients)<10E-11
 
         @test norm((ef - cumsum(ef)').coefficients) < 20eps()
