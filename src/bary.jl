@@ -30,7 +30,7 @@ function bary(v::AbstractVector{Float64},pts::AbstractVector{Float64},x::Float64
 end
 
 
-bary(v::AbstractVector{Float64},x::Float64)=bary(v,chebyshevpoints(length(v);kind=2),x)
+bary(v::AbstractVector{Float64},x::Float64)=bary(v,chebyshevpoints(length(v), Val(2)),x)
 
 function randomadaptivebary(f::Function)
   r=rand()
@@ -44,7 +44,7 @@ function randomadaptivebary(f::Function)
 
   while err > tol
       n=2^logn + 1
-      pts=chebyshevpoints(n;kind=2)
+      pts=chebyshevpoints(n, Val(2))
       vals=f(pts)
       err=abs(bary(vals,pts,r)-fr)/n
       logn+=1
