@@ -203,7 +203,8 @@ import ApproxFunOrthogonalPolynomials: JacobiZ
 
     @testset "InterlaceOperator" begin
         A = InterlaceOperator(Diagonal([Matrix(I,2,2),Derivative(Chebyshev())]))
-
+        @test blockbandwidths(A) == (0,1)
+        @test subblockbandwidths(A) == (2,2)
         @test A[Block(1):Block(2), Block(1):Block(2)] isa BlockBandedMatrix
         @test Matrix(view(A, Block(1), Block(1))) == A[1:3,1:3]
         @test Matrix(view(A, Block(1):Block(2), Block(1):Block(2))) == A[1:4,1:4]
