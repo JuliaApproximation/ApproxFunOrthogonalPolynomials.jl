@@ -4,10 +4,16 @@ import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, fa
                     testblockbandedoperator
 import ApproxFunOrthogonalPolynomials: chebyshevtransform
 
+if VERSION < v"1.6-"
+	oneto(n) = Base.OneTo(n)
+else
+	import Base: oneto
+end
+
 @testset "Multivariate" begin
     @testset "Square" begin
         S = Space(ChebyshevInterval()^2)
-        @test @inferred(blocklengths(S)) ≡ Base.OneTo(∞)
+        @test @inferred(blocklengths(S)) ≡ oneto(∞)
 
         @test block(tensorizer(S), 1) == Block(1)
 
