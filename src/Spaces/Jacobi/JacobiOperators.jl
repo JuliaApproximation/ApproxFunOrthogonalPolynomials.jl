@@ -189,7 +189,7 @@ for (Func,Len,Sum) in ((:DefiniteIntegral,:complexlength,:sum),(:DefiniteLineInt
             if domainspace(Σ).b == domainspace(Σ).a == 0
                 0,0  # first entry
             else
-                0,∞
+                0,ℵ₀
             end
         end
     end

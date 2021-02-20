@@ -148,8 +148,8 @@ conversion_rule(b::ChebyshevDirichlet,a::Chebyshev)=b
 
 
 bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{1,0,D,R},typeof(leftendpoint)}) where {D,R} = 0,0
-bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{1,0,D,R},typeof(rightendpoint)}) where {D,R} = 0,∞
-bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{0,1,D,R},typeof(leftendpoint)}) where {D,R} = 0,∞
+bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{1,0,D,R},typeof(rightendpoint)}) where {D,R} = 0,ℵ₀
+bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{0,1,D,R},typeof(leftendpoint)}) where {D,R} = 0,ℵ₀
 bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{0,1,D,R},typeof(rightendpoint)}) where {D,R} = 0,0
 bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{1,1,D,R},typeof(leftendpoint)}) where {D,R} = 0,1
 bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{1,1,D,R},typeof(rightendpoint)}) where {D,R} = 0,1

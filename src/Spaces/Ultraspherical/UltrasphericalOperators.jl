@@ -206,12 +206,12 @@ bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{Int}}) = 0,2  # or
 bandwidths(C::ConcreteConversion{<:Ultraspherical{Int},<:Ultraspherical{Int}}) = 0,2
 
 bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical}) =
-    0,order(rangespace(C))==1 ? 2 : ∞
+    0,order(rangespace(C))==1 ? 2 : ℵ₀
 bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Chebyshev}) =
-    0,order(domainspace(C))==1 ? 2 : ∞
+    0,order(domainspace(C))==1 ? 2 : ℵ₀
 
 bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) =
-    0,order(domainspace(C))+1==order(rangespace(C)) ? 2 : ∞
+    0,order(domainspace(C))+1==order(rangespace(C)) ? 2 : ℵ₀
 
 Base.stride(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{Int}}) = 2
 Base.stride(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = 2

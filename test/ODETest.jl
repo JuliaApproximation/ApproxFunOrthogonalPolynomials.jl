@@ -1,5 +1,5 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, Test, LazyArrays
-import ApproxFunBase: Multiplication, testraggedbelowoperator, testbandedoperator, interlace, ∞
+import ApproxFunBase: Multiplication, testraggedbelowoperator, testbandedoperator, interlace, ∞, ℵ₀
 
 @testset "ODE" begin
     @testset "Airy" begin
@@ -95,7 +95,7 @@ import ApproxFunBase: Multiplication, testraggedbelowoperator, testbandedoperato
 
         Q,R=qr([B;D^2+I])
         @test Q[1,1] == -0.5773502691896257
-        @test size(Q') == (∞,∞)
+        @test size(Q') == (ℵ₀,ℵ₀)
         u=R\(Q'*[[cos(-1.0),cos(1.0)],0.0])
 
         @test u(0.) ≈ cos(0.0)
