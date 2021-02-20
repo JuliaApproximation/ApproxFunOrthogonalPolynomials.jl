@@ -79,7 +79,7 @@ import ApproxFunOrthogonalPolynomials: jacobip
         h = Fun(g,Chebyshev())
         @test norm(f.coefficients-h.coefficients,Inf) < 100eps()
         @time h = Fun(h,Legendre())
-        @test norm(g.coefficients-h.coefficients,Inf) < 1000eps()
+        @test norm(g.coefficients-h.coefficients,Inf) < 10000eps()
     end
 
     @testset "conversion for non-compatible paramters" begin
