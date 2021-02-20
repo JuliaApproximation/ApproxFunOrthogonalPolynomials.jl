@@ -77,7 +77,7 @@ import ApproxFunOrthogonalPolynomials: jacobip
         f = Fun(x->cospi(1000x))
         g = Fun(f,Legendre())
         h = Fun(g,Chebyshev())
-        @test norm(f.coefficients-h.coefficients,Inf) < 100eps()
+        @test norm(f.coefficients-h.coefficients,Inf) < 1000eps()
         @time h = Fun(h,Legendre())
         @test norm(g.coefficients-h.coefficients,Inf) < 10000eps()
     end
