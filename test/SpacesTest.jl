@@ -299,7 +299,6 @@ import ApproxFunBase: space, SpaceOperator,
     end
 
     @testset "remove point" begin
-        @test (-1..1) \ 0 == UnionDomain(-1..0, 0..1)
         f = Fun(identity, (-1..1) \ 0)
         @test f(0.1) ≈ 0.1
         @test f(-0.1) ≈ -0.1
