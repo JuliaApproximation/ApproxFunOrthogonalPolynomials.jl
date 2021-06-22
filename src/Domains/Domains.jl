@@ -10,14 +10,14 @@ isless(d2::Ray{true,T2},d1::IntervalOrSegment{T1}) where {T1<:Real,T2<:Real} = d
 
 
 ## set minus
-Base.setdiff(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::UnionDomain{AS}) where {AS <: AbstractVector{P}} where {P <: Point} =
+DomainSets.setdiffdomain(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::UnionDomain{AS}) where {AS <: AbstractVector{P}} where {P <: Point} =
     affine_setdiff(d, ptsin)
 
-Base.setdiff(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::WrappedDomain{<:AbstractVector}) =
+DomainSets.setdiffdomain(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::WrappedDomain{<:AbstractVector}) =
     affine_setdiff(d, ptsin)
 
-Base.setdiff(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::AbstractVector{<:Number}) =
+DomainSets.setdiffdomain(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::AbstractVector{<:Number}) =
     ApproxFunBase._affine_setdiff(d, ptsin)
 
-Base.setdiff(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::Number) =
+DomainSets.setdiffdomain(d::Union{AbstractInterval,Segment,Ray,Line}, ptsin::Number) =
     ApproxFunBase._affine_setdiff(d, ptsin)
