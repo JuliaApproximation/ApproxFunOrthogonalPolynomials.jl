@@ -48,6 +48,8 @@ convert(::Type{IT},::AnyDomain) where {IT<:Arc} =
 
 isempty(d::Arc) = false
 
+==(a::Arc, b::Arc) = a.center == b.center && a.radius == b.radius && all(a.angles .== b.angles)
+
 reverseorientation(a::Arc) = Arc(a.center,a.radius,reverse(a.angles))
 
 arclength(d::Arc) = d.radius*(d.angles[2]-d.angles[1])
