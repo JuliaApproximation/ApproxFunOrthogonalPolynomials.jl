@@ -1,12 +1,7 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, BandedMatrices, SpecialFunctions, Test
     import ApproxFunBase: bandwidth
 
-#
-# Fix for BigFloat stackoverflow
-# https://github.com/JuliaLang/julia/pull/30952
-#
-Base._range(a::T, step::T, ::Nothing, len::Integer) where {T <: AbstractFloat} =
-	    Base._rangestyle(Base.OrderStyle(T), Base.ArithmeticStyle(T), a, step, len)
+
 
 @testset "Eigenvalue problems" begin
     @testset "Negative Laplacian with Neumann boundary conditions" begin
