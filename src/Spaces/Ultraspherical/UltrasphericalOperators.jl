@@ -31,8 +31,11 @@ function Multiplication(f::Fun{C},sp::Ultraspherical{Int}) where C<:Chebyshev
     if order(sp) == 1
         cfs = f.coefficients
         MultiplicationWrapper(f,
-            SpaceOperator(SymToeplitzOperator(cfs/2) +
-                                HankelOperator(view(cfs,3:length(cfs))/(-2)),
+            SpaceOperator(
+                length(cfs) > 0 ?
+                    SymToeplitzOperator(cfs/2) +
+                        HankelOperator(view(cfs,3:length(cfs))/(-2)) :
+                    HankelOperator(view(cfs,3:length(cfs))/(-2)),
                           sp,sp))
 
     else
