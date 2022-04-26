@@ -268,6 +268,13 @@ import ApproxFunOrthogonalPolynomials: JacobiZ
         @test exp(-M).f == Multiplication(exp(-x), Chebyshev()).f
         @test (M/3).f == (3\M).f == Multiplication(x/3, Chebyshev()).f
         @test (M*3).f == (3*M).f == Multiplication(x*3, Chebyshev()).f
+
+        # test for Fun with an empty coefficients vector
+        v1 = Fun(Chebyshev(), Float64[])
+        v2 = Fun(Chebyshev(), Float64[0.0])
+        sp = Ultraspherical(1)
+        # the matrix representations should be identical
+        @test Multiplication(v1, sp)[1:4, 1:4] == Multiplication(v2, sp)[1:4, 1:4]
     end
 
     @testset "lastindex" begin
