@@ -63,7 +63,12 @@ function roots(f::Fun)
     end
 end
 
-roots(f::Fun{<:Chebyshev}) = fromcanonical.(f,roots(setcanonicaldomain(f)))
+function roots(f::Fun{<:Chebyshev})
+    g = Fun(space(f), float.(coefficients(f)))
+    gg = setcanonicaldomain(g)
+    r = roots(gg)
+    fromcanonical.(f,r)
+end
 
 
 for (BF,FF) in ((BigFloat,Float64),(Complex{BigFloat},ComplexF64))
