@@ -346,6 +346,7 @@ end
 
 domain(S::NormalizedPolynomialSpace) = domain(S.space)
 canonicalspace(S::NormalizedPolynomialSpace) = S.space
+setdomain(NS::NormalizedPolynomialSpace, d::Domain) = NormalizedPolynomialSpace(setdomain(canonicalspace(NS), d))
 
 NormalizedPolynomialSpace(space::PolynomialSpace{D,R}) where {D,R} = NormalizedPolynomialSpace{typeof(space),D,R}(space)
 

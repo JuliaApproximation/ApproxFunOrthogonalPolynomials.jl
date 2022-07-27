@@ -237,5 +237,18 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
                 end
             end
         end
+
+        @testset "derivative in normalized space" begin
+            s1 = NormalizedChebyshev(-1..1)
+            s2 = NormalizedChebyshev()
+            @test s1 == s2
+            D1 = Derivative(s1)
+            D2 = Derivative(s2)
+            f = x -> 3x^2 + 5x
+            f1 = Fun(f, s1)
+            f2 = Fun(f, s2)
+            @test f1 == f2
+            @test D1 * f1 == D2 * f2
+        end
     end
 end
