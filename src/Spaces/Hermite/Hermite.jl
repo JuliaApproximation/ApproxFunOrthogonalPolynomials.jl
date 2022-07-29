@@ -73,15 +73,15 @@ struct GaussWeight{S,T} <: WeightSpace{S,Line{Float64},Float64}
     L::T
 end
 
-GaussWeight(H::Hermite) = GaussWeight(H,H.L)
-GaussWeight() = GaussWeight(Hermite())
-
 """
 `GaussWeight(Hermite(L), L)` is a space spanned by `exp(-Lx²) * H_k(sqrt(L) * x)`
 where `H_k(x)`'s are Hermite polynomials.
 
 `GaussWeight()` is equivalent to `GaussWeight(Hermite(), 1.0)` by default.
 """
+GaussWeight(H::Hermite) = GaussWeight(H,H.L)
+GaussWeight() = GaussWeight(Hermite())
+
 Fun(::typeof(identity), sp::Hermite) = Fun(sp,[0.,0.5])
 Fun(::typeof(identity), sp::GaussWeight) = Fun(identity, sp.space)
 
