@@ -210,12 +210,14 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
     end
 
     @testset "inplace transform" begin
-        for v in Any[rand(10), rand(ComplexF64, 10)]
-            v2 = copy(v)
-            transform!(Chebyshev(), v)
-            @test transform(Chebyshev(), v2) == v
-            itransform!(Chebyshev(), v)
-            @test v2 ≈ v
+        for T in [Float32, Float64, BigFloat]
+            for v in Any[rand(T, 10), rand(complex(T), 10)]
+                v2 = copy(v)
+                transform!(Chebyshev(), v)
+                @test transform(Chebyshev(), v2) == v
+                itransform!(Chebyshev(), v)
+                @test v2 ≈ v
+            end
         end
     end
 end
