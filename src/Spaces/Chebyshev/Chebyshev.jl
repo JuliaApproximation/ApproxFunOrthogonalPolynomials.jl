@@ -72,6 +72,8 @@ transform(::Chebyshev,vals::AbstractVector,plan) = plan*vals
 itransform(::Chebyshev,cfs::AbstractVector,plan) = plan*cfs
 plan_transform(::Chebyshev,vals::AbstractVector) = plan_chebyshevtransform(vals)
 plan_itransform(::Chebyshev,cfs::AbstractVector) = plan_ichebyshevtransform(cfs)
+plan_transform!(::Chebyshev, vals::AbstractVector) = plan_chebyshevtransform!(vals)
+plan_itransform!(::Chebyshev, cfs::AbstractVector) = plan_ichebyshevtransform!(cfs)
 
 ## Evaluation
 
