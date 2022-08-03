@@ -170,7 +170,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LazyArrays, FillArrays, Lin
         @test norm(((Derivative(space(f))*f)-Fun(t->[2t,cos(t)])).coefficients)<100eps()
         @test norm((([1 2;3 4]*f)-Fun(t->[t^2+2sin(t),3t^2+4sin(t)])).coefficients)<100eps()
     end
-    
+
     @testset "Interlace" begin
         S1 = Chebyshev()^2
         S2 = Chebyshev()

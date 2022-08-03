@@ -253,7 +253,7 @@ function getindex(B::ConcreteDirichlet{<:TensorChebyshevDirichlet}, k::Integer,j
         one(T)
     elseif j == 2 && k ≤ 2
         -one(T)
-    elseif j == 2 && k ≤ 4
+    elseif j == 2 && k ≤ 4
         one(T)
     elseif j == 3 && (k == 1 || k == 4)
         -one(T)
@@ -263,7 +263,7 @@ function getindex(B::ConcreteDirichlet{<:TensorChebyshevDirichlet}, k::Integer,j
         -one(T)
     elseif j == 5 && (k == 1 || k == 3)
         one(T)
-    elseif j == 5 || j ≤ 3
+    elseif j == 5 || j ≤ 3
         zero(T)
     else
         K = Int(block(rs,k))
@@ -341,7 +341,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
         J = K+1  # super-diagonal block
         N = ret.rows[K.n[1]]
         M = ret.cols[J.n[1]]
-        if N ≠ 0 && M ≠ 0
+        if N ≠ 0 && M ≠ 0
             # calculate shift
             k_sh = K == K1 ? kr[1]-Kr1 : 0
             j_sh = J == J1 ? jr[1]-Jr1 : 0
@@ -357,7 +357,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
         J = K+1  # super-diagonal block
         N = ret.rows[K.n[1]]
         M = ret.cols[J.n[1]]
-        if N ≠ 0 && M ≠ 0
+        if N ≠ 0 && M ≠ 0
             # calculate shift
             k_sh = K == K1 ? kr[1]-Kr1 : 0
             j_sh = J == J1 ? jr[1]-Jr1 : 0
@@ -374,7 +374,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
         N = ret.rows[K.n[1]]
         M = ret.cols[J.n[1]]
 
-        if N ≠ 0 && M ≠ 0
+        if N ≠ 0 && M ≠ 0
             B=view(ret,K,J)
             # calculate shift
             k_sh = K == K1 ? kr[1]-Kr1 : 0
@@ -393,7 +393,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
         N = ret.rows[K.n[1]]
         M = ret.cols[J.n[1]]
 
-        if N ≠ 0 && M ≠ 0
+        if N ≠ 0 && M ≠ 0
             B=view(ret,K,J)
             # calculate shift
             k_sh = K == K1 ? kr[1]-Kr1 : 0

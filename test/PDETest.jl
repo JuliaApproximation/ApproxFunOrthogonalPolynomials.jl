@@ -169,7 +169,7 @@ import ApproxFunBase: testbandedblockbandedoperator, testblockbandedoperator, te
         u=\(A,F;tolerance=1E-10)
 
         @test u(0.1,0.2)  ≈ exp(0.1)*cos(0.2)
-    end    
+    end
 
 
     @testset "Check resizing" begin
@@ -289,5 +289,5 @@ import ApproxFunBase: testbandedblockbandedoperator, testblockbandedoperator, te
             [Fun(x->exp(-20(x+0.5)^2),s),[[0],[0,0]],0.0];tolerance=1E-2)
 
         @test u(-0.4,0.1) ≈ u(-0.5,0.0) atol = 0.0001
-    end    
+    end
 end

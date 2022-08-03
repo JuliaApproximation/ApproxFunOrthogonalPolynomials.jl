@@ -48,7 +48,7 @@ function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)},kr::Abst
         @assert isa(d,IntervalOrSegment)
         if kr[1]==1 && kr[end] ≥ 2
             tocanonicalD(d,leftendpoint(d)).*(a .+ b .+ kr).*T[zero(T);jacobip(T,0:kr[end]-2,1+a,1+b,-one(T))]/2
-        elseif kr[1]==1  # kr[end] ≤ 1
+        elseif kr[1]==1  # kr[end] ≤ 1
             zeros(T,length(kr))
         else
             tocanonicalD(d,leftendpoint(d)) .* (a.+b.+kr).*jacobip(T,kr.-1,1+a,1+b,-one(T))/2
@@ -77,7 +77,7 @@ function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(rightendpoint)},kr::Abs
         @assert isa(d,IntervalOrSegment)
         if kr[1]==1 && kr[end] ≥ 2
             tocanonicalD(d,leftendpoint(d))*((a+b).+kr).*T[zero(T);jacobip(T,0:kr[end]-2,1+a,1+b,one(T))]/2
-        elseif kr[1]==1  # kr[end] ≤ 1
+        elseif kr[1]==1  # kr[end] ≤ 1
             zeros(T,length(kr))
         else
             tocanonicalD(d,leftendpoint(d))*((a+b).+kr).*jacobip(T,kr.-1,1+a,1+b,one(T))/2
@@ -178,7 +178,7 @@ for (Func,Len,Sum) in ((:DefiniteIntegral,:complexlength,:sum),(:DefiniteLineInt
             dsp = domainspace(Σ)
 
             if dsp.b == dsp.a == 0
-                # TODO: copy and paste
+                # TODO: copy and paste
                 k == 1 ? convert(T,$Sum(Fun(dsp,[one(T)]))) : zero(T)
             else
                 convert(T,$Sum(Fun(dsp,[zeros(T,k-1);1])))

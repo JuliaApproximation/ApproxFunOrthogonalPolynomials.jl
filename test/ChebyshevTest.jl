@@ -202,7 +202,7 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
         f = 1/(1 + 25*(x^2))
         @test norm(f, Inf) ≈ 1.0
     end
-    
+
     @testset "Jacobi" begin
         S=Chebyshev()
         @test S.a==-0.5

@@ -148,7 +148,7 @@ function jac_gbmm!(α, J, B, β, C, b)
     Cn, Cm = size(C)
 
     @views for k=-1:b-1
-        if 1-Cn ≤ b-k ≤ Cm-1 # if inbands
+        if 1-Cn ≤ b-k ≤ Cm-1 # if inbands
             C[band(b-k)] .+= α.*B[band(b-k-1)][2:n-b+k+1].*Jp[1:n-b+k]
             if k ≥ 0
                 C[band(b-k)] .+= α.*B[band(b-k)].*J0[1:n-b+k]
@@ -160,7 +160,7 @@ function jac_gbmm!(α, J, B, β, C, b)
     end
 
     @views for k=-1:b-1
-        if 1-Cn ≤ k-b ≤ Cm-1 # if inbands
+        if 1-Cn ≤ k-b ≤ Cm-1 # if inbands
             C[band(k-b)] .+= α.*B[band(k-b+1)][1:n-b+k].*Jm[b-k:n-1]
             if k ≥ 0
                 C[band(k-b)] .+= α.*B[band(k-b)].*J0[b-k+1:n]
