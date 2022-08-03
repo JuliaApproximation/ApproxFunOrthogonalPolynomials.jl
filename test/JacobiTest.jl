@@ -38,10 +38,13 @@ import ApproxFunOrthogonalPolynomials: jacobip
             for T in [Float32, Float64, BigFloat]
                 for v in Any[rand(T, 10), rand(complex(T), 10)]
                     v2 = copy(v)
-                    transform!(Legendre(), v)
-                    @test transform(Legendre(), v2) == v
-                    itransform!(Legendre(), v)
-                    @test v2 ≈ v
+                    for a in 0:3, b in 0:3
+                        J = Jacobi(a, b)
+                        transform!(J, v)
+                        @test transform(J, v2) ≈ v
+                        itransform!(J, v)
+                        @test v2 ≈ v
+                    end
                 end
             end
         end
