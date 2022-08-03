@@ -17,7 +17,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteConversion{Chebyshev{DD,RR},Ultra
     kr,jr = parentindices(S)
     dg = diagindshift(S)
 
-    @assert -bandwidth(ret,1) ≤ dg ≤ bandwidth(ret,2)-2
+    @assert -bandwidth(ret,1) ≤ dg ≤ bandwidth(ret,2)-2
 
     ret[band(dg)] .= 0.5
     ret[band(dg+1)] .= 0.0
@@ -51,9 +51,9 @@ function BandedMatrix(V::SubOperator{T,ConcreteConversion{Ultraspherical{LT,DD,R
 
 
 
-    1-n ≤ dg ≤ m-1 && (ret[band(dg)] .= c./(jr[max(0,dg)+1:min(n+dg,m)] .- 2 .+ λ))
-    1-n ≤ dg+1 ≤ m-1 && (ret[band(dg+1)] .= 0)
-    1-n ≤ dg+2 ≤ m-1 && (ret[band(dg+2)] .= c./(2 .- λ .- jr[max(0,dg+2)+1:min(n+dg+2,m)]))
+    1-n ≤ dg ≤ m-1 && (ret[band(dg)] .= c./(jr[max(0,dg)+1:min(n+dg,m)] .- 2 .+ λ))
+    1-n ≤ dg+1 ≤ m-1 && (ret[band(dg+1)] .= 0)
+    1-n ≤ dg+2 ≤ m-1 && (ret[band(dg+2)] .= c./(2 .- λ .- jr[max(0,dg+2)+1:min(n+dg+2,m)]))
 
     ret
 end

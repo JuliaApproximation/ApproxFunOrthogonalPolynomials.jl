@@ -55,7 +55,7 @@ Derivative(sp::Ultraspherical{LT,DD},m::Integer) where {LT,DD<:IntervalOrSegment
     ConcreteDerivative(sp,m)
 function Integral(sp::Ultraspherical{LT,DD},m::Integer) where {LT,DD<:IntervalOrSegment}
     λ = order(sp)
-    if m ≤ λ
+    if m ≤ λ
         ConcreteIntegral(sp,m)
     else # Convert up
         nsp = Ultraspherical(λ+1,domain(sp))
@@ -315,7 +315,7 @@ function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},C,T},
     elseif λ == 0.5
         if k==1 && isodd(j)
             convert(T,FastTransforms.Λ((j-1)/2)^2/π)
-        elseif k ≤ j && iseven(k-j)
+        elseif k ≤ j && iseven(k-j)
             convert(T,FastTransforms.Λ((j-k)/2)*FastTransforms.Λ((k+j-2)/2)*2/π)
         else
             zero(T)

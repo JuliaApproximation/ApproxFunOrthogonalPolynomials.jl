@@ -18,9 +18,9 @@ struct Ultraspherical{T,D<:Domain,R} <: PolynomialSpace{D,R}
     order::T
     domain::D
     Ultraspherical{T,D,R}(m::T,d::D) where {T,D,R} = (@assert m ≠ 0; new(m,d))
-    Ultraspherical{T,D,R}(m::Number,d::Domain) where {T,D,R} = (@assert m ≠ 0; new(convert(T,m),convert(D,d)))
+    Ultraspherical{T,D,R}(m::Number,d::Domain) where {T,D,R} = (@assert m ≠ 0; new(convert(T,m),convert(D,d)))
     Ultraspherical{T,D,R}(d::Domain) where {T,D,R} = new(one(T),convert(D,d))
-    Ultraspherical{T,D,R}(m::Number) where {T,D,R} = (@assert m ≠ 0; new(convert(T,m),D()))
+    Ultraspherical{T,D,R}(m::Number) where {T,D,R} = (@assert m ≠ 0; new(convert(T,m),D()))
 end
 
 Ultraspherical(m::Number,d::Domain) = Ultraspherical{typeof(m),typeof(d),real(prectype(d))}(m,d)
