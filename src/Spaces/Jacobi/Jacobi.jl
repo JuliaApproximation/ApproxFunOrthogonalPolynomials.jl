@@ -136,7 +136,7 @@ zeros(S::Jacobi) = Fun(S,zeros(prectype(S),1))
 
 _chebyintervalcoeff(J) = [(J.b-J.a)/(2+J.a+J.b), 2.0/(2+J.a+J.b)]
 _Fun(J::Jacobi, ::ChebyshevInterval) = Fun(J, _chebyintervalcoeff(J))
-function _Fun(J::Jacobi, d::ClosedInterval)
+function _Fun(J::Jacobi, d::Interval)
     scale = complexlength(d)/2
     coeffs = _chebyintervalcoeff(J) .* scale
     coeffs[1] += leftendpoint(d)
