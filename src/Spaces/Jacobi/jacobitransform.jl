@@ -16,24 +16,25 @@ plan_transform!(S::Jacobi, v::AbstractVector) =
 *(P::JacobiTransformPlan, vals::AbstractVector) = lmul!(P.cjtplan, P.chebplan * vals)
 
 
-struct JacobiITransformPlan{T,CPLAN,CJT} <: AbstractTransformPlan{T}
+struct JacobiITransformPlan{T,CPLAN,CJT,inplace} <: AbstractTransformPlan{T}
     ichebplan::CPLAN
     icjtplan::CJT
-    inplace :: Bool
 end
 
-JacobiITransformPlan(chebplan::CPLAN, cjtplan::CJT, inplace = false) where {CPLAN,CJT} =
-    JacobiITransformPlan{eltype(chebplan),CPLAN,CJT}(chebplan, cjtplan, inplace)
+JacobiITransformPlan(chebplan, cjtplan) = JacobiITransformPlan{false}(chebplan, cjtplan)
+JacobiITransformPlan{inplace}(chebplan::CPLAN, cjtplan::CJT) where {CPLAN,CJT,inplace} =
+    JacobiITransformPlan{eltype(chebplan),CPLAN,CJT,inplace}(chebplan, cjtplan)
 
-
+inplace(J::JacobiITransformPlan{<:Any,<:Any,<:Any,IP}) where {IP} = IP
 
 plan_itransform(S::Jacobi, v::AbstractVector) =
     JacobiITransformPlan(plan_itransform(Chebyshev(), v), plan_jac2cheb(v, S.a, S.b))
 plan_itransform!(S::Jacobi, v::AbstractVector) =
-    JacobiITransformPlan(plan_itransform!(Chebyshev(), v), plan_jac2cheb(v, S.a, S.b), true)
+    JacobiITransformPlan{true}(plan_itransform!(Chebyshev(), v), plan_jac2cheb(v, S.a, S.b))
+icjt(P, cfs, ::Val{true}) = lmul!(P, cfs)
+icjt(P, cfs, ::Val{false}) = P * cfs
 function *(P::JacobiITransformPlan, cfs::AbstractVector)
-    c2 = P.inplace ? lmul!(P.icjtplan, cfs) : P.icjtplan * cfs
-    P.ichebplan * c2
+    P.ichebplan * icjt(P.icjtplan, cfs, Val(inplace(P)))
 end
 
 
