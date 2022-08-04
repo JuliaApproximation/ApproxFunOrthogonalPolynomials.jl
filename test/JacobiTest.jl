@@ -61,6 +61,10 @@ import ApproxFunOrthogonalPolynomials: jacobip
             g = Fun(x->x, s)
             @test coefficients(f) ≈ coefficients(g)
         end
+        f = Fun(identity, Legendre(-1..1))
+        g = Fun(identity, Legendre())
+        @test coefficients(f) ≈ coefficients(g)
+        @test f(0.2) ≈ g(0.2) ≈ 0.2
     end
 
     @testset "Jacobi multiplication" begin
