@@ -134,15 +134,16 @@ one(S::Jacobi) = Fun(S,fill(one(Float64),1))
 zeros(::Type{T},S::Jacobi) where {T<:Number} = Fun(S,zeros(T,1))
 zeros(S::Jacobi) = Fun(S,zeros(prectype(S),1))
 
-_Fun(J::Jacobi, ::ChebyshevInterval) = Fun(J, [(J.b-J.a)/(2+J.a+J.b), 2.0/(2+J.a+J.b)])
+_chebyintervalcoeff(J) = [(J.b-J.a)/(2+J.a+J.b), 2.0/(2+J.a+J.b)]
+_Fun(J::Jacobi, ::ChebyshevInterval) = Fun(J, _chebyintervalcoeff(J))
 function _Fun(J::Jacobi, d::ClosedInterval)
     scale = complexlength(d)/2
-    coeffs = [2.0*(J.b + 1)/(2+J.a+J.b), 2.0/(2+J.a+J.b)] .* scale
+    coeffs = _chebyintervalcoeff(J) .* scale
     coeffs[1] += leftendpoint(d)
     Fun(J, coeffs)
 end
 function _Fun(J::Jacobi, d)
-    complexlength(d)/2*(Fun(J,[2.0*(J.b + 1)/(2+J.a+J.b),2.0/(2+J.a+J.b)]))+leftendpoint(d)
+    complexlength(d)/2*(Fun(J,_chebyintervalcoeff(J)))+leftendpoint(d)
 end
 
 function Fun(::typeof(identity), J::Jacobi)
