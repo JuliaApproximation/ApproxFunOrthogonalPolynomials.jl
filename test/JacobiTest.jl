@@ -1,7 +1,7 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, Test, SpecialFunctions, LinearAlgebra
 import ApproxFunBase: testbandedbelowoperator, testbandedoperator, testspace, testtransforms, Vec,
                     maxspace, NoSpace, hasconversion, testfunctional,
-                    reverseorientation, ReverseOrientation
+                    reverseorientation, ReverseOrientation, transform!, itransform!
 import ApproxFunOrthogonalPolynomials: jacobip
 
 @testset "Jacobi" begin
@@ -33,6 +33,21 @@ import ApproxFunOrthogonalPolynomials: jacobip
     @testset "Conversion" begin
         testtransforms(Jacobi(-0.5,-0.5))
         @test norm(Fun(Fun(exp),Jacobi(-.5,-.5))-Fun(exp,Jacobi(-.5,-.5))) < 300eps()
+
+        @testset "inplace transform" begin
+            for T in [Float32, Float64, BigFloat]
+                for v in Any[rand(T, 10), rand(complex(T), 10)]
+                    v2 = copy(v)
+                    for a in 0:0.5:3, b in 0:0.5:3
+                        J = Jacobi(a, b)
+                        transform!(J, v)
+                        @test transform(J, v2) ≈ v
+                        itransform!(J, v)
+                        @test v2 ≈ v
+                    end
+                end
+            end
+        end
     end
 
     @testset "Derivative" begin
