@@ -55,12 +55,24 @@ import ApproxFunOrthogonalPolynomials: jacobip
         @time testbandedoperator(D)
     end
 
+    @testset "identity Fun for interval domains" begin
+        for d in [1..2, -1..1, 10..20], s in Any[Legendre(d), Jacobi(1, 2, d), Jacobi(1.2, 2.3, d)]
+            f = Fun(identity, s)
+            g = Fun(x->x, s)
+            @test coefficients(f) ≈ coefficients(g)
+        end
+    end
 
     @testset "Jacobi multiplication" begin
         x=Fun(identity,Jacobi(0.,0.))
         f=Fun(exp,Jacobi(0.,0.))
 
         @test (x*f)(.1) ≈ .1exp(.1)
+
+        x=Fun(identity,Jacobi(0.,0., 1..2))
+        f=Fun(exp,Jacobi(0.,0., 1..2))
+
+        @test (x*f)(1.1) ≈ 1.1exp(1.1)
 
         x=Fun(identity,Jacobi(12.324,0.123))
         f=Fun(exp,Jacobi(0.,0.))
