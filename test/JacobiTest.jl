@@ -169,6 +169,22 @@ import ApproxFunOrthogonalPolynomials: jacobip
         @test maxspace(a,b) == NoSpace()
         @test union(a,b) == Jacobi(-0.5,-0.5)
         @test !hasconversion(a,b)
+
+        @testset for a in Any[Chebyshev(0..1), Ultraspherical(1, 0..1)]
+            b = ApproxFunBase.setdomain(Jacobi(a), 1..2)
+            c = union(a, b)
+            d = domain(c)
+            @test 0 in d
+            @test 1 in d
+            @test 2 in d
+
+            b = Legendre(1..2)
+            c = union(a, b)
+            d = domain(c)
+            @test 0 in d
+            @test 1 in d
+            @test 2 in d
+        end
     end
 
     @testset "Reverse orientation" begin
