@@ -495,7 +495,11 @@ function union_rule(A::Chebyshev,B::Jacobi)
             union(Jacobi(A),B)
         end
     else
-        NoSpace()
+        if isapprox(B.a,-0.5) && isapprox(B.b,-0.5)
+            union(A, Chebyshev(domain(B)))
+        else
+            NoSpace()
+        end
     end
 end
 function union_rule(A::Ultraspherical,B::Jacobi)
@@ -508,7 +512,11 @@ function union_rule(A::Ultraspherical,B::Jacobi)
             union(Jacobi(A),B)
         end
     else
-        NoSpace()
+        if isapprox(B.a,m-0.5) && isapprox(B.b,m-0.5)
+            union(A, Ultraspherical(m, domain(B)))
+        else
+            NoSpace()
+        end
     end
 end
 
