@@ -171,6 +171,10 @@ import ApproxFunOrthogonalPolynomials: jacobip
         @test !hasconversion(a,b)
 
         @testset for a in Any[Chebyshev(0..1), Ultraspherical(1, 0..1)]
+            b = Jacobi(a)
+            c = union(a, b)
+            @test c == a
+
             b = ApproxFunBase.setdomain(Jacobi(a), 1..2)
             c = union(a, b)
             d = domain(c)
@@ -184,6 +188,11 @@ import ApproxFunOrthogonalPolynomials: jacobip
             @test 0 in d
             @test 1 in d
             @test 2 in d
+
+            b = Legendre(domain(a))
+            c = union(a, b)
+            d = domain(c)
+            @test d == domain(a)
         end
     end
 
