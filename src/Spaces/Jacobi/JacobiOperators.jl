@@ -487,7 +487,7 @@ end
 
 
 function union_rule(A::Chebyshev,B::Jacobi)
-    if isapprox(B.a,-0.5) && isapprox(B.b,-0.5)
+    if domainscompatible(A, B) && isapprox(B.a,-0.5) && isapprox(B.b,-0.5)
         # the spaces are the same
         A
     else
@@ -496,7 +496,7 @@ function union_rule(A::Chebyshev,B::Jacobi)
 end
 function union_rule(A::Ultraspherical,B::Jacobi)
     m=order(A)
-    if isapprox(B.a,m-0.5) && isapprox(B.b,m-0.5)
+    if domainscompatible(A, B) && isapprox(B.a,m-0.5) && isapprox(B.b,m-0.5)
         # the spaces are the same
         A
     else
