@@ -177,6 +177,13 @@ import ApproxFunOrthogonalPolynomials: jacobip
             @test 0 in d
             @test 1 in d
             @test 2 in d
+
+            b = Legendre(1..2)
+            c = union(a, b)
+            d = domain(c)
+            @test 0 in d
+            @test 1 in d
+            @test 2 in d
         end
     end
 
