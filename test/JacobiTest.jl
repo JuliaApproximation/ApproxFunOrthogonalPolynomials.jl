@@ -48,6 +48,10 @@ import ApproxFunOrthogonalPolynomials: jacobip
                 end
             end
         end
+
+        @testset "Conversion between spaces" begin
+            @test_throws ErrorException Conversion(Jacobi(2,2), Jacobi(1,1))
+        end
     end
 
     @testset "Derivative" begin
