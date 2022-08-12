@@ -7,6 +7,10 @@
 ^(f::Fun{S},c::Integer) where {S<:ContinuousSpace} = Fun(map(f->f^c,components(f)),PiecewiseSpace)
 ^(f::Fun{S},c::Number) where {S<:ContinuousSpace} = Fun(map(f->f^c,components(f)),PiecewiseSpace)
 
+function *(f::Fun{<:ContinuousSpace}, g::Fun{<:ContinuousSpace})
+    @assert components(domain(f)) == components(domain(g))
+    Fun(map(*, components(f), components(g)), PiecewiseSpace)
+end
 
 ^(f::Fun{<:PolynomialSpace},k::Integer) = intpow(f,k)
 

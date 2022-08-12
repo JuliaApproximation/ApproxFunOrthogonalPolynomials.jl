@@ -94,7 +94,10 @@ function *(P::TransformPlan{T,SS,false},vals::AbstractVector{T}) where {T,SS<:Co
     end
 end
 
-components(S::ContinuousSpace) = map(ChebyshevDirichlet{1,1},components(domain(S)))
+_components(S::ContinuousSpace, d::Vector{T}) where {T} =
+    map(ChebyshevDirichlet{1,1}, d)::Vector{ChebyshevDirichlet{1,1,T,eltype(T)}}
+_components(S::ContinuousSpace, d) = map(ChebyshevDirichlet{1,1}, d)
+components(S::ContinuousSpace) = _components(S, components(domain(S)))
 canonicalspace(S::ContinuousSpace) = PiecewiseSpace(components(S))
 convert(::Type{PiecewiseSpace}, S::ContinuousSpace) = canonicalspace(S)
 
@@ -105,11 +108,11 @@ block(C::ContinuousSpace,k) = Block((k-1)÷ncomponents(C.domain)+1)
 
 ## components
 
-components(f::Fun{CS},j::Integer) where {CS<:ContinuousSpace} = components(Fun(f,canonicalspace(f)),j)
-components(f::Fun{CS}) where {CS<:ContinuousSpace} = components(Fun(f,canonicalspace(space(f))))
+components(f::Fun{<:ContinuousSpace},j::Integer) = components(Fun(f,canonicalspace(f)),j)
+components(f::Fun{<:ContinuousSpace}) = components(Fun(f,canonicalspace(space(f))))
 
 
-function points(f::Fun{CS}) where {CS<:ContinuousSpace}
+function points(f::Fun{<:ContinuousSpace})
     n=ncoefficients(f)
     d=domain(f)
     K=ncomponents(d)
