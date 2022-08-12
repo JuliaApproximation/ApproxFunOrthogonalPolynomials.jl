@@ -94,10 +94,7 @@ function *(P::TransformPlan{T,SS,false},vals::AbstractVector{T}) where {T,SS<:Co
     end
 end
 
-_components(S::ContinuousSpace, d::Vector{T}) where {T} =
-    map(ChebyshevDirichlet{1,1}, d)::Vector{ChebyshevDirichlet{1,1,T,eltype(T)}}
-_components(S::ContinuousSpace, d) = map(ChebyshevDirichlet{1,1}, d)
-components(S::ContinuousSpace) = _components(S, components(domain(S)))
+components(S::ContinuousSpace) = map(ChebyshevDirichlet{1,1}, components(domain(S)))
 canonicalspace(S::ContinuousSpace) = PiecewiseSpace(components(S))
 convert(::Type{PiecewiseSpace}, S::ContinuousSpace) = canonicalspace(S)
 

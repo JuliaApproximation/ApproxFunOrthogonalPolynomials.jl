@@ -62,7 +62,6 @@ import ApproxFunBase: space, SpaceOperator,
         @test norm(sc-(c+s))<100eps()
 
         @test sc * sc == sc^2
-        @inferred (x -> components(space(x)))(sc)
     end
 
     @testset "max/min creates breakpoints" begin
