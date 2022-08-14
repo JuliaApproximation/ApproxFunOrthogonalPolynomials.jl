@@ -77,7 +77,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteDerivative{Chebyshev{DD,RR},K,T},
     k = D.order
     d = domain(D)
 
-    C=convert(T,pochhammer(one(T),k-1)/2*(4/(complexlength(d)))^k)
+    C=strictconvert(T,pochhammer(one(T),k-1)/2*(4/(complexlength(d)))^k)
 
 
     # need to drop columns
@@ -103,7 +103,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteDerivative{Ultraspherical{LT,DD,R
     λ = order(domainspace(D))
     d = domain(D)
 
-    C = convert(T,pochhammer(one(T)*λ,k)*(4/(complexlength(d)))^k)
+    C = strictconvert(T,pochhammer(one(T)*λ,k)*(4/(complexlength(d)))^k)
     ret[band(dg+k)] .= C
 
     ret

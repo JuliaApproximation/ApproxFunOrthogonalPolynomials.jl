@@ -40,7 +40,7 @@ end
 
 function coefficients(f::AbstractVector{T}, a::Jacobi, b::Chebyshev) where T
     if domain(a) == domain(b) && (!isapproxinteger(a.a-0.5) || !isapproxinteger(a.b-0.5))
-        jac2cheb(f, convert(T,a.a), convert(T,a.b))
+        jac2cheb(f, strictconvert(T,a.a), strictconvert(T,a.b))
     else
         defaultcoefficients(f,a,b)
     end
@@ -48,7 +48,7 @@ end
 function coefficients(f::AbstractVector{T}, a::Chebyshev, b::Jacobi) where T
     isempty(f) && return f
     if domain(a) == domain(b) && (!isapproxinteger(b.a-0.5) || !isapproxinteger(b.b-0.5))
-        cheb2jac(f, convert(T,b.a), convert(T,b.b))
+        cheb2jac(f, strictconvert(T,b.a), strictconvert(T,b.b))
     else
         defaultcoefficients(f,a,b)
     end
