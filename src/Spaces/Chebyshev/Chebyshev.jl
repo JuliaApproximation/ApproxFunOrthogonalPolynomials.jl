@@ -16,7 +16,7 @@ struct Chebyshev{D<:Domain,R} <: PolynomialSpace{D,R}
         isempty(d) && throw(ArgumentError("Domain cannot be empty"))
         new(d)
     end
-    Chebyshev{D,R}() where {D,R} = new(convert(D, ChebyshevInterval()))
+    Chebyshev{D,R}() where {D,R} = new(strictconvert(D, ChebyshevInterval()))
 end
 
 Chebyshev(d::Domain) = Chebyshev{typeof(d),real(prectype(d))}(d)

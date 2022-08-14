@@ -411,7 +411,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
 end
 
 
-union_rule(A::PiecewiseSpace, B::ContinuousSpace) = union(A, convert(PiecewiseSpace, B))
+union_rule(A::PiecewiseSpace, B::ContinuousSpace) = union(A, strictconvert(PiecewiseSpace, B))
 union_rule(A::ConstantSpace, B::ContinuousSpace) = B
 union_rule(A::ContinuousSpace, B::PolynomialSpace{<:IntervalOrSegment}) =
     Space(domain(A) ∪ domain(B))

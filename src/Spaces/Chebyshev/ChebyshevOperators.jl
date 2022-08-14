@@ -65,7 +65,7 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)
     x = op.x
     d = domain(op)
     p = op.order
-    cst = convert(T,(2/complexlength(d))^p)
+    cst = strictconvert(T,(2/complexlength(d))^p)
     n=length(k)
 
     ret = Array{T}(undef, n)
@@ -79,7 +79,7 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)
         @simd for j=k
             @inbounds ret[j+k1] *= (j-1)^2-m^2
         end
-        scal!(convert(T,1/(2m+1)), ret)
+        scal!(strictconvert(T,1/(2m+1)), ret)
     end
 
     scal!(cst,ret)
@@ -91,7 +91,7 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint
     x = op.x
     d = domain(op)
     p = op.order
-    cst = convert(T,(2/complexlength(d))^p)
+    cst = strictconvert(T,(2/complexlength(d))^p)
     n=length(k)
 
     ret = fill(one(T),n)
@@ -101,7 +101,7 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint
         @simd for j=k
             @inbounds ret[j+k1] *= (j-1)^2-m^2
         end
-        scal!(convert(T,1/(2m+1)), ret)
+        scal!(strictconvert(T,1/(2m+1)), ret)
     end
 
     scal!(cst,ret)
@@ -110,7 +110,7 @@ end
 function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},M,OT,T},
                 j::Integer) where {DD<:IntervalOrSegment,RR,M<:Real,OT,T}
     if op.order == 0
-        convert(T,evaluatechebyshev(j,tocanonical(domain(op),op.x))[end])
+        strictconvert(T,evaluatechebyshev(j,tocanonical(domain(op),op.x))[end])
     else
         error("Only zero–second order implemented")
     end
@@ -223,8 +223,8 @@ function getindex(D::ConcreteDerivative{Chebyshev{DD,RR},K,T},k::Integer,j::Inte
     d=domain(D)
 
     if j==k+m
-        C=convert(T,pochhammer(one(T),m-1)/2*(4/complexlength(d))^m)
-        convert(T,C*(m+k-one(T)))
+        C=strictconvert(T,pochhammer(one(T),m-1)/2*(4/complexlength(d))^m)
+        strictconvert(T,C*(m+k-one(T)))
     else
         zero(T)
     end
@@ -238,14 +238,14 @@ linesum(f::Fun{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment,RR} =
 ## Clenshaw-Curtis functional
 
 for (Func,Len) in ((:DefiniteIntegral,:complexlength),(:DefiniteLineIntegral,:arclength))
-    ConcFunc = Meta.parse("Concrete"*string(Func))
+    ConcFunc = Symbol(:Concrete, Func)
     @eval begin
         $Func(S::Chebyshev{D}) where {D<:IntervalOrSegment} = $ConcFunc(S)
         function getindex(Σ::$ConcFunc{Chebyshev{D,R},T},k::Integer) where {D<:IntervalOrSegment,R,T}
             d = domain(Σ)
             C = $Len(d)/2
 
-            isodd(k) ? convert(T,2C/(k*(2-k))) : zero(T)
+            isodd(k) ? strictconvert(T,2C/(k*(2-k))) : zero(T)
         end
     end
 end

@@ -79,7 +79,7 @@ function getindex(D::ConcreteDerivative{Ultraspherical{TT,DD,RR},K,T},
     λ=order(domainspace(D))
 
     if j==k+m
-        convert(T,(pochhammer(one(T)*λ,m)*(4/complexlength(d)).^m))
+        strictconvert(T,(pochhammer(one(T)*λ,m)*(4/complexlength(d)).^m))
     else
         zero(T)
     end
@@ -104,9 +104,9 @@ function getindex(Q::ConcreteIntegral{Ultraspherical{LT,DD,RR}},k::Integer,j::In
 
     if λ == 1 && k==j+1
         C = complexlength(d)/2
-        convert(T,C./(k-1))
+        strictconvert(T,C./(k-1))
     elseif λ > 1 && k==j+m
-        convert(T,pochhammer(one(T)*λ,-m)*(complexlength(d)/4)^m)
+        strictconvert(T,pochhammer(one(T)*λ,-m)*(complexlength(d)/4)^m)
     else
         zero(T)
     end
@@ -285,9 +285,9 @@ function getindex(M::ConcreteConversion{C,Ultraspherical{LT,DD,RR},T},
         if j==k==1
             one(T)
         elseif j==k
-            convert(T,sqrt(π)/(2FastTransforms.Λ(k-1)))
+            strictconvert(T,sqrt(π)/(2FastTransforms.Λ(k-1)))
         elseif k < j && iseven(k-j)
-            convert(T,-(j-1)*(k-0.5)*(FastTransforms.Λ((j-k-2)/2)/(j-k))*
+            strictconvert(T,-(j-1)*(k-0.5)*(FastTransforms.Λ((j-k-2)/2)/(j-k))*
                             (FastTransforms.Λ((j+k-3)/2)/(j+k-1)))
         else
             zero(T)
@@ -314,9 +314,9 @@ function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},C,T},
         end
     elseif λ == 0.5
         if k==1 && isodd(j)
-            convert(T,FastTransforms.Λ((j-1)/2)^2/π)
+            strictconvert(T,FastTransforms.Λ((j-1)/2)^2/π)
         elseif k ≤ j && iseven(k-j)
-            convert(T,FastTransforms.Λ((j-k)/2)*FastTransforms.Λ((k+j-2)/2)*2/π)
+            strictconvert(T,FastTransforms.Λ((j-k)/2)*FastTransforms.Λ((k+j-2)/2)*2/π)
         else
             zero(T)
         end
@@ -334,7 +334,7 @@ function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},
     λ2 = order(rangespace(M))
     if abs(λ1-λ2) < 1
         if j ≥ k && iseven(k-j)
-            convert(T,(λ1 < λ2 && k ≠ j ? -1 : 1) *  # fix sign for lgamma
+            strictconvert(T,(λ1 < λ2 && k ≠ j ? -1 : 1) *  # fix sign for lgamma
                 exp(lgamma(λ2)+log(k-1+λ2)-lgamma(λ1)-lgamma(λ1-λ2) + lgamma((j-k)/2+λ1-λ2)-
                 lgamma((j-k)/2+1)+lgamma((k+j-2)/2+λ1)-lgamma((k+j-2)/2+λ2+1)))
         else

@@ -97,6 +97,8 @@ points(d::IntervalOrSegmentDomain{T},n::Integer) where {T} =
     fromcanonical.(Ref(d), chebyshevpoints(float(real(eltype(T))), n))  # eltype to handle point
 bary(v::AbstractVector{Float64},d::IntervalOrSegmentDomain,x::Float64) = bary(v,tocanonical(d,x))
 
+strictconvert(T::Type, x) = convert(T, x)::T
+
 include("bary.jl")
 
 

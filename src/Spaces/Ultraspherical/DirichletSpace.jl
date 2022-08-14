@@ -6,7 +6,7 @@ export ChebyshevDirichlet
 struct ChebyshevDirichlet{left,right,D,R} <: PolynomialSpace{D,R}
     domain::D
     ChebyshevDirichlet{left,right,D,R}(d) where {left,right,D,R} = new(d)
-    ChebyshevDirichlet{left,right,D,R}() where {left,right,D,R} = new(convert(D, ChebyshevInterval()))
+    ChebyshevDirichlet{left,right,D,R}() where {left,right,D,R} = new(strictconvert(D, ChebyshevInterval()))
 end
 
 for TYP in (:Number,:AbstractArray,:Vec,:Fun)
