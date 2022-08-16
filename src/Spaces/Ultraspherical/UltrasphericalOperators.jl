@@ -123,8 +123,8 @@ function Conversion(A::Chebyshev,B::Ultraspherical)
     else
         d=domain(A)
         US=Ultraspherical(order(B)-1,d)
-        ConversionWrapper(TimesOperator(ConcreteConversion(US,B),
-                                        Conversion(Chebyshev(d),US)))
+        ConversionWrapper(TimesOperator(
+            ConcreteConversion(US,B), Conversion(A,US)))
     end
 end
 
@@ -148,8 +148,9 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
         ConcreteConversion(A,B)
     elseif b-a > 1
         d=domain(A)
-        ConversionWrapper(TimesOperator(ConcreteConversion(Ultraspherical(b-1,d),B),
-                                        Conversion(A,Ultraspherical(b-1,d))))
+        US=Ultraspherical(b-1,d)
+        ConversionWrapper(TimesOperator(
+            ConcreteConversion(US,B), Conversion(A,US)))
     else
         throw(ArgumentError("Cannot convert from $A to $B"))
     end

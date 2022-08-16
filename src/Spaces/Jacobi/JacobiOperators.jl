@@ -294,14 +294,14 @@ function Conversion(A::Jacobi,B::Chebyshev)
     elseif A.a == A.b == 0
         ConversionWrapper(
             SpaceOperator(
-                Conversion(Ultraspherical(1//2),B),
+                ConcreteConversion(Ultraspherical(1//2),B),
                 A,B))
     elseif A.a == A.b
         US = Ultraspherical(A)
-        ConversionWrapper(Conversion(US,B)*Conversion(A,US))
+        ConversionWrapper(Conversion(US,B)*ConcreteConversion(A,US))
     else
         J = Jacobi(B)
-        Conversion(J,B)*Conversion(A,J)
+        ConcreteConversion(J,B)*Conversion(A,J)
     end
 end
 
@@ -311,21 +311,22 @@ function Conversion(A::Chebyshev,B::Jacobi)
     elseif B.a == B.b == 0
         ConversionWrapper(
             SpaceOperator(
-                Conversion(A,Ultraspherical(1//2,domain(B))),
+                ConcreteConversion(A,Ultraspherical(1//2,domain(B))),
                 A,B))
     elseif B.a == B.b
         US = Ultraspherical(B)
-        ConversionWrapper(Conversion(US,B)*Conversion(A,US))
+        ConcreteConversion(US,B) * Conversion(A,US)
     else
         J = Jacobi(A)
-        Conversion(J,B)*Conversion(A,J)
+        Conversion(J,B)*ConcreteConversion(A,J)
     end
 end
 
 
 function Conversion(A::Jacobi,B::Ultraspherical)
     if A.a == A.b == -0.5
-        ConversionWrapper(Conversion(Chebyshev(domain(A)),B)*Conversion(A,Chebyshev(domain(A))))
+        ConversionWrapper(Conversion(Chebyshev(domain(A)),B)*
+            ConcreteConversion(A,Chebyshev(domain(A))))
     elseif A.a == A.b == order(B)-0.5
         ConcreteConversion(A,B)
     elseif A.a == A.b == 0
@@ -335,16 +336,17 @@ function Conversion(A::Jacobi,B::Ultraspherical)
                 A,B))
     elseif A.a == A.b
         US = Ultraspherical(A)
-        ConversionWrapper(Conversion(US,B)*Conversion(A,US))
+        ConversionWrapper(Conversion(US,B)*ConcreteConversion(A,US))
     else
         J = Jacobi(B)
-        Conversion(J,B)*Conversion(A,J)
+        ConcreteConversion(J,B)*Conversion(A,J)
     end
 end
 
 function Conversion(A::Ultraspherical,B::Jacobi)
     if B.a == B.b == -0.5
-        ConversionWrapper(Conversion(Chebyshev(domain(A)),B)*Conversion(A,Chebyshev(domain(A))))
+        ConversionWrapper(ConcreteConversion(Chebyshev(domain(A)),B)*
+            Conversion(A,Chebyshev(domain(A))))
     elseif B.a == B.b == order(A)-0.5
         ConcreteConversion(A,B)
     elseif B.a == B.b == 0
@@ -354,10 +356,10 @@ function Conversion(A::Ultraspherical,B::Jacobi)
                 A,B))
     elseif B.a == B.b
         US = Ultraspherical(B)
-        ConversionWrapper(Conversion(US,B)*Conversion(A,US))
+        ConversionWrapper(ConcreteConversion(US,B)*Conversion(A,US))
     else
         J = Jacobi(A)
-        Conversion(J,B)*Conversion(A,J)
+        Conversion(J,B)*ConcreteConversion(A,J)
     end
 end
 
