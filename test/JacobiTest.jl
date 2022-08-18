@@ -28,6 +28,13 @@ import ApproxFunOrthogonalPolynomials: jacobip
         @test norm((Fun(f,sp2)-f2).coefficients)<100eps()
         @test norm((Fun(f,sp3)-f3).coefficients)<100eps()
         @test norm((Fun(f,sp4)-f4).coefficients)<200eps()
+
+        f = Fun(Jacobi(0,0), Float64[1,2,3])
+        for x in [-1, 0, 1]
+            g = Evaluation(x) * f
+            @test ncoefficients(g) == 1
+            @test coefficients(g)[1] == f(x)
+        end
     end
 
     @testset "Conversion" begin
