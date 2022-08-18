@@ -29,4 +29,23 @@ import ApproxFunOrthogonalPolynomials: jacobip
                     ApproxFunBase.ConversionWrapper{TimesOperator{Float64, Tuple{Int64, Int64}}, Float64}};
         @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(2));
     end
+
+    @testset "Normalized space" begin
+        f = x -> 3x^3 + 5x^2 + 2
+        for dt in Any[(), (0..1,)],
+                S in Any[Ultraspherical(1, dt...),
+                         Ultraspherical(0.5,dt...),
+                         Ultraspherical(3, dt...)]
+
+            NS = NormalizedPolynomialSpace(S)
+            f = Fun(f, S)
+            g = Fun(f, NS)
+            @test space(g) == NS
+            d = domain(f)
+            r = range(leftendpoint(d), rightendpoint(d), 10)
+            for x in r
+                @test f(x) ≈ g(x)
+            end
+        end
+    end
 end
