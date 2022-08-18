@@ -44,7 +44,7 @@ import ApproxFunOrthogonalPolynomials: jacobip
                 d = domain(f)
                 r = range(leftendpoint(d), rightendpoint(d), length=10)
                 for x in r
-                    @test f(x) ≈ g(x)
+                    @test f(x) ≈ g(x) rtol=1e-7 atol=1e-14
                 end
             end
         end
