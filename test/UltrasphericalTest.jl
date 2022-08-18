@@ -42,7 +42,7 @@ import ApproxFunOrthogonalPolynomials: jacobip
             g = Fun(f, NS)
             @test space(g) == NS
             d = domain(f)
-            r = range(leftendpoint(d), rightendpoint(d), 10)
+            r = range(leftendpoint(d), rightendpoint(d), length=10)
             for x in r
                 @test f(x) ≈ g(x)
             end
