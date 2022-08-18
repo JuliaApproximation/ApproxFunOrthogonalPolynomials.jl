@@ -299,18 +299,21 @@ import ApproxFunOrthogonalPolynomials: jacobip
     end
 
     @testset "Normalized space" begin
-        f = x -> 3x^3 + 5x^2 + 2
-        for dt in Any[(), (0..1,)],
-                S in Any[Jacobi(1,1,dt...), Jacobi(0.5,1.5,dt...), Legendre(dt...), ]
+        for f in Any[x -> 3x^3 + 5x^2 + 2, x->x, identity]
+            for dt in Any[(), (0..1,)],
+                    S in Any[Jacobi(1,1,dt...),
+                             Jacobi(0.5,1.5,dt...),
+                             Legendre(dt...), ]
 
-            NS = NormalizedPolynomialSpace(S)
-            f = Fun(f, S)
-            g = Fun(f, NS)
-            @test space(g) == NS
-            d = domain(f)
-            r = range(leftendpoint(d), rightendpoint(d), length=10)
-            for x in r
-                @test f(x) ≈ g(x)
+                NS = NormalizedPolynomialSpace(S)
+                f = Fun(f, S)
+                g = Fun(f, NS)
+                @test space(g) == NS
+                d = domain(f)
+                r = range(leftendpoint(d), rightendpoint(d), length=10)
+                for x in r
+                    @test f(x) ≈ g(x)
+                end
             end
         end
     end
