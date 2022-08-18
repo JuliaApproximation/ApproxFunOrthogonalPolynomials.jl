@@ -367,6 +367,15 @@ function Conversion(L::S, M::NormalizedPolynomialSpace{S}) where S<:PolynomialSp
     end
 end
 
+function Fun(::typeof(identity), S::NormalizedPolynomialSpace)
+    C = canonicalspace(S)
+    f = Fun(identity, C)
+    coeffs = coefficients(f)
+    CS = ConcreteConversion(C, S)
+    ApproxFunBase.mul_coefficients!(CS, coeffs)
+    Fun(S, coeffs)
+end
+
 bandwidths(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S}) where {S,D,R} = (0, 0)
 bandwidths(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R}}) where {S,D,R} = (0, 0)
 
