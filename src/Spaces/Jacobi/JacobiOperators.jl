@@ -90,7 +90,7 @@ end
 
 function getindex(op::ConcreteEvaluation{<:Jacobi,<:Number},kr::AbstractRange)
     @assert op.order == 0
-    jacobip(eltype(op),kr-1,op.space.a,op.space.b,tocanonical(domain(op),op.x))
+    jacobip(eltype(op),kr.-1,op.space.a,op.space.b,tocanonical(domain(op),op.x))
 end
 
 
