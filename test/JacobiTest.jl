@@ -297,4 +297,24 @@ import ApproxFunOrthogonalPolynomials: jacobip
         testbandedbelowoperator(C)
         @test norm(C*Fun(exp,Ultraspherical(1))-Fun(exp,Jacobi(0,0))) < 100eps()
     end
+
+    @testset "Normalized space" begin
+        for f in Any[x -> 3x^3 + 5x^2 + 2, x->x, identity]
+            for dt in Any[(), (0..1,)],
+                    S in Any[Jacobi(1,1,dt...),
+                             Jacobi(0.5,1.5,dt...),
+                             Legendre(dt...), ]
+
+                NS = NormalizedPolynomialSpace(S)
+                fS = Fun(f, S)
+                fNS = Fun(f, NS)
+                @test space(fNS) == NS
+                d = domain(fS)
+                r = range(leftendpoint(d), rightendpoint(d), length=10)
+                for x in r
+                    @test fS(x) ≈ fNS(x) rtol=1e-7 atol=1e-14
+                end
+            end
+        end
+    end
 end

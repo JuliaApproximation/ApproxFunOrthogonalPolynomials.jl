@@ -220,4 +220,22 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
             end
         end
     end
+
+    @testset "Normalized space" begin
+        for f in Any[x -> 3x^3 + 5x^2 + 2, x->x, identity]
+            for dt in Any[(), (0..1,)]
+                S = Chebyshev(dt...)
+                NS = NormalizedPolynomialSpace(S)
+
+                fS = Fun(f, S)
+                fNS = Fun(f, NS)
+                @test space(fNS) == NS
+                d = domain(fS)
+                r = range(leftendpoint(d), rightendpoint(d), length=10)
+                for x in r
+                    @test fS(x) ≈ fNS(x) rtol=1e-7 atol=1e-14
+                end
+            end
+        end
+    end
 end
