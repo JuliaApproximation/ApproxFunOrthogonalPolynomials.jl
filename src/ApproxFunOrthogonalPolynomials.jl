@@ -108,5 +108,6 @@ include("Spaces/Spaces.jl")
 include("roots.jl")
 include("specialfunctions.jl")
 include("fastops.jl")
+include("show.jl")
 
 end
