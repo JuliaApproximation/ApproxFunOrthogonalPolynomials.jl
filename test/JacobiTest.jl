@@ -306,13 +306,13 @@ import ApproxFunOrthogonalPolynomials: jacobip
                              Legendre(dt...), ]
 
                 NS = NormalizedPolynomialSpace(S)
-                f = Fun(f, S)
-                g = Fun(f, NS)
-                @test space(g) == NS
-                d = domain(f)
+                fS = Fun(f, S)
+                fNS = Fun(f, NS)
+                @test space(fNS) == NS
+                d = domain(fS)
                 r = range(leftendpoint(d), rightendpoint(d), length=10)
                 for x in r
-                    @test f(x) ≈ g(x) rtol=1e-7 atol=1e-14
+                    @test fS(x) ≈ fNS(x) rtol=1e-7 atol=1e-14
                 end
             end
         end
