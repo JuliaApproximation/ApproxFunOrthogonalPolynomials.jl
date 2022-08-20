@@ -60,6 +60,22 @@ import ApproxFunOrthogonalPolynomials: jacobip
     @testset "Derivative" begin
         D=Derivative(Jacobi(0.,1.,Segment(1.,0.)))
         @time testbandedoperator(D)
+
+        f = Fun(x->x^2, Chebyshev())
+        C = Chebyshev()
+        @testset for J = Any[Jacobi(-0.5, -0.5), Legendre()]
+            if ApproxFunBase.hasconversion(C, J)
+                g = (Derivative(J) * Conversion(C, J)) * f
+                h = Derivative(C) * f
+                @test g ≈ h
+            end
+
+            if ApproxFunBase.hasconversion(J, C)
+                g = (Derivative(C) * Conversion(J, C)) * f
+                h = Derivative(J) * f
+                @test g ≈ h
+            end
+        end
     end
 
     @testset "identity Fun for interval domains" begin
