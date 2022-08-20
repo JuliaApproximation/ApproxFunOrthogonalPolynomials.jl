@@ -56,12 +56,18 @@ import ApproxFunOrthogonalPolynomials: jacobip
             end
         end
 
-        f = Fun(x->x^2, Chebyshev())
-        C = Chebyshev()
-        @testset for J = Any[Jacobi(-0.5, -0.5), Legendre(),
-                            Jacobi(0.5, 0.5), Jacobi(2.5, 1.5)]
-
-            @test Conversion(C, J) * f ≈ Fun(f, J)
+        @testset for d in [-1..1, 0..1]
+            f = Fun(x->x^2, Chebyshev(d))
+            C = space(f)
+            for J1 = Any[Jacobi(-0.5, -0.5, d), Legendre(d),
+                            Jacobi(0.5, 0.5, d), Jacobi(2.5, 1.5, d)]
+                for J in [J1, NormalizedPolynomialSpace(J1)]
+                    g = Fun(f, J)
+                    if !any(isnan, coefficients(g))
+                        @test Conversion(C, J) * f ≈ g
+                    end
+                end
+            end
         end
     end
 
@@ -69,16 +75,14 @@ import ApproxFunOrthogonalPolynomials: jacobip
         D=Derivative(Jacobi(0.,1.,Segment(1.,0.)))
         @time testbandedoperator(D)
 
-        f = Fun(x->x^2, Chebyshev())
-        C = Chebyshev()
-        @testset for J = Any[Jacobi(-0.5, -0.5), Legendre()]
-            if ApproxFunBase.hasconversion(C, J)
+        @testset for d in [-1..1, 0..1]
+            f = Fun(x->x^2, Chebyshev(d))
+            C = space(f)
+            for J = Any[Jacobi(-0.5, -0.5, d), Legendre(d)]
                 g = (Derivative(J) * Conversion(C, J)) * f
                 h = Derivative(C) * f
                 @test g ≈ h
-            end
 
-            if ApproxFunBase.hasconversion(J, C)
                 g = (Derivative(C) * Conversion(J, C)) * f
                 h = Derivative(J) * f
                 @test g ≈ h
