@@ -55,6 +55,14 @@ import ApproxFunOrthogonalPolynomials: jacobip
                 end
             end
         end
+
+        f = Fun(x->x^2, Chebyshev())
+        C = Chebyshev()
+        @testset for J = Any[Jacobi(-0.5, -0.5), Legendre(),
+                            Jacobi(0.5, 0.5), Jacobi(2.5, 1.5)]
+
+            @test Conversion(C, J) * f ≈ Fun(f, J)
+        end
     end
 
     @testset "Derivative" begin
