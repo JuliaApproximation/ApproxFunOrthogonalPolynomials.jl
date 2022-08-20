@@ -60,6 +60,16 @@ import ApproxFunOrthogonalPolynomials: jacobip
     @testset "Derivative" begin
         D=Derivative(Jacobi(0.,1.,Segment(1.,0.)))
         @time testbandedoperator(D)
+
+        @testset for S1 in Any[Jacobi(0,0),
+            Jacobi(0,0,1..2), Jacobi(2,2,1..2), Jacobi(0.5,2.5,1..2)],
+                S in Any[S1, NormalizedPolynomialSpace(S1)]
+            f = Fun(x->x^3 + 4x^2 + 2x + 6, S)
+            @test Derivative(S) * f ≈ Fun(x->3x^2 + 8x + 2, S)
+            @test Derivative(S)^2 * f ≈ Fun(x->6x+8, S)
+            @test Derivative(S)^3 * f ≈ Fun(x->6, S)
+            @test Derivative(S)^4 * f ≈ zeros(S)
+        end
     end
 
     @testset "identity Fun for interval domains" begin

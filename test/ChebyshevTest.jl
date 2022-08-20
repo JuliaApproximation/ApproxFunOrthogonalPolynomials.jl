@@ -102,6 +102,10 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
         r=rand(100) .+ 1
         @test maximum(abs,ef.(r)-exp.(r))<400eps()
         @test maximum(abs,ecf.(r).-cos.(r).*exp.(r))<100eps()
+
+        @testset "setdomain" begin
+            @test setdomain(NormalizedChebyshev(0..1), 1..2) == NormalizedChebyshev(1..2)
+        end
     end
 
     @testset "Other interval" begin
