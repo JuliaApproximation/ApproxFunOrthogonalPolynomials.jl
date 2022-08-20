@@ -102,6 +102,10 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
         r=rand(100) .+ 1
         @test maximum(abs,ef.(r)-exp.(r))<400eps()
         @test maximum(abs,ecf.(r).-cos.(r).*exp.(r))<100eps()
+
+        @testset "setdomain" begin
+            @test setdomain(NormalizedChebyshev(0..1), 1..2) == NormalizedChebyshev(1..2)
+        end
     end
 
     @testset "Other interval" begin
@@ -236,6 +240,19 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
                     @test fS(x) ≈ fNS(x) rtol=1e-7 atol=1e-14
                 end
             end
+        end
+
+        @testset "derivative in normalized space" begin
+            s1 = NormalizedChebyshev(-1..1)
+            s2 = NormalizedChebyshev()
+            @test s1 == s2
+            D1 = Derivative(s1)
+            D2 = Derivative(s2)
+            f = x -> 3x^2 + 5x
+            f1 = Fun(f, s1)
+            f2 = Fun(f, s2)
+            @test f1 == f2
+            @test D1 * f1 == D2 * f2
         end
     end
 end

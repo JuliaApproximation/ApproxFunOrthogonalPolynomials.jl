@@ -96,7 +96,13 @@ end
 
 ## Derivative
 
-Derivative(J::Jacobi,k::Integer)=k==1 ? ConcreteDerivative(J,1) : DerivativeWrapper(TimesOperator(Derivative(Jacobi(J.b+1,J.a+1,J.domain),k-1),ConcreteDerivative(J,1)),k)
+function Derivative(J::Jacobi,k::Integer)
+    k==1 ? ConcreteDerivative(J,1) :
+        DerivativeWrapper(
+            TimesOperator(
+                Derivative(Jacobi(J.b+1,J.a+1,J.domain),k-1),ConcreteDerivative(J,1)),
+        J, k)
+end
 
 
 
@@ -114,14 +120,14 @@ getindex(T::ConcreteDerivative{J},k::Integer,j::Integer) where {J<:Jacobi} =
 function Integral(J::Jacobi,k::Integer)
     if k > 1
         Q=Integral(J,1)
-        IntegralWrapper(TimesOperator(Integral(rangespace(Q),k-1),Q),k)
+        IntegralWrapper(TimesOperator(Integral(rangespace(Q),k-1),Q),J,k)
     elseif J.a > 0 && J.b > 0   # we have a simple definition
         ConcreteIntegral(J,1)
     else   # convert and then integrate
         sp=Jacobi(J.b+1,J.a+1,domain(J))
         C=Conversion(J,sp)
         Q=Integral(sp,1)
-        IntegralWrapper(TimesOperator(Q,C),1)
+        IntegralWrapper(TimesOperator(Q,C),J,1)
     end
 end
 
