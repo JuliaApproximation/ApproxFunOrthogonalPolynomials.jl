@@ -55,12 +55,40 @@ import ApproxFunOrthogonalPolynomials: jacobip
                 end
             end
         end
+
+        @testset for d in [-1..1, 0..1]
+            f = Fun(x->x^2, Chebyshev(d))
+            C = space(f)
+            for J1 = Any[Jacobi(-0.5, -0.5, d), Legendre(d),
+                            Jacobi(0.5, 0.5, d), Jacobi(2.5, 1.5, d)]
+                for J in [J1, NormalizedPolynomialSpace(J1)]
+                    g = Fun(f, J)
+                    if !any(isnan, coefficients(g))
+                        @test Conversion(C, J) * f ≈ g
+                    end
+                end
+            end
+        end
     end
 
     @testset "Derivative" begin
         D=Derivative(Jacobi(0.,1.,Segment(1.,0.)))
         @time testbandedoperator(D)
 
+
+        @testset for d in [-1..1, 0..1]
+            f = Fun(x->x^2, Chebyshev(d))
+            C = space(f)
+            for J = Any[Jacobi(-0.5, -0.5, d), Legendre(d)]
+                g = (Derivative(J) * Conversion(C, J)) * f
+                h = Derivative(C) * f
+                @test g ≈ h
+
+                g = (Derivative(C) * Conversion(J, C)) * f
+                h = Derivative(J) * f
+                @test g ≈ h
+            end
+        end
         @testset for S1 in Any[Jacobi(0,0),
             Jacobi(0,0,1..2), Jacobi(2,2,1..2), Jacobi(0.5,2.5,1..2)],
                 S in Any[S1, NormalizedPolynomialSpace(S1)]
