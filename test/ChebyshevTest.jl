@@ -254,5 +254,12 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
             @test f1 == f2
             @test D1 * f1 == D2 * f2
         end
+
+        @testset "space promotion" begin
+            s = NormalizedChebyshev()
+            f = (Derivative() + Fun(s)) * Fun(s)
+            g = ones(s) + Fun(s)^2
+            @test f ≈ g
+        end
     end
 end

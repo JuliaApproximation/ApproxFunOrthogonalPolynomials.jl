@@ -377,6 +377,10 @@ function Fun(::typeof(identity), S::NormalizedPolynomialSpace)
     Fun(S, coeffs)
 end
 
+function conversion_rule(a::NormalizedPolynomialSpace{S}, b::S) where S<:PolynomialSpace
+    domainscompatible(domain(a), domain(b)) ? a : NoSpace()
+end
+
 bandwidths(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S}) where {S,D,R} = (0, 0)
 bandwidths(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R}}) where {S,D,R} = (0, 0)
 
