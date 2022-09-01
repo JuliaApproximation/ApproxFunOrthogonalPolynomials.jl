@@ -41,50 +41,58 @@ canonicalspace(S::Ultraspherical) = Chebyshev(domain(S))
 pointscompatible(A::Ultraspherical, B::Chebyshev) = domain(A) == domain(B)
 pointscompatible(A::Chebyshev, B::Ultraspherical) = domain(A) == domain(B)
 
-struct UltrasphericalPlan{CT,FT}
+struct UltrasphericalPlan{CT,FT,IP}
     chebplan::CT
     cheb2legplan::FT
 
-    UltrasphericalPlan{CT,FT}(cp,c2lp) where {CT,FT} = new{CT,FT}(cp,c2lp)
+    UltrasphericalPlan{CT,FT}(cp,c2lp,::Val{IP}) where {CT,FT,IP} = new{CT,FT,IP}(cp,c2lp)
 end
 
-struct UltrasphericalIPlan{CT,FT}
+struct UltrasphericalIPlan{CT,FT,IP}
     chebiplan::CT
     leg2chebplan::FT
 
-    UltrasphericalIPlan{CT,FT}(cp,c2lp) where {CT,FT} = new{CT,FT}(cp,c2lp)
+    UltrasphericalIPlan{CT,FT}(cp,c2lp,::Val{IP}) where {CT,FT,IP} = new{CT,FT,IP}(cp,c2lp)
 end
 
-function UltrasphericalPlan(λ::Number,vals)
+function UltrasphericalPlan(λ::Number,vals,inplace = Val(false))
     if λ == 0.5
-        cp = plan_transform(Chebyshev(),vals)
+        cp = ApproxFunBase._plan_transform!!(inplace)(Chebyshev(),vals)
         c2lp = plan_cheb2leg(eltype(vals),length(vals))
-        UltrasphericalPlan{typeof(cp),typeof(c2lp)}(cp,c2lp)
+        UltrasphericalPlan{typeof(cp),typeof(c2lp)}(cp,c2lp,inplace)
     else
         error("Not implemented")
     end
 end
 
-function UltrasphericalIPlan(λ::Number,cfs)
+function UltrasphericalIPlan(λ::Number,cfs,inplace = Val(false))
     if λ == 0.5
-        cp=plan_itransform(Chebyshev(),cfs)
+        cp = ApproxFunBase._plan_itransform!!(inplace)(Chebyshev(),cfs)
         c2lp=plan_leg2cheb(eltype(cfs),length(cfs))
-        UltrasphericalIPlan{typeof(cp),typeof(c2lp)}(cp,c2lp)
+        UltrasphericalIPlan{typeof(cp),typeof(c2lp)}(cp,c2lp,inplace)
     else
         error("Not implemented")
     end
 end
 
-*(UP::UltrasphericalPlan,v::AbstractVector) =
+*(UP::UltrasphericalPlan{<:Any,<:Any,false},v::AbstractVector) =
     UP.cheb2legplan*(UP.chebplan*v)
-*(UP::UltrasphericalIPlan,v::AbstractVector) =
+*(UP::UltrasphericalIPlan{<:Any,<:Any,false},v::AbstractVector) =
     UP.chebiplan*(UP.leg2chebplan*v)
 
+*(UP::UltrasphericalPlan{<:Any,<:Any,true},v::AbstractVector) =
+    lmul!(UP.cheb2legplan, UP.chebplan*v)
+*(UP::UltrasphericalIPlan{<:Any,<:Any,true},v::AbstractVector) =
+    UP.chebiplan * lmul!(UP.leg2chebplan, v)
 
 plan_transform(sp::Ultraspherical{Int},vals::AbstractVector) = CanonicalTransformPlan(sp,vals)
+plan_transform!(sp::Ultraspherical{Int},vals::AbstractVector) = CanonicalTransformPlan(sp,vals,Val(true))
 plan_transform(sp::Ultraspherical,vals::AbstractVector) = UltrasphericalPlan(order(sp),vals)
+plan_transform!(sp::Ultraspherical,vals::AbstractVector) = UltrasphericalPlan(order(sp),vals,Val(true))
 plan_itransform(sp::Ultraspherical{Int},cfs::AbstractVector) = ICanonicalTransformPlan(sp,cfs)
+plan_itransform!(sp::Ultraspherical{Int},cfs::AbstractVector) = ICanonicalTransformPlan(sp,cfs,Val(true))
 plan_itransform(sp::Ultraspherical,cfs::AbstractVector) = UltrasphericalIPlan(order(sp),cfs)
+plan_itransform!(sp::Ultraspherical,cfs::AbstractVector) = UltrasphericalIPlan(order(sp),cfs,Val(true))
 
 ## Construction
 
