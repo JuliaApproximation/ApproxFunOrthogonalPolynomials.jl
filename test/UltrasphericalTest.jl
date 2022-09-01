@@ -51,9 +51,10 @@ import ApproxFunOrthogonalPolynomials: jacobip
     end
 
     @testset "inplace transform" begin
-        for T in [Float32, Float64, ComplexF32, ComplexF64]
+        @testset for T in [Float32, Float64, ComplexF32, ComplexF64]
             v = rand(T, 4)
-            for d in Any[(), (0..1,)], order in Any[0.5, 1, 3]
+            vc = copy(v)
+            @testset for d in Any[(), (0..1,)], order in Any[0.5, 1, 3]
                 S = Ultraspherical(order, d...)
                 v2 = transform(S, v)
                 if order == 0.5
@@ -61,6 +62,9 @@ import ApproxFunOrthogonalPolynomials: jacobip
                 end
                 transform!(S, v)
                 @test v ≈ v2
+                itransform!(S, v)
+                @test v ≈ vc
+                @test v ≈ itransform(S, v2)
             end
         end
     end
