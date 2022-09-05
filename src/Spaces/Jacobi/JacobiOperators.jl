@@ -107,7 +107,7 @@ end
 
 
 rangespace(D::ConcreteDerivative{J}) where {J<:Jacobi}=Jacobi(D.space.b+D.order,D.space.a+D.order,domain(D))
-bandwidths(D::ConcreteDerivative{J}) where {J<:Jacobi}=0,D.order
+bandwidths(D::ConcreteDerivative{J}) where {J<:Jacobi}=-D.order,D.order
 
 getindex(T::ConcreteDerivative{J},k::Integer,j::Integer) where {J<:Jacobi} =
     j==k+1 ? eltype(T)((k+1+T.space.a+T.space.b)/complexlength(domain(T))) : zero(eltype(T))
