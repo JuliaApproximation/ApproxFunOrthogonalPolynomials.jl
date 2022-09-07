@@ -142,5 +142,6 @@ include("specialfunctions.jl")
 include("fastops.jl")
 include("symeigen.jl")
 include("show.jl")
+include("precompile.jl")
 
 end
