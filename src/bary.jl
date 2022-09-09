@@ -1,6 +1,6 @@
 ## Barycentric formula
 
-export bary,barysum
+export bary
 
 function bary(v::AbstractVector{Float64},pts::AbstractVector{Float64},x::Float64)
   n=length(v)
