@@ -2,7 +2,7 @@ using ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
 using Aqua
 
 @testset "Project quality" begin
-    Aqua.test_all(ApproxFunOrthogonalPolynomials, ambiguities=false, undefined_exports=false)
+    Aqua.test_all(ApproxFunOrthogonalPolynomials, ambiguities=false)
 end
 
 @testset "Domain" begin
