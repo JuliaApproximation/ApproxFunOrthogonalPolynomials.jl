@@ -45,6 +45,13 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, LinearAlg
         f = Fun(Ultraspherical(1))
         f .= exp.(x)
         @test f(0.1) ≈ exp(0.1)
+
+        d = Domain(-1..1)^2;
+        x,y = Fun(d);
+        z = exp.(x)
+        @test z(0.2, 0.1) ≈ exp(0.2) rtol=10eps()
+        z = exp.(y)
+        @test z(0.2, 0.1) ≈ exp(0.1) rtol=10eps()
     end
 
     @testset "norm" begin
