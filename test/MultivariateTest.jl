@@ -121,7 +121,6 @@ end
         @test evaluate(f.A,0.1) ≈ map(f->f(0.1),f.A)
     end
 
-
     @testset "KroneckerOperator" begin
         Mx = Multiplication(Fun(cos),Chebyshev())
         My = Multiplication(Fun(sin),Chebyshev())
@@ -132,7 +131,7 @@ end
         @test C[1:100,1:100] ≈ Float64[C[k,j] for k=1:100,j=1:100]
     end
 
-    @time @testset "Partial derivative operators" begin
+    @testset "Partial derivative operators" begin
         d = Space(0..1) * Space(0..2)
         Dx = Derivative(d, [1,0])
         testbandedblockbandedoperator(Dx)
@@ -160,7 +159,7 @@ end
         @test Number(B*f) ≈ f(0.1,0.3)
     end
 
-    @time @testset "x,y constructors" begin
+    @testset "x,y constructors" begin
         d=ChebyshevInterval()^2
 
         sp = ArraySpace(d,2)
