@@ -52,8 +52,8 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
 
         cf = Fun(cos)
 
-        ecf = @inferred Fun(x->cos(x).*exp(x))
-        eocf = @inferred Fun(x->cos(x)./exp(x))
+        ecf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)*exp(x))) : Fun(x->cos(x)*exp(x))
+        eocf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)/exp(x))) : Fun(x->cos(x)/exp(x))
 
         @test ef(.5) ≈ exp(.5)
         @test ecf(.123456) ≈ cos(.123456).*exp(.123456)
