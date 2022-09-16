@@ -228,7 +228,7 @@ end
 const TensorChebyshevDirichlet = TensorSpace{<:Tuple{<:ChebyshevDirichlet{1,1,<:IntervalOrSegment},
                                   <:ChebyshevDirichlet{1,1,<:IntervalOrSegment}}}
 
-Dirichlet(S::TensorChebyshevDirichlet,k) = k == 0 ? ConcreteDirichlet(S,0) : tensor_Dirichlet(S,k)
+@inline Dirichlet(S::TensorChebyshevDirichlet,k) = k == 0 ? ConcreteDirichlet(S,0) : tensor_Dirichlet(S,k)
 
 Dirichlet(d::RectDomain) =
     Dirichlet(ChebyshevDirichlet{1,1}(factor(d,1))*ChebyshevDirichlet{1,1}(factor(d,2)))

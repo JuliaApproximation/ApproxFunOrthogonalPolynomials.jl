@@ -1,5 +1,3 @@
-
-
 export PolynomialSpace, NormalizedPolynomialSpace
 
 ## Orthogonal polynomials

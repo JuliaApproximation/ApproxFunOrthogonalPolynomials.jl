@@ -227,4 +227,11 @@ using ApproxFunBase
         @test a[1] == 1
         @test a[2] ≈ exp(1)
     end
+
+    @testset "ArraySpace" begin
+        f = Fun(x->[cos(x), exp(x)], -1..1)
+        for x in [-1,0,1]
+            @test (f + one(f))(x) ≈ f(x) .+ one.(f(x))
+        end
+    end
 end

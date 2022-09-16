@@ -273,10 +273,9 @@ end
         @test g(0.1,1) ≈ 0
     end
 
-
     @testset "Dirichlet" begin
-        testblockbandedoperator(Dirichlet((0..1)^2))
-        testblockbandedoperator(Dirichlet((0..1) × (0.0 .. 1)))
+        testblockbandedoperator(@inferred Dirichlet((0..1)^2))
+        testblockbandedoperator(@inferred Dirichlet((0..1) × (0.0 .. 1)))
         testraggedbelowoperator(Dirichlet(Chebyshev()^2))
         testraggedbelowoperator(Dirichlet(Chebyshev(0..1) * Chebyshev(0.0..1)))
     end
