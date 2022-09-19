@@ -1,9 +1,29 @@
+module ApproxFunBaseTests
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using Test
 using LinearAlgebra
 using StaticArrays
 using BandedMatrices
+
+using IntervalSets: AbstractInterval
+import IntervalSets: endpoints, closedendpoints
+
+struct UniqueInterval{T, I<:AbstractInterval{T}} <: AbstractInterval{T}
+    parentinterval :: I
+end
+
+for f in [:endpoints, :closedendpoints]
+    @eval $f(m::UniqueInterval) = $f(m.parentinterval)
+end
+
+Base.in(x, m::UniqueInterval) = in(x, m.parentinterval)
+Base.isempty(m::UniqueInterval) = isempty(m.parentinterval)
+
+ApproxFunBase.domainscompatible(a::UniqueInterval, b::UniqueInterval) = a == b
+
+Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == b.parentinterval; true)
 
 @testset "ApproxFunBase" begin
     @testset "Constructor" begin
@@ -76,6 +96,26 @@ using BandedMatrices
             @test (@inferred h(Val(3)))(0.1) ≈ (0.1)^3
             @test (@inferred h(Val(4)))(0.1) ≈ (0.1)^4
             @test h(Val(10))(0.1) ≈ (0.1)^10 rtol=1e-6
+        end
+
+        @testset "UniqueInterval" begin
+            f = Fun(UniqueInterval(0..1))
+            g = @inferred f^0
+            @test coefficients(g) == coefficients(one(Fun(0..1)))
+            g = @inferred f^1
+            @test coefficients(g) == coefficients(Fun(0..1)^1)
+            g = @inferred f^2
+            @test coefficients(g) == coefficients(Fun(0..1)^2)
+            g = @inferred f*f
+            @test coefficients(g) == coefficients(Fun(0..1)^2)
+            g = @inferred f^3
+            @test coefficients(g) == coefficients(Fun(0..1)^3)
+            g = @inferred f*f*f
+            @test coefficients(g) == coefficients(Fun(0..1)^3)
+            g = @inferred f^4
+            @test coefficients(g) == coefficients(Fun(0..1)^4)
+            g = @inferred f*f*f*f
+            @test coefficients(g) == coefficients(Fun(0..1)^4)
         end
     end
 
@@ -298,3 +338,5 @@ using BandedMatrices
         end
     end
 end
+
+end # module
