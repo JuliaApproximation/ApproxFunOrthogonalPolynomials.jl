@@ -1,6 +1,5 @@
+module SpeedTest
 using ApproxFunOrthogonalPolynomials, Test
-
-
 c = rand(1000)
 x=rand(10000)
 f=Fun(Chebyshev,c)
@@ -38,3 +37,5 @@ roots(f)
 roots(f)
 @time roots(f)
 println("Roots: Time should be ~0.08")
+
+end # module

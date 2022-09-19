@@ -1,5 +1,7 @@
+module SpeedODETest
 using ApproxFunOrthogonalPolynomials, SpecialFunctions, Test
 import ApproxFunBase: ldiv_coefficients
+using LinearAlgebra
 
 ## ODEs
 
@@ -113,3 +115,5 @@ u=nullspace(A)
 @test A[1:10,1:10] ≈ transpose(transpose(A)[1:10,1:10])
 @time u=nullspace(A)
 println("Nullspace Airy: 0.052730 seconds (75.21 k allocations: 56.736 MB)")
+
+end # module

@@ -1,3 +1,4 @@
+module SpeedOperatorTest
 using ApproxFunOrthogonalPolynomials, Test
 
 
@@ -29,3 +30,5 @@ A=Derivative(d)^2-x
 #
 # Profile.print()
 @time a*b  #0.0014
+
+end # module
