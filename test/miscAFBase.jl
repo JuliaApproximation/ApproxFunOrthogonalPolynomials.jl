@@ -1,20 +1,83 @@
+using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
-@testset "ApproxFunOrthogonalPolynomials" begin
-    @test (@inferred Fun()) == Fun(x->x, Chebyshev())
-    @test (@inferred norm(Fun())) ≈ norm(Fun(), 2) ≈ √(2/3) # √∫x^2 dx over -1..1
+using Test
+using LinearAlgebra
+using StaticArrays
+using BandedMatrices
 
-    v = rand(4)
-    v2 = transform(NormalizedChebyshev(), v)
-    @test itransform(NormalizedChebyshev(), v2) ≈ v
+@testset "ApproxFunBase" begin
+    @testset "Constructor" begin
+        @test (@inferred Fun()) == Fun(x->x, Chebyshev())
+        @test (@inferred norm(Fun())) ≈ norm(Fun(), 2) ≈ √(2/3) # √∫x^2 dx over -1..1
+    end
 
-    f = @inferred Fun(x->x^2, Chebyshev())
-    v = @inferred coefficients(f, Chebyshev(), Legendre())
-    @test eltype(v) == eltype(coefficients(f))
-    @test v ≈ coefficients(Fun(x->x^2, Legendre()))
+    @testset "transform" begin
+        v = rand(4)
+        v2 = transform(NormalizedChebyshev(), v)
+        @test itransform(NormalizedChebyshev(), v2) ≈ v
 
-    # inference check for coefficients
-    v = @inferred coefficients(Float64[0,0,1], Chebyshev(), Ultraspherical(1))
-    @test v ≈ [-0.5, 0, 0.5]
+        @testset "coefficients" begin
+            f = @inferred Fun(x->x^2, Chebyshev())
+            v = @inferred coefficients(f, Chebyshev(), Legendre())
+            @test eltype(v) == eltype(coefficients(f))
+            @test v ≈ coefficients(Fun(x->x^2, Legendre()))
+
+            # inference check for coefficients
+            v = @inferred coefficients(Float64[0,0,1], Chebyshev(), Ultraspherical(1))
+            @test v ≈ [-0.5, 0, 0.5]
+        end
+    end
+
+    @testset "multiplication inference" begin
+        function g2()
+           f = Fun(0..1)
+           f * f
+        end
+        y = @inferred g2()(0.1)
+        @test y ≈ (0.1)^2
+
+        function g3()
+           f = Fun(0..1)
+           f * f * f
+        end
+        y = @inferred g3()(0.1)
+        @test y  ≈ (0.1)^3
+
+        function g4()
+           f = Fun(0..1)
+           f * f * f * f
+        end
+        y = @inferred g4()(0.1)
+        @test y ≈ (0.1)^4
+    end
+
+    @testset "intpow" begin
+        @testset "Interval" begin
+            function h(::Val{N}) where {N}
+               f = Fun(0..1)
+               f^N
+            end
+            @test (@inferred h(Val(0)))(0.1) ≈ (0.1)^0
+            @test (@inferred h(Val(1)))(0.1) ≈ (0.1)^1
+            @test (@inferred h(Val(2)))(0.1) ≈ (0.1)^2
+            @test (@inferred h(Val(3)))(0.1) ≈ (0.1)^3
+            @test (@inferred h(Val(4)))(0.1) ≈ (0.1)^4
+            @test h(Val(10))(0.1) ≈ (0.1)^10 rtol=1e-6
+        end
+
+        @testset "ChebyshevInterval" begin
+            function h(::Val{N}) where {N}
+               f = Fun()
+               f^N
+            end
+            @test (@inferred h(Val(0)))(0.1) ≈ (0.1)^0
+            @test (@inferred h(Val(1)))(0.1) ≈ (0.1)^1
+            @test (@inferred h(Val(2)))(0.1) ≈ (0.1)^2
+            @test (@inferred h(Val(3)))(0.1) ≈ (0.1)^3
+            @test (@inferred h(Val(4)))(0.1) ≈ (0.1)^4
+            @test h(Val(10))(0.1) ≈ (0.1)^10 rtol=1e-6
+        end
+    end
 
     @testset "int coeffs" begin
         f = Fun(Chebyshev(), [0,1])
