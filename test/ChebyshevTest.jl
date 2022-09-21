@@ -42,7 +42,7 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
     @testset "Algebra" begin
         ef = @inferred Fun(exp,ChebyshevInterval())
         @test ef == @inferred -(-ef)
-        @test ef == (ef-1) + 1
+        @test ef == @inferred (@inferred ef-1) + 1
 
         if VERSION >= v"1.8"
             @test (@inferred ef / 3) == @inferred (3 \ ef)
@@ -50,7 +50,7 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
             @test ef / 3 == 3 \ ef
         end
 
-        cf = Fun(cos)
+        cf = VERSION >= v"1.8" ? @inferred(Fun(cos)) : Fun(cos)
 
         ecf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)*exp(x))) : Fun(x->cos(x)*exp(x))
         eocf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)/exp(x))) : Fun(x->cos(x)/exp(x))
