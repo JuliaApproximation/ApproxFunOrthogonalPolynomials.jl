@@ -50,7 +50,7 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
             @test ef / 3 == 3 \ ef
         end
 
-        cf = @inferred Fun(cos)
+        cf = VERSION >= v"1.8" ? @inferred(Fun(cos)) : Fun(cos)
 
         ecf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)*exp(x))) : Fun(x->cos(x)*exp(x))
         eocf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)/exp(x))) : Fun(x->cos(x)/exp(x))
