@@ -74,7 +74,8 @@ import ApproxFunOrthogonalPolynomials: jacobip
     @testset "Derivative" begin
         D=Derivative(Jacobi(0.,1.,Segment(1.,0.)))
         @time testbandedoperator(D)
-
+        # only one band should be populated
+        @test bandwidths(D, 1) == -bandwidths(D, 2)
 
         @testset for d in [-1..1, 0..1]
             f = Fun(x->x^2, Chebyshev(d))

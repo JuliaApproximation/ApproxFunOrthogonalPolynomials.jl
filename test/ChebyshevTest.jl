@@ -8,85 +8,80 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
     end
 
     @testset "ChebyshevInterval" begin
-        @test Fun(x->2,10)(.1) ≈ 2
-        @test Fun(x->2)(.1) ≈ 2
-        @test Fun(Chebyshev,Float64[]).([0.,1.]) ≈ [0.,0.]
-        @test Fun(Chebyshev,[])(0.) ≈ 0.
-        @test Fun(x->4,Chebyshev(),1).coefficients == [4.0]
-        @test Fun(x->4).coefficients == [4.0]
-        @test Fun(4).coefficients == [4.0]
+        @test @inferred Fun(x->2,10)(.1) ≈ 2
+        @test @inferred Fun(x->2)(.1) ≈ 2
+        @test @inferred Fun(Chebyshev,Float64[]).([0.,1.]) ≈ [0.,0.]
+        @test @inferred Fun(Chebyshev,[])(0.) ≈ 0.
+        @test @inferred Fun(x->4,Chebyshev(),1).coefficients == [4.0]
+        @test @inferred Fun(x->4).coefficients == [4.0]
+        @test @inferred Fun(4).coefficients == [4.0]
 
 
-        @test Fun(x->4).coefficients == [4.0]
-        @test Fun(4).coefficients == [4.0]
+        @test @inferred Fun(x->4).coefficients == [4.0]
+        @test @inferred Fun(4).coefficients == [4.0]
 
-        f = Fun(ChebyshevInterval(), [1])
+        f = @inferred Fun(ChebyshevInterval(), [1])
         @test f(0.1) == 1
 
-        ef = Fun(exp)
-        @test ef(0.1) ≈ exp(0.1)
+        ef = if VERSION >= v"1.8"
+            @inferred Fun(exp)
+        else
+            Fun(exp)
+        end
+        @test @inferred ef(0.1) ≈ exp(0.1)
+        @test @inferred ef(.5) ≈ exp(.5)
 
         for d in (ChebyshevInterval(),Interval(1.,2.),Segment(1.0+im,2.0+2im))
             testspace(Chebyshev(d))
         end
 
-        ef = Fun(exp,ChebyshevInterval())
-
-        @test ef == -(-ef)
-        @test ef == (ef-1) + 1
-
-        ef = Fun(exp)
-
-        cf = Fun(cos)
-
-        ecf = Fun(x->cos(x).*exp(x))
-        eocf = Fun(x->cos(x)./exp(x))
-
-        @test ef(.5) ≈ exp(.5)
-        @test ecf(.123456) ≈ cos(.123456).*exp(.123456)
+        y = @inferred Fun() + Fun(ChebyshevInterval{BigFloat}())
+        @test y == 2Fun()
     end
 
     @testset "Algebra" begin
-        ef = Fun(exp,ChebyshevInterval())
+        ef = @inferred Fun(exp,ChebyshevInterval())
+        @test ef == @inferred -(-ef)
+        @test ef == @inferred (@inferred ef-1) + 1
 
-        @test ef == -(-ef)
-        @test ef == (ef-1) + 1
+        if VERSION >= v"1.8"
+            @test (@inferred ef / 3) == @inferred (3 \ ef)
+        else
+            @test ef / 3 == 3 \ ef
+        end
 
-        @test ef / 3 == (3 \ ef)
+        cf = VERSION >= v"1.8" ? @inferred(Fun(cos)) : Fun(cos)
 
-
-        cf = Fun(cos)
-
-        ecf = Fun(x->cos(x).*exp(x))
-        eocf = Fun(x->cos(x)./exp(x))
+        ecf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)*exp(x))) : Fun(x->cos(x)*exp(x))
+        eocf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)/exp(x))) : Fun(x->cos(x)/exp(x))
 
         @test ef(.5) ≈ exp(.5)
         @test ecf(.123456) ≈ cos(.123456).*exp(.123456)
 
         r=2 .* rand(100) .- 1
 
-        @test maximum(abs,ef.(r)-exp.(r))<200eps()
-        @test maximum(abs,ecf.(r).-cos.(r).*exp.(r))<200eps()
+        @test @inferred maximum(abs,ef.(r)-exp.(r))<200eps()
+        @test @inferred maximum(abs,ecf.(r).-cos.(r).*exp.(r))<200eps()
 
-        @test (cf .* ef)(0.1) ≈ ecf(0.1) ≈ cos(0.1)*exp(0.1)
-        @test domain(cf.*ef) ≈ domain(ecf)
-        @test domain(cf.*ef) == domain(ecf)
+        @test (@inferred (cf .* ef)(0.1)) ≈ ecf(0.1) ≈ cos(0.1)*exp(0.1)
+        @test (@inferred domain(cf.*ef)) ≈ domain(ecf)
+        @test (@inferred domain(cf.*ef)) == domain(ecf)
 
-        @test norm((ecf-cf.*ef).coefficients)<200eps()
-        @test maximum(abs,(eocf-cf./ef).coefficients)<1000eps()
+        @test norm(@inferred(ecf-cf.*ef).coefficients)<200eps()
+        @test maximum(abs,@inferred((eocf-cf./ef)).coefficients)<1000eps()
         @test norm(((ef/3).*(3/ef)-1).coefficients)<1000eps()
     end
 
     @testset "Diff and cumsum" begin
         ef = Fun(exp)
         cf = Fun(cos)
-        @test norm((ef - ef').coefficients)<10E-11
+        @test norm(@inferred(ef - ef').coefficients)<10E-11
 
-        @test norm((ef - cumsum(ef)').coefficients) < 20eps()
-        @test norm((cf - cumsum(cf)').coefficients) < 20eps()
+        @test norm(@inferred(ef - cumsum(ef)').coefficients) < 20eps()
+        @test norm(@inferred(cf - cumsum(cf)').coefficients) < 20eps()
 
-        @test sum(ef)  ≈ 2.3504023872876028
-        @test norm(ef)  ≈ 1.90443178083307
+        @test @inferred(sum(ef))  ≈ 2.3504023872876028
+        @test @inferred(norm(ef))  ≈ 1.90443178083307
     end
 
     @testset "other domains" begin

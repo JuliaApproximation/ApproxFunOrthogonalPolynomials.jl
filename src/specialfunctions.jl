@@ -1,4 +1,4 @@
-
+export jumplocations
 
 # project to interval if we are not on the interview
 # TODO: need to work out how to set piecewise domain
