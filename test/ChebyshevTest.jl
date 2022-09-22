@@ -257,4 +257,18 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
             @test f ≈ g
         end
     end
+
+    @testset "Operator exponentiation" begin
+        for M in Any[Multiplication(Fun(), Chebyshev()), Multiplication(Fun())]
+            N = @inferred (M -> M^0)(M)
+            @test N * Fun() == Fun()
+            N = @inferred (M -> M^1)(M)
+            @test N == M
+            N = @inferred (M -> M^2)(M)
+            @test N == M*M
+            @test M^3 == M * M * M
+            @test M^4 == M * M * M * M
+            @test M^10 == foldr(*, fill(M, 10))
+        end
+    end
 end
