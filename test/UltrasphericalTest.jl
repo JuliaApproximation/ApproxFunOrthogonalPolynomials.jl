@@ -49,4 +49,23 @@ import ApproxFunOrthogonalPolynomials: jacobip
             end
         end
     end
+
+    @testset "inplace transform" begin
+        @testset for T in [Float32, Float64, ComplexF32, ComplexF64]
+            v = rand(T, 4)
+            vc = copy(v)
+            @testset for d in Any[(), (0..1,)], order in Any[0.5, 1, 3]
+                S = Ultraspherical(order, d...)
+                v2 = transform(S, v)
+                if order == 0.5
+                    @test v2 ≈ transform(Legendre(domain(S)), v)
+                end
+                transform!(S, v)
+                @test v ≈ v2
+                itransform!(S, v)
+                @test v ≈ vc
+                @test v ≈ itransform(S, v2)
+            end
+        end
+    end
 end
