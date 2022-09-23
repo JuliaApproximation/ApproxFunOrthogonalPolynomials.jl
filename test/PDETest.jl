@@ -241,7 +241,7 @@ import ApproxFunBase: testbandedblockbandedoperator, testblockbandedoperator, te
         for KO in [Operator(I,factor(S,1))⊗rdirichlet(factor(S,1)),
                     rdirichlet(factor(S,1))⊗Operator(I,factor(S,2))]
             testblockbandedoperator(KO)
-            @test norm((KO*u-Fun(ff,rangespace(KO))).coefficients) ≤ 1E-10
+            @test norm((KO*u-Fun(ff,rangespace(KO))).coefficients) ≤ 1E-10
         end
     end
 

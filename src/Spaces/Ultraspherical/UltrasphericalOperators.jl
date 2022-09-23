@@ -224,20 +224,21 @@ Base.stride(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = 2
 ## coefficients
 
 # return the space that has banded Conversion to the other
-conversion_rule(a::Chebyshev,b::Ultraspherical{Int}) =
+function conversion_rule(a::Chebyshev,b::Ultraspherical{Int})
     if domainscompatible(a,b)
         a
     else
         NoSpace()
     end
+end
 
-conversion_rule(a::Ultraspherical{LT},b::Ultraspherical{LT}) where {LT} =
+function conversion_rule(a::Ultraspherical{LT},b::Ultraspherical{LT}) where {LT}
     if domainscompatible(a,b) && isapproxinteger(order(a)-order(b))
         order(a) < order(b) ? a : b
     else
         NoSpace()
     end
-
+end
 
 
 function coefficients(g::AbstractVector,sp::Ultraspherical{Int},C::Chebyshev)
@@ -259,10 +260,10 @@ end
 
 
 # TODO: include in getindex to speed up
-Integral(sp::Chebyshev{DD},m::Integer) where {DD<:IntervalOrSegment} =
+function Integral(sp::Chebyshev{DD},m::Integer) where {DD<:IntervalOrSegment}
     IntegralWrapper(TimesOperator([Integral(Ultraspherical(m,domain(sp)),m),
                                    Conversion(sp,Ultraspherical(m,domain(sp)))]),m)
-
+end
 
 
 

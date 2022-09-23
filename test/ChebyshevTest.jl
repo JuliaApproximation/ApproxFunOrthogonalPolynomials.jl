@@ -176,7 +176,7 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
     end
 
     @testset "Do not overresolve #7" begin
-        @test ncoefficients(Fun(x->sin(400*pi*x),-1..1)) ≤ 1400
+        @test ncoefficients(Fun(x->sin(400*pi*x),-1..1)) ≤ 1400
     end
 
     @testset "Bug from Trogdon" begin
