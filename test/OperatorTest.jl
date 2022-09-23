@@ -230,8 +230,8 @@ import ApproxFunOrthogonalPolynomials: JacobiZ
             f=exp(x)
             u=[B;C]\[[0.,0.],f]
 
-            @test abs(u(-1)) ≤ 10eps()
-            @test abs(u(1)) ≤ 10eps()
+            @test abs(u(-1)) ≤ 10eps()
+            @test abs(u(1)) ≤ 10eps()
 
 
             f=(1-x^2)*exp(x)
