@@ -3,7 +3,7 @@ export Hermite,NormalizedHermite,GaussWeight
 #TODO: Add general lines
 
 """
-`Hemite(L)` represents `H_k(sqrt(L) * x)` where `H_k` are Hermite polynomials.
+`Hermite(L)` represents `H_k(sqrt(L) * x)` where `H_k` are Hermite polynomials.
 `Hermite()` is equivalent to `Hermite(1.0)`.
 """
 struct Hermite{T} <: PolynomialSpace{Line{false,Float64},Float64}
