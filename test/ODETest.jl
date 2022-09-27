@@ -208,7 +208,7 @@ import ApproxFunBase: Multiplication, testraggedbelowoperator, testbandedoperato
 
         u = v[1] + setdomain(v[2], Domain(1..2)) + setdomain(v[3], Domain(2..3))
 
-        @test abs(u'(1.3) + u(1.3-1) ) ≤ 10eps()
+        @test abs(u'(1.3) + u(1.3-1) ) ≤ 10eps()
     end
 
     @testset "Tenth order" begin

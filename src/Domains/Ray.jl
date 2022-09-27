@@ -45,7 +45,7 @@ function convert(::Type{Ray}, d::AbstractInterval)
         Ray(b,angle(a),one(typeof(a)),false)
     end
 end
-Ray(d::AbstractInterval) = convert(Ray, d)
+Ray(d::AbstractInterval) = strictconvert(Ray, d)
 
 
 isambiguous(d::Ray)=isnan(d.center)

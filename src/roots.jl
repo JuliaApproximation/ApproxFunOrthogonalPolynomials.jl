@@ -86,7 +86,7 @@ for (BF,FF) in ((BigFloat,Float64),(Complex{BigFloat},ComplexF64))
         htol = eps(2000.)*max(hscale, 1)  # TODO: choose tolerance better
 
         # calculate Flaot64 roots
-        r = Array{$BF}(rootsunit_coeffs(convert(Vector{$FF},c./vscale), Float64(htol)))
+        r = Array{$BF}(rootsunit_coeffs(strictconvert(Vector{$FF},c./vscale), Float64(htol)))
         # Map roots from [-1,1] to domain of f:
         rts = fromcanonical.(Ref(d),r)
         fp = differentiate(f)

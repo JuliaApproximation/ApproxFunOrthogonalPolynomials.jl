@@ -1,7 +1,3 @@
-export continuity
-
-
-
 Space(d::IntervalOrSegment) = Chebyshev(d)
 Space(d::FullSpace{<:Real}) = Chebyshev(Line())
 

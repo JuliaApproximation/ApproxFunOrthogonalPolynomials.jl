@@ -1,5 +1,3 @@
-
-
 export PolynomialSpace, NormalizedPolynomialSpace
 
 ## Orthogonal polynomials
@@ -90,7 +88,7 @@ struct JacobiZ{S<:Space,T} <: TridiagonalOperator{T}
 end
 
 JacobiZ(sp::PolynomialSpace,z) =
-    (T = promote_type(prectype(sp),typeof(z)); JacobiZ{typeof(sp),T}(sp,convert(T,z)))
+    (T = promote_type(prectype(sp),typeof(z)); JacobiZ{typeof(sp),T}(sp,strictconvert(T,z)))
 
 convert(::Type{Operator{T}},J::JacobiZ{S}) where {T,S} = JacobiZ{S,T}(J.space,J.z)
 
@@ -148,7 +146,7 @@ function jac_gbmm!(α, J, B, β, C, b)
     Cn, Cm = size(C)
 
     @views for k=-1:b-1
-        if 1-Cn ≤ b-k ≤ Cm-1 # if inbands
+        if 1-Cn ≤ b-k ≤ Cm-1 # if inbands
             C[band(b-k)] .+= α.*B[band(b-k-1)][2:n-b+k+1].*Jp[1:n-b+k]
             if k ≥ 0
                 C[band(b-k)] .+= α.*B[band(b-k)].*J0[1:n-b+k]
@@ -160,7 +158,7 @@ function jac_gbmm!(α, J, B, β, C, b)
     end
 
     @views for k=-1:b-1
-        if 1-Cn ≤ k-b ≤ Cm-1 # if inbands
+        if 1-Cn ≤ k-b ≤ Cm-1 # if inbands
             C[band(k-b)] .+= α.*B[band(k-b+1)][1:n-b+k].*Jm[b-k:n-1]
             if k ≥ 0
                 C[band(k-b)] .+= α.*B[band(k-b)].*J0[b-k+1:n]
@@ -346,6 +344,7 @@ end
 
 domain(S::NormalizedPolynomialSpace) = domain(S.space)
 canonicalspace(S::NormalizedPolynomialSpace) = S.space
+setdomain(NS::NormalizedPolynomialSpace, d::Domain) = NormalizedPolynomialSpace(setdomain(canonicalspace(NS), d))
 
 NormalizedPolynomialSpace(space::PolynomialSpace{D,R}) where {D,R} = NormalizedPolynomialSpace{typeof(space),D,R}(space)
 
@@ -365,6 +364,19 @@ function Conversion(L::S, M::NormalizedPolynomialSpace{S}) where S<:PolynomialSp
         sp = M.space
         ConversionWrapper(TimesOperator(Conversion(sp, M), Conversion(L, sp)))
     end
+end
+
+function Fun(::typeof(identity), S::NormalizedPolynomialSpace)
+    C = canonicalspace(S)
+    f = Fun(identity, C)
+    coeffs = coefficients(f)
+    CS = ConcreteConversion(C, S)
+    ApproxFunBase.mul_coefficients!(CS, coeffs)
+    Fun(S, coeffs)
+end
+
+function conversion_rule(a::NormalizedPolynomialSpace{S}, b::S) where S<:PolynomialSpace
+    domainscompatible(domain(a), domain(b)) ? a : NoSpace()
 end
 
 bandwidths(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S}) where {S,D,R} = (0, 0)

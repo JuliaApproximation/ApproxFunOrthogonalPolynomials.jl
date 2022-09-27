@@ -1,6 +1,6 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
-    import ApproxFunBase: testspace, recA, recB, recC
-    import ApproxFunOrthogonalPolynomials: forwardrecurrence
+import ApproxFunBase: testspace, recA, recB, recC, transform!, itransform!
+import ApproxFunOrthogonalPolynomials: forwardrecurrence
 
 @testset "Chebyshev" begin
     @testset "Forward recurrence" begin
@@ -8,85 +8,80 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
     end
 
     @testset "ChebyshevInterval" begin
-        @test Fun(x->2,10)(.1) ≈ 2
-        @test Fun(x->2)(.1) ≈ 2
-        @test Fun(Chebyshev,Float64[]).([0.,1.]) ≈ [0.,0.]
-        @test Fun(Chebyshev,[])(0.) ≈ 0.
-        @test Fun(x->4,Chebyshev(),1).coefficients == [4.0]
-        @test Fun(x->4).coefficients == [4.0]
-        @test Fun(4).coefficients == [4.0]
+        @test @inferred Fun(x->2,10)(.1) ≈ 2
+        @test @inferred Fun(x->2)(.1) ≈ 2
+        @test @inferred Fun(Chebyshev,Float64[]).([0.,1.]) ≈ [0.,0.]
+        @test @inferred Fun(Chebyshev,[])(0.) ≈ 0.
+        @test @inferred Fun(x->4,Chebyshev(),1).coefficients == [4.0]
+        @test @inferred Fun(x->4).coefficients == [4.0]
+        @test @inferred Fun(4).coefficients == [4.0]
 
 
-        @test Fun(x->4).coefficients == [4.0]
-        @test Fun(4).coefficients == [4.0]
+        @test @inferred Fun(x->4).coefficients == [4.0]
+        @test @inferred Fun(4).coefficients == [4.0]
 
-        f = Fun(ChebyshevInterval(), [1])
+        f = @inferred Fun(ChebyshevInterval(), [1])
         @test f(0.1) == 1
 
-        ef = Fun(exp)
-        @test ef(0.1) ≈ exp(0.1)
+        ef = if VERSION >= v"1.8"
+            @inferred Fun(exp)
+        else
+            Fun(exp)
+        end
+        @test @inferred ef(0.1) ≈ exp(0.1)
+        @test @inferred ef(.5) ≈ exp(.5)
 
         for d in (ChebyshevInterval(),Interval(1.,2.),Segment(1.0+im,2.0+2im))
             testspace(Chebyshev(d))
         end
 
-        ef = Fun(exp,ChebyshevInterval())
-
-        @test ef == -(-ef)
-        @test ef == (ef-1) + 1
-
-        ef = Fun(exp)
-
-        cf = Fun(cos)
-
-        ecf = Fun(x->cos(x).*exp(x))
-        eocf = Fun(x->cos(x)./exp(x))
-
-        @test ef(.5) ≈ exp(.5)
-        @test ecf(.123456) ≈ cos(.123456).*exp(.123456)
+        y = @inferred Fun() + Fun(ChebyshevInterval{BigFloat}())
+        @test y == 2Fun()
     end
 
     @testset "Algebra" begin
-        ef = Fun(exp,ChebyshevInterval())
+        ef = @inferred Fun(exp,ChebyshevInterval())
+        @test ef == @inferred -(-ef)
+        @test ef == @inferred (@inferred ef-1) + 1
 
-        @test ef == -(-ef)
-        @test ef == (ef-1) + 1
+        if VERSION >= v"1.8"
+            @test (@inferred ef / 3) == @inferred (3 \ ef)
+        else
+            @test ef / 3 == 3 \ ef
+        end
 
-        @test ef / 3 == (3 \ ef)
+        cf = VERSION >= v"1.8" ? @inferred(Fun(cos)) : Fun(cos)
 
-
-        cf = Fun(cos)
-
-        ecf = Fun(x->cos(x).*exp(x))
-        eocf = Fun(x->cos(x)./exp(x))
+        ecf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)*exp(x))) : Fun(x->cos(x)*exp(x))
+        eocf = VERSION >= v"1.8" ? @inferred(Fun(x->cos(x)/exp(x))) : Fun(x->cos(x)/exp(x))
 
         @test ef(.5) ≈ exp(.5)
         @test ecf(.123456) ≈ cos(.123456).*exp(.123456)
 
         r=2 .* rand(100) .- 1
 
-        @test maximum(abs,ef.(r)-exp.(r))<200eps()
-        @test maximum(abs,ecf.(r).-cos.(r).*exp.(r))<200eps()
+        @test @inferred maximum(abs,ef.(r)-exp.(r))<200eps()
+        @test @inferred maximum(abs,ecf.(r).-cos.(r).*exp.(r))<200eps()
 
-        @test (cf .* ef)(0.1) ≈ ecf(0.1) ≈ cos(0.1)*exp(0.1)
-        @test domain(cf.*ef) ≈ domain(ecf)
-        @test domain(cf.*ef) == domain(ecf)
+        @test (@inferred (cf .* ef)(0.1)) ≈ ecf(0.1) ≈ cos(0.1)*exp(0.1)
+        @test (@inferred domain(cf.*ef)) ≈ domain(ecf)
+        @test (@inferred domain(cf.*ef)) == domain(ecf)
 
-        @test norm((ecf-cf.*ef).coefficients)<200eps()
-        @test maximum(abs,(eocf-cf./ef).coefficients)<1000eps()
+        @test norm(@inferred(ecf-cf.*ef).coefficients)<200eps()
+        @test maximum(abs,@inferred((eocf-cf./ef)).coefficients)<1000eps()
         @test norm(((ef/3).*(3/ef)-1).coefficients)<1000eps()
     end
 
     @testset "Diff and cumsum" begin
         ef = Fun(exp)
         cf = Fun(cos)
-        @test norm((ef - ef').coefficients)<10E-11
+        @test norm(@inferred(ef - ef').coefficients)<10E-11
 
-        @test norm((ef - cumsum(ef)').coefficients) < 20eps()
-        @test norm((cf - cumsum(cf)').coefficients) < 20eps()
+        @test norm(@inferred(ef - cumsum(ef)').coefficients) < 20eps()
+        @test norm(@inferred(cf - cumsum(cf)').coefficients) < 20eps()
 
-        @test sum(ef)  ≈ 2.3504023872876028
-        @test norm(ef)  ≈ 1.90443178083307
+        @test @inferred(sum(ef))  ≈ 2.3504023872876028
+        @test @inferred(norm(ef))  ≈ 1.90443178083307
     end
 
     @testset "other domains" begin
@@ -102,6 +97,10 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
         r=rand(100) .+ 1
         @test maximum(abs,ef.(r)-exp.(r))<400eps()
         @test maximum(abs,ecf.(r).-cos.(r).*exp.(r))<100eps()
+
+        @testset "setdomain" begin
+            @test setdomain(NormalizedChebyshev(0..1), 1..2) == NormalizedChebyshev(1..2)
+        end
     end
 
     @testset "Other interval" begin
@@ -180,7 +179,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
     end
 
     @testset "Do not overresolve #7" begin
-        @test ncoefficients(Fun(x->sin(400*pi*x),-1..1)) ≤ 1400
+        @test ncoefficients(Fun(x->sin(400*pi*x),-1..1)) ≤ 1400
     end
 
     @testset "Bug from Trogdon" begin
@@ -205,10 +204,74 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
         f = 1/(1 + 25*(x^2))
         @test norm(f, Inf) ≈ 1.0
     end
-    
+
     @testset "Jacobi" begin
         S=Chebyshev()
         @test S.a==-0.5
         @test S.b==-0.5
+    end
+
+    @testset "inplace transform" begin
+        for T in [Float32, Float64, BigFloat]
+            for v in Any[rand(T, 10), rand(complex(T), 10)]
+                v2 = copy(v)
+                transform!(Chebyshev(), v)
+                @test transform(Chebyshev(), v2) == v
+                itransform!(Chebyshev(), v)
+                @test v2 ≈ v
+            end
+        end
+    end
+
+    @testset "Normalized space" begin
+        for f in Any[x -> 3x^3 + 5x^2 + 2, x->x, identity]
+            for dt in Any[(), (0..1,)]
+                S = Chebyshev(dt...)
+                NS = NormalizedPolynomialSpace(S)
+
+                fS = Fun(f, S)
+                fNS = Fun(f, NS)
+                @test space(fNS) == NS
+                d = domain(fS)
+                r = range(leftendpoint(d), rightendpoint(d), length=10)
+                for x in r
+                    @test fS(x) ≈ fNS(x) rtol=1e-7 atol=1e-14
+                end
+            end
+        end
+
+        @testset "derivative in normalized space" begin
+            s1 = NormalizedChebyshev(-1..1)
+            s2 = NormalizedChebyshev()
+            @test s1 == s2
+            D1 = Derivative(s1)
+            D2 = Derivative(s2)
+            f = x -> 3x^2 + 5x
+            f1 = Fun(f, s1)
+            f2 = Fun(f, s2)
+            @test f1 == f2
+            @test D1 * f1 == D2 * f2
+        end
+
+        @testset "space promotion" begin
+            s = NormalizedChebyshev()
+            f = (Derivative() + Fun(s)) * Fun(s)
+            g = ones(s) + Fun(s)^2
+            @test f ≈ g
+        end
+    end
+
+    @testset "Operator exponentiation" begin
+        for M in Any[Multiplication(Fun(), Chebyshev()), Multiplication(Fun())]
+            N = @inferred (M -> M^0)(M)
+            @test N * Fun() == Fun()
+            N = @inferred (M -> M^1)(M)
+            @test N == M
+            N = @inferred (M -> M^2)(M)
+            @test N == M*M
+            @test M^3 == M * M * M
+            @test M^4 == M * M * M * M
+            @test M^10 == foldr(*, fill(M, 10))
+        end
     end
 end

@@ -55,7 +55,7 @@ Derivative(sp::Ultraspherical{LT,DD},m::Integer) where {LT,DD<:IntervalOrSegment
     ConcreteDerivative(sp,m)
 function Integral(sp::Ultraspherical{LT,DD},m::Integer) where {LT,DD<:IntervalOrSegment}
     λ = order(sp)
-    if m ≤ λ
+    if m ≤ λ
         ConcreteIntegral(sp,m)
     else # Convert up
         nsp = Ultraspherical(λ+1,domain(sp))
@@ -79,7 +79,7 @@ function getindex(D::ConcreteDerivative{Ultraspherical{TT,DD,RR},K,T},
     λ=order(domainspace(D))
 
     if j==k+m
-        convert(T,(pochhammer(one(T)*λ,m)*(4/complexlength(d)).^m))
+        strictconvert(T,(pochhammer(one(T)*λ,m)*(4/complexlength(d)).^m))
     else
         zero(T)
     end
@@ -104,9 +104,9 @@ function getindex(Q::ConcreteIntegral{Ultraspherical{LT,DD,RR}},k::Integer,j::In
 
     if λ == 1 && k==j+1
         C = complexlength(d)/2
-        convert(T,C./(k-1))
+        strictconvert(T,C./(k-1))
     elseif λ > 1 && k==j+m
-        convert(T,pochhammer(one(T)*λ,-m)*(complexlength(d)/4)^m)
+        strictconvert(T,pochhammer(one(T)*λ,-m)*(complexlength(d)/4)^m)
     else
         zero(T)
     end
@@ -123,8 +123,8 @@ function Conversion(A::Chebyshev,B::Ultraspherical)
     else
         d=domain(A)
         US=Ultraspherical(order(B)-1,d)
-        ConversionWrapper(TimesOperator(Conversion(US,B),
-                                        Conversion(Chebyshev(d),US)))
+        ConversionWrapper(TimesOperator(
+            ConcreteConversion(US,B), Conversion(A,US)))
     end
 end
 
@@ -148,8 +148,9 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
         ConcreteConversion(A,B)
     elseif b-a > 1
         d=domain(A)
-        ConversionWrapper(TimesOperator(Conversion(Ultraspherical(b-1,d),B),
-                                        Conversion(A,Ultraspherical(b-1,d))))
+        US=Ultraspherical(b-1,d)
+        ConversionWrapper(TimesOperator(
+            ConcreteConversion(US,B), Conversion(A,US)))
     else
         throw(ArgumentError("Cannot convert from $A to $B"))
     end
@@ -223,20 +224,21 @@ Base.stride(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = 2
 ## coefficients
 
 # return the space that has banded Conversion to the other
-conversion_rule(a::Chebyshev,b::Ultraspherical{Int}) =
+function conversion_rule(a::Chebyshev,b::Ultraspherical{Int})
     if domainscompatible(a,b)
         a
     else
         NoSpace()
     end
+end
 
-conversion_rule(a::Ultraspherical{LT},b::Ultraspherical{LT}) where {LT} =
+function conversion_rule(a::Ultraspherical{LT},b::Ultraspherical{LT}) where {LT}
     if domainscompatible(a,b) && isapproxinteger(order(a)-order(b))
         order(a) < order(b) ? a : b
     else
         NoSpace()
     end
-
+end
 
 
 function coefficients(g::AbstractVector,sp::Ultraspherical{Int},C::Chebyshev)
@@ -258,10 +260,10 @@ end
 
 
 # TODO: include in getindex to speed up
-Integral(sp::Chebyshev{DD},m::Integer) where {DD<:IntervalOrSegment} =
+function Integral(sp::Chebyshev{DD},m::Integer) where {DD<:IntervalOrSegment}
     IntegralWrapper(TimesOperator([Integral(Ultraspherical(m,domain(sp)),m),
                                    Conversion(sp,Ultraspherical(m,domain(sp)))]),m)
-
+end
 
 
 
@@ -285,9 +287,9 @@ function getindex(M::ConcreteConversion{C,Ultraspherical{LT,DD,RR},T},
         if j==k==1
             one(T)
         elseif j==k
-            convert(T,sqrt(π)/(2FastTransforms.Λ(k-1)))
+            strictconvert(T,sqrt(π)/(2FastTransforms.Λ(k-1)))
         elseif k < j && iseven(k-j)
-            convert(T,-(j-1)*(k-0.5)*(FastTransforms.Λ((j-k-2)/2)/(j-k))*
+            strictconvert(T,-(j-1)*(k-0.5)*(FastTransforms.Λ((j-k-2)/2)/(j-k))*
                             (FastTransforms.Λ((j+k-3)/2)/(j+k-1)))
         else
             zero(T)
@@ -314,9 +316,9 @@ function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},C,T},
         end
     elseif λ == 0.5
         if k==1 && isodd(j)
-            convert(T,FastTransforms.Λ((j-1)/2)^2/π)
-        elseif k ≤ j && iseven(k-j)
-            convert(T,FastTransforms.Λ((j-k)/2)*FastTransforms.Λ((k+j-2)/2)*2/π)
+            strictconvert(T,FastTransforms.Λ((j-1)/2)^2/π)
+        elseif k ≤ j && iseven(k-j)
+            strictconvert(T,FastTransforms.Λ((j-k)/2)*FastTransforms.Λ((k+j-2)/2)*2/π)
         else
             zero(T)
         end
@@ -334,7 +336,7 @@ function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},
     λ2 = order(rangespace(M))
     if abs(λ1-λ2) < 1
         if j ≥ k && iseven(k-j)
-            convert(T,(λ1 < λ2 && k ≠ j ? -1 : 1) *  # fix sign for lgamma
+            strictconvert(T,(λ1 < λ2 && k ≠ j ? -1 : 1) *  # fix sign for lgamma
                 exp(lgamma(λ2)+log(k-1+λ2)-lgamma(λ1)-lgamma(λ1-λ2) + lgamma((j-k)/2+λ1-λ2)-
                 lgamma((j-k)/2+1)+lgamma((k+j-2)/2+λ1)-lgamma((k+j-2)/2+λ2+1)))
         else

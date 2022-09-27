@@ -43,14 +43,14 @@ tocanonical(d::Laguerre,x) = mappoint(domain(d),Ray(),x)
 fromcanonical(d::Laguerre,x) = mappoint(Ray(),domain(d),x)
 
 
-@inline laguerrerecα(::Type{T},α,k) where {T} = convert(T,2k+α-1)
-@inline laguerrerecβ(::Type{T},_,k) where {T} = convert(T,-k)
-@inline laguerrerecγ(::Type{T},α,k) where {T} = convert(T,-(k-1+α))
+@inline laguerrerecα(::Type{T},α,k) where {T} = strictconvert(T,2k+α-1)
+@inline laguerrerecβ(::Type{T},_,k) where {T} = strictconvert(T,-k)
+@inline laguerrerecγ(::Type{T},α,k) where {T} = strictconvert(T,-(k-1+α))
 
 
-@inline laguerrerecA(::Type{T},_,k) where {T} = convert(T,-1/(k+1))
-@inline laguerrerecB(::Type{T},α,k) where {T} = convert(T,(2k+α+1)/(k+1))
-@inline laguerrerecC(::Type{T},α,k) where {T} = convert(T,(k+α)/(k+1))
+@inline laguerrerecA(::Type{T},_,k) where {T} = strictconvert(T,-1/(k+1))
+@inline laguerrerecB(::Type{T},α,k) where {T} = strictconvert(T,(2k+α+1)/(k+1))
+@inline laguerrerecC(::Type{T},α,k) where {T} = strictconvert(T,(k+α)/(k+1))
 
 for (REC,JREC) in ((:recα,:laguerrerecα),(:recβ,:laguerrerecβ),(:recγ,:laguerrerecγ),
                    (:recA,:laguerrerecA),(:recB,:laguerrerecB),(:recC,:laguerrerecC))

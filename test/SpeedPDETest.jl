@@ -1,5 +1,7 @@
+module SpeedPDETest
 using ApproxFunOrthogonalPolynomials, BlockBandedMatrices, Test
-    import ApproxFunOrthogonalPolynomials: Block
+import ApproxFunOrthogonalPolynomials: Block
+using LinearAlgebra
 
 ## PDEs
 d=ChebyshevInterval()^2
@@ -42,3 +44,5 @@ println("Neumann Helmholtz: should be ~0.032")
 # @time    u=PO\u0
 #
 # println("Schrodinger: should be ~0.013,0.015")
+
+end # module

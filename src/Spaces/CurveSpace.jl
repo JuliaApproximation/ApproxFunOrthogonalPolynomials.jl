@@ -24,7 +24,7 @@ export Bernstein, Bézier
 struct Bernstein{order,D,R} <: Space{D,R}
     domain::D
     Bernstein{order,D,R}(d) where {order,D,R} = new(d)
-    Bernstein{order,D,R}() where {order,D,R} = new(convert(D, ChebyshevInterval()))
+    Bernstein{order,D,R}() where {order,D,R} = new(strictconvert(D, ChebyshevInterval()))
 end
 
 const Bézier = Bernstein # option+e e gives é

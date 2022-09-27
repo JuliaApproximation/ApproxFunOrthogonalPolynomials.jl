@@ -3,7 +3,7 @@ export Hermite,NormalizedHermite,GaussWeight
 #TODO: Add general lines
 
 """
-`Hemite(L)` represents `H_k(sqrt(L) * x)` where `H_k` are Hermite polynomials.
+`Hermite(L)` represents `H_k(sqrt(L) * x)` where `H_k` are Hermite polynomials.
 `Hermite()` is equivalent to `Hermite(1.0)`.
 """
 struct Hermite{T} <: PolynomialSpace{Line{false,Float64},Float64}
@@ -39,7 +39,7 @@ normalization(::Type{T}, sp::Hermite, k::Int) where T = (warn("This normalizatio
 Derivative(H::Hermite,order) = ConcreteDerivative(H,order)
 
 
-bandwidths(D::ConcreteDerivative{H}) where {H<:Hermite} = 0,D.order
+bandwidths(D::ConcreteDerivative{H}) where {H<:Hermite} = -D.order,D.order
 rangespace(D::ConcreteDerivative{H}) where {H<:Hermite} = domainspace(D)
 getindex(D::ConcreteDerivative{H},k::Integer,j::Integer) where {H<:Hermite} =
         j==k+D.order ? one(eltype(D))*2^D.order*pochhammer(k,D.order) : zero(eltype(D))
@@ -73,15 +73,15 @@ struct GaussWeight{S,T} <: WeightSpace{S,Line{Float64},Float64}
     L::T
 end
 
-GaussWeight(H::Hermite) = GaussWeight(H,H.L)
-GaussWeight() = GaussWeight(Hermite())
-
 """
 `GaussWeight(Hermite(L), L)` is a space spanned by `exp(-Lx²) * H_k(sqrt(L) * x)`
 where `H_k(x)`'s are Hermite polynomials.
 
 `GaussWeight()` is equivalent to `GaussWeight(Hermite(), 1.0)` by default.
 """
+GaussWeight(H::Hermite) = GaussWeight(H,H.L)
+GaussWeight() = GaussWeight(Hermite())
+
 Fun(::typeof(identity), sp::Hermite) = Fun(sp,[0.,0.5])
 Fun(::typeof(identity), sp::GaussWeight) = Fun(identity, sp.space)
 
@@ -103,7 +103,7 @@ weight(H::GaussWeight,x) = exp(-H.L * x^2)
 
 function Base.sum(f::Fun{GaussWeight{H,T}}) where {H<:Hermite,T}
     @assert space(f).space.L==space(f).L  # only implemented with matching weight
-    f.coefficients[1]*sqrt(convert(T,π))/sqrt(space(f).L)
+    f.coefficients[1]*sqrt(strictconvert(T,π))/sqrt(space(f).L)
 end
 
 include("hermitetransform.jl")

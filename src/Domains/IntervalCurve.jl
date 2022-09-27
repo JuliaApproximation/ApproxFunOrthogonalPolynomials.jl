@@ -32,7 +32,7 @@ fromcanonicalD(c::IntervalCurve,x)=differentiate(c.curve)(x)
 
 function indomain(x,c::IntervalCurve)
     rts=roots(c.curve-x)
-    if length(rts) ≠ 1
+    if length(rts) ≠ 1
         false
     else
         in(first(rts),canonicaldomain(c))

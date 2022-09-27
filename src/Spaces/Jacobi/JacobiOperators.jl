@@ -35,7 +35,7 @@ function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)},kr::Abst
     sp=op.space
     T=eltype(op)
     RT=real(T)
-    a=convert(RT,sp.a);b=convert(RT,sp.b)
+    a=strictconvert(RT,sp.a);b=strictconvert(RT,sp.b)
 
     if op.order == 0
         jacobip(T,kr.-1,a,b,-one(T))
@@ -48,7 +48,7 @@ function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)},kr::Abst
         @assert isa(d,IntervalOrSegment)
         if kr[1]==1 && kr[end] ≥ 2
             tocanonicalD(d,leftendpoint(d)).*(a .+ b .+ kr).*T[zero(T);jacobip(T,0:kr[end]-2,1+a,1+b,-one(T))]/2
-        elseif kr[1]==1  # kr[end] ≤ 1
+        elseif kr[1]==1  # kr[end] ≤ 1
             zeros(T,length(kr))
         else
             tocanonicalD(d,leftendpoint(d)) .* (a.+b.+kr).*jacobip(T,kr.-1,1+a,1+b,-one(T))/2
@@ -67,7 +67,7 @@ function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(rightendpoint)},kr::Abs
     sp=op.space
     T=eltype(op)
     RT=real(T)
-    a=convert(RT,sp.a);b=convert(RT,sp.b)
+    a=strictconvert(RT,sp.a);b=strictconvert(RT,sp.b)
 
 
     if op.order == 0
@@ -77,7 +77,7 @@ function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(rightendpoint)},kr::Abs
         @assert isa(d,IntervalOrSegment)
         if kr[1]==1 && kr[end] ≥ 2
             tocanonicalD(d,leftendpoint(d))*((a+b).+kr).*T[zero(T);jacobip(T,0:kr[end]-2,1+a,1+b,one(T))]/2
-        elseif kr[1]==1  # kr[end] ≤ 1
+        elseif kr[1]==1  # kr[end] ≤ 1
             zeros(T,length(kr))
         else
             tocanonicalD(d,leftendpoint(d))*((a+b).+kr).*jacobip(T,kr.-1,1+a,1+b,one(T))/2
@@ -90,18 +90,24 @@ end
 
 function getindex(op::ConcreteEvaluation{<:Jacobi,<:Number},kr::AbstractRange)
     @assert op.order == 0
-    jacobip(eltype(op),kr-1,op.space.a,op.space.b,tocanonical(domain(op),op.x))
+    jacobip(eltype(op),kr.-1,op.space.a,op.space.b,tocanonical(domain(op),op.x))
 end
 
 
 ## Derivative
 
-Derivative(J::Jacobi,k::Integer)=k==1 ? ConcreteDerivative(J,1) : DerivativeWrapper(TimesOperator(Derivative(Jacobi(J.b+1,J.a+1,J.domain),k-1),ConcreteDerivative(J,1)),k)
+function Derivative(J::Jacobi,k::Integer)
+    k==1 ? ConcreteDerivative(J,1) :
+        DerivativeWrapper(
+            TimesOperator(
+                Derivative(Jacobi(J.b+1,J.a+1,J.domain),k-1),ConcreteDerivative(J,1)),
+        J, k)
+end
 
 
 
 rangespace(D::ConcreteDerivative{J}) where {J<:Jacobi}=Jacobi(D.space.b+D.order,D.space.a+D.order,domain(D))
-bandwidths(D::ConcreteDerivative{J}) where {J<:Jacobi}=0,D.order
+bandwidths(D::ConcreteDerivative{J}) where {J<:Jacobi}=-D.order,D.order
 
 getindex(T::ConcreteDerivative{J},k::Integer,j::Integer) where {J<:Jacobi} =
     j==k+1 ? eltype(T)((k+1+T.space.a+T.space.b)/complexlength(domain(T))) : zero(eltype(T))
@@ -114,14 +120,14 @@ getindex(T::ConcreteDerivative{J},k::Integer,j::Integer) where {J<:Jacobi} =
 function Integral(J::Jacobi,k::Integer)
     if k > 1
         Q=Integral(J,1)
-        IntegralWrapper(TimesOperator(Integral(rangespace(Q),k-1),Q),k)
+        IntegralWrapper(TimesOperator(Integral(rangespace(Q),k-1),Q),J,k)
     elseif J.a > 0 && J.b > 0   # we have a simple definition
         ConcreteIntegral(J,1)
     else   # convert and then integrate
         sp=Jacobi(J.b+1,J.a+1,domain(J))
         C=Conversion(J,sp)
         Q=Integral(sp,1)
-        IntegralWrapper(TimesOperator(Q,C),1)
+        IntegralWrapper(TimesOperator(Q,C),J,1)
     end
 end
 
@@ -169,7 +175,7 @@ end
 
 
 for (Func,Len,Sum) in ((:DefiniteIntegral,:complexlength,:sum),(:DefiniteLineIntegral,:arclength,:linesum))
-    ConcFunc = Meta.parse("Concrete"*string(Func))
+    ConcFunc = Symbol(:Concrete, Func)
 
     @eval begin
         $Func(S::Jacobi{<:IntervalOrSegment}) = $ConcFunc(S)
@@ -178,10 +184,10 @@ for (Func,Len,Sum) in ((:DefiniteIntegral,:complexlength,:sum),(:DefiniteLineInt
             dsp = domainspace(Σ)
 
             if dsp.b == dsp.a == 0
-                # TODO: copy and paste
-                k == 1 ? convert(T,$Sum(Fun(dsp,[one(T)]))) : zero(T)
+                # TODO: copy and paste
+                k == 1 ? strictconvert(T,$Sum(Fun(dsp,[one(T)]))) : zero(T)
             else
-                convert(T,$Sum(Fun(dsp,[zeros(T,k-1);1])))
+                strictconvert(T,$Sum(Fun(dsp,[zeros(T,k-1);1])))
             end
         end
 
@@ -239,17 +245,17 @@ function Base.getindex(C::ConcreteConversion{J1,J2,T},k::Integer,j::Integer) whe
     L=C.domainspace
     if L.b+1==C.rangespace.b
         if j==k
-            k==1 ? convert(T,1) : convert(T,(L.a+L.b+k)/(L.a+L.b+2k-1))
+            k==1 ? strictconvert(T,1) : strictconvert(T,(L.a+L.b+k)/(L.a+L.b+2k-1))
         elseif j==k+1
-            convert(T,(L.a+k)./(L.a+L.b+2k+1))
+            strictconvert(T,(L.a+k)./(L.a+L.b+2k+1))
         else
             zero(T)
         end
     elseif L.a+1==C.rangespace.a
         if j==k
-            k==1 ? convert(T,1) : convert(T,(L.a+L.b+k)/(L.a+L.b+2k-1))
+            k==1 ? strictconvert(T,1) : strictconvert(T,(L.a+L.b+k)/(L.a+L.b+2k-1))
         elseif j==k+1
-            convert(T,-(L.b+k)./(L.a+L.b+2k+1))
+            strictconvert(T,-(L.b+k)./(L.a+L.b+2k+1))
         else
             zero(T)
         end
@@ -294,14 +300,14 @@ function Conversion(A::Jacobi,B::Chebyshev)
     elseif A.a == A.b == 0
         ConversionWrapper(
             SpaceOperator(
-                Conversion(Ultraspherical(1//2),B),
+                ConcreteConversion(Ultraspherical(1//2),B),
                 A,B))
     elseif A.a == A.b
         US = Ultraspherical(A)
-        ConversionWrapper(Conversion(US,B)*Conversion(A,US))
+        ConversionWrapper(Conversion(US,B)*ConcreteConversion(A,US))
     else
         J = Jacobi(B)
-        Conversion(J,B)*Conversion(A,J)
+        ConcreteConversion(J,B)*Conversion(A,J)
     end
 end
 
@@ -311,21 +317,22 @@ function Conversion(A::Chebyshev,B::Jacobi)
     elseif B.a == B.b == 0
         ConversionWrapper(
             SpaceOperator(
-                Conversion(A,Ultraspherical(1//2,domain(B))),
+                ConcreteConversion(A,Ultraspherical(1//2,domain(B))),
                 A,B))
     elseif B.a == B.b
         US = Ultraspherical(B)
-        ConversionWrapper(Conversion(US,B)*Conversion(A,US))
+        ConcreteConversion(US,B) * Conversion(A,US)
     else
         J = Jacobi(A)
-        Conversion(J,B)*Conversion(A,J)
+        Conversion(J,B)*ConcreteConversion(A,J)
     end
 end
 
 
 function Conversion(A::Jacobi,B::Ultraspherical)
     if A.a == A.b == -0.5
-        ConversionWrapper(Conversion(Chebyshev(domain(A)),B)*Conversion(A,Chebyshev(domain(A))))
+        ConversionWrapper(Conversion(Chebyshev(domain(A)),B)*
+            ConcreteConversion(A,Chebyshev(domain(A))))
     elseif A.a == A.b == order(B)-0.5
         ConcreteConversion(A,B)
     elseif A.a == A.b == 0
@@ -335,16 +342,17 @@ function Conversion(A::Jacobi,B::Ultraspherical)
                 A,B))
     elseif A.a == A.b
         US = Ultraspherical(A)
-        ConversionWrapper(Conversion(US,B)*Conversion(A,US))
+        ConversionWrapper(Conversion(US,B)*ConcreteConversion(A,US))
     else
         J = Jacobi(B)
-        Conversion(J,B)*Conversion(A,J)
+        ConcreteConversion(J,B)*Conversion(A,J)
     end
 end
 
 function Conversion(A::Ultraspherical,B::Jacobi)
     if B.a == B.b == -0.5
-        ConversionWrapper(Conversion(Chebyshev(domain(A)),B)*Conversion(A,Chebyshev(domain(A))))
+        ConversionWrapper(ConcreteConversion(Chebyshev(domain(A)),B)*
+            Conversion(A,Chebyshev(domain(A))))
     elseif B.a == B.b == order(A)-0.5
         ConcreteConversion(A,B)
     elseif B.a == B.b == 0
@@ -354,10 +362,10 @@ function Conversion(A::Ultraspherical,B::Jacobi)
                 A,B))
     elseif B.a == B.b
         US = Ultraspherical(B)
-        ConversionWrapper(Conversion(US,B)*Conversion(A,US))
+        ConversionWrapper(ConcreteConversion(US,B)*Conversion(A,US))
     else
         J = Jacobi(A)
-        Conversion(J,B)*Conversion(A,J)
+        Conversion(J,B)*ConcreteConversion(A,J)
     end
 end
 
@@ -416,7 +424,7 @@ function getindex(C::ConcreteConversion{US,J,T},k::Integer,j::Integer) where {US
     if j==k
         S=rangespace(C)
         jp=jacobip(T,k-1,S.a,S.b,one(T))
-        um=convert(Operator{T}, Evaluation(setcanonicaldomain(domainspace(C)),rightendpoint,0))[k]::T
+        um=strictconvert(Operator{T}, Evaluation(setcanonicaldomain(domainspace(C)),rightendpoint,0))[k]::T
         (um/jp)::T
     else
         zero(T)
@@ -487,20 +495,36 @@ end
 
 
 function union_rule(A::Chebyshev,B::Jacobi)
-    if isapprox(B.a,-0.5) && isapprox(B.b,-0.5)
-        # the spaces are the same
-        A
+    if domainscompatible(A, B)
+        if isapprox(B.a,-0.5) && isapprox(B.b,-0.5)
+            # the spaces are the same
+            A
+        else
+            union(Jacobi(A),B)
+        end
     else
-        union(Jacobi(A),B)
+        if isapprox(B.a,-0.5) && isapprox(B.b,-0.5)
+            union(A, Chebyshev(domain(B)))
+        else
+            NoSpace()
+        end
     end
 end
 function union_rule(A::Ultraspherical,B::Jacobi)
     m=order(A)
-    if isapprox(B.a,m-0.5) && isapprox(B.b,m-0.5)
-        # the spaces are the same
-        A
+    if domainscompatible(A, B)
+        if isapprox(B.a,m-0.5) && isapprox(B.b,m-0.5)
+            # the spaces are the same
+            A
+        else
+            union(Jacobi(A),B)
+        end
     else
-        union(Jacobi(A),B)
+        if isapprox(B.a,m-0.5) && isapprox(B.b,m-0.5)
+            union(A, Ultraspherical(m, domain(B)))
+        else
+            NoSpace()
+        end
     end
 end
 

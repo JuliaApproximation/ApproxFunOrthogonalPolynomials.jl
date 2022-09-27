@@ -14,12 +14,12 @@ isperiodic(C::ContinuousSpace) = isperiodic(domain(C))
 
 spacescompatible(a::ContinuousSpace,b::ContinuousSpace) = domainscompatible(a,b)
 conversion_rule(a::ContinuousSpace,
-                b::PiecewiseSpace{CD,DD,RR}) where {CD<:Tuple{Vararg{ChebyshevDirichlet{1,1,DDD,RRR}}},DD,RR<:Real} where {DDD,RRR} = a
+                b::PiecewiseSpace{<:Tuple{Vararg{<:ChebyshevDirichlet{1,1}}},<:Any,<:Real}) = a
 
 plan_transform(sp::ContinuousSpace,vals::AbstractVector) =
     TransformPlan{eltype(vals),typeof(sp),false,Nothing}(sp,nothing)
 
-function *(P::TransformPlan{T,SS,false},vals::AbstractVector{T}) where {T,SS<:ContinuousSpace}
+function *(P::TransformPlan{T,<:ContinuousSpace,false},vals::AbstractVector{T}) where {T}
     S = P.space
     n=length(vals)
     d=domain(S)
@@ -94,7 +94,7 @@ function *(P::TransformPlan{T,SS,false},vals::AbstractVector{T}) where {T,SS<:Co
     end
 end
 
-components(S::ContinuousSpace) = map(ChebyshevDirichlet{1,1},components(domain(S)))
+components(S::ContinuousSpace) = map(ChebyshevDirichlet{1,1}, components(domain(S)))
 canonicalspace(S::ContinuousSpace) = PiecewiseSpace(components(S))
 convert(::Type{PiecewiseSpace}, S::ContinuousSpace) = canonicalspace(S)
 
@@ -105,11 +105,11 @@ block(C::ContinuousSpace,k) = Block((k-1)÷ncomponents(C.domain)+1)
 
 ## components
 
-components(f::Fun{CS},j::Integer) where {CS<:ContinuousSpace} = components(Fun(f,canonicalspace(f)),j)
-components(f::Fun{CS}) where {CS<:ContinuousSpace} = components(Fun(f,canonicalspace(space(f))))
+components(f::Fun{<:ContinuousSpace},j::Integer) = components(Fun(f,canonicalspace(f)),j)
+components(f::Fun{<:ContinuousSpace}) = components(Fun(f,canonicalspace(space(f))))
 
 
-function points(f::Fun{CS}) where {CS<:ContinuousSpace}
+function points(f::Fun{<:ContinuousSpace})
     n=ncoefficients(f)
     d=domain(f)
     K=ncomponents(d)
@@ -131,27 +131,26 @@ coefficients(cfsin::AbstractVector,A::ContinuousSpace,B::ContinuousSpace) =
 
 
 # We implemnt conversion between continuous space and PiecewiseSpace with Chebyshev dirichlet
-function Conversion(ps::PiecewiseSpace{CD,DD,RR},cs::ContinuousSpace) where {CD<:Tuple{Vararg{ChebyshevDirichlet{1,1,DDD,RRR}}},
-                                                                    DD,RR<:Real} where {DDD,RRR}
+const PiecewiseSpaceReal{CD} = PiecewiseSpace{CD,<:Any,<:Real}
+const PiecewiseSpaceRealChebyDirichlet11 = PiecewiseSpaceReal{<:Tuple{Vararg{<:ChebyshevDirichlet{1,1}}}}
+
+function Conversion(ps::PiecewiseSpaceRealChebyDirichlet11, cs::ContinuousSpace)
     @assert ps == canonicalspace(cs)
     ConcreteConversion(ps,cs)
 end
 
-function Conversion(cs::ContinuousSpace,ps::PiecewiseSpace{CD,DD,RR}) where {CD<:Tuple{Vararg{ChebyshevDirichlet{1,1,DDD,RRR}}},
-                                                                    DD,RR<:Real} where {DDD,RRR}
+function Conversion(cs::ContinuousSpace,ps::PiecewiseSpaceRealChebyDirichlet11)
     @assert ps == canonicalspace(cs)
     ConcreteConversion(cs,ps)
 end
 
 
-bandwidths(C::ConcreteConversion{PiecewiseSpace{CD,DD,RR},CS}) where {CD<:Tuple{Vararg{ChebyshevDirichlet{1,1,DDD,RRR}}},
-                                                                                    DD,RR<:Real,CS<:ContinuousSpace} where {DDD,RRR} =
+bandwidths(C::ConcreteConversion{<:PiecewiseSpaceRealChebyDirichlet11,<:ContinuousSpace}) =
     1,ncomponents(domain(rangespace(C)))
 
 
-function getindex(C::ConcreteConversion{PiecewiseSpace{CD,DD,RR},CS,T},
-                  k::Integer,j::Integer) where {T,DD,RR<:Real,CS<:ContinuousSpace,
-                                                CD<:Tuple{Vararg{ChebyshevDirichlet{1,1,DDD,RRR}}}}  where {DDD,RRR}
+function getindex(C::ConcreteConversion{<:PiecewiseSpaceRealChebyDirichlet11,<:ContinuousSpace,T},
+        k::Integer,j::Integer) where {T}
     d=domain(rangespace(C))
     K=ncomponents(d)
     if isperiodic(d)
@@ -182,16 +181,12 @@ function getindex(C::ConcreteConversion{PiecewiseSpace{CD,DD,RR},CS,T},
 end
 
 
-bandwidths(C::ConcreteConversion{<:ContinuousSpace,
-                                     PiecewiseSpace{CD,DD,RR}}) where {CD<:Tuple{Vararg{ChebyshevDirichlet{1,1,DDD,RRR}}},
-                                              DD,RR<:Real}  where {DDD,RRR} =
+bandwidths(C::ConcreteConversion{<:ContinuousSpace, <:PiecewiseSpaceRealChebyDirichlet11}) =
             isperiodic(domainspace(C)) ? (2ncomponents(domain(rangespace(C)))-1,1) :
                                          (ncomponents(domain(rangespace(C))),1)
 
-function getindex(C::ConcreteConversion{<:ContinuousSpace,
-                                            PiecewiseSpace{CD,DD,RR},T},
-                      k::Integer,j::Integer) where {T,CD<:Tuple{Vararg{ChebyshevDirichlet{1,1,DDD,RRR}}},
-                                        DD,RR<:Real} where {DDD,RRR}
+function getindex(C::ConcreteConversion{<:ContinuousSpace,<:PiecewiseSpaceRealChebyDirichlet11,T},
+        k::Integer,j::Integer) where {T}
     d=domain(domainspace(C))
     K=ncomponents(d)
     if isperiodic(d)
@@ -233,7 +228,7 @@ end
 const TensorChebyshevDirichlet = TensorSpace{<:Tuple{<:ChebyshevDirichlet{1,1,<:IntervalOrSegment},
                                   <:ChebyshevDirichlet{1,1,<:IntervalOrSegment}}}
 
-Dirichlet(S::TensorChebyshevDirichlet,k) = k == 0 ? ConcreteDirichlet(S,0) : tensor_Dirichlet(S,k)
+@inline Dirichlet(S::TensorChebyshevDirichlet,k) = k == 0 ? ConcreteDirichlet(S,0) : tensor_Dirichlet(S,k)
 
 Dirichlet(d::RectDomain) =
     Dirichlet(ChebyshevDirichlet{1,1}(factor(d,1))*ChebyshevDirichlet{1,1}(factor(d,2)))
@@ -253,7 +248,7 @@ function getindex(B::ConcreteDirichlet{<:TensorChebyshevDirichlet}, k::Integer,j
         one(T)
     elseif j == 2 && k ≤ 2
         -one(T)
-    elseif j == 2 && k ≤ 4
+    elseif j == 2 && k ≤ 4
         one(T)
     elseif j == 3 && (k == 1 || k == 4)
         -one(T)
@@ -263,7 +258,7 @@ function getindex(B::ConcreteDirichlet{<:TensorChebyshevDirichlet}, k::Integer,j
         -one(T)
     elseif j == 5 && (k == 1 || k == 3)
         one(T)
-    elseif j == 5 || j ≤ 3
+    elseif j == 5 || j ≤ 3
         zero(T)
     else
         K = Int(block(rs,k))
@@ -341,7 +336,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
         J = K+1  # super-diagonal block
         N = ret.rows[K.n[1]]
         M = ret.cols[J.n[1]]
-        if N ≠ 0 && M ≠ 0
+        if N ≠ 0 && M ≠ 0
             # calculate shift
             k_sh = K == K1 ? kr[1]-Kr1 : 0
             j_sh = J == J1 ? jr[1]-Jr1 : 0
@@ -357,7 +352,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
         J = K+1  # super-diagonal block
         N = ret.rows[K.n[1]]
         M = ret.cols[J.n[1]]
-        if N ≠ 0 && M ≠ 0
+        if N ≠ 0 && M ≠ 0
             # calculate shift
             k_sh = K == K1 ? kr[1]-Kr1 : 0
             j_sh = J == J1 ? jr[1]-Jr1 : 0
@@ -374,7 +369,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
         N = ret.rows[K.n[1]]
         M = ret.cols[J.n[1]]
 
-        if N ≠ 0 && M ≠ 0
+        if N ≠ 0 && M ≠ 0
             B=view(ret,K,J)
             # calculate shift
             k_sh = K == K1 ? kr[1]-Kr1 : 0
@@ -393,7 +388,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
         N = ret.rows[K.n[1]]
         M = ret.cols[J.n[1]]
 
-        if N ≠ 0 && M ≠ 0
+        if N ≠ 0 && M ≠ 0
             B=view(ret,K,J)
             # calculate shift
             k_sh = K == K1 ? kr[1]-Kr1 : 0
@@ -411,7 +406,7 @@ function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshe
 end
 
 
-union_rule(A::PiecewiseSpace, B::ContinuousSpace) = union(A, convert(PiecewiseSpace, B))
+union_rule(A::PiecewiseSpace, B::ContinuousSpace) = union(A, strictconvert(PiecewiseSpace, B))
 union_rule(A::ConstantSpace, B::ContinuousSpace) = B
 union_rule(A::ContinuousSpace, B::PolynomialSpace{<:IntervalOrSegment}) =
     Space(domain(A) ∪ domain(B))
