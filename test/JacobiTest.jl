@@ -42,15 +42,36 @@ import ApproxFunOrthogonalPolynomials: jacobip
         @test norm(Fun(Fun(exp),Jacobi(-.5,-.5))-Fun(exp,Jacobi(-.5,-.5))) < 300eps()
 
         @testset "inplace transform" begin
-            for T in [Float32, Float64, BigFloat]
-                for v in Any[rand(T, 10), rand(complex(T), 10)]
-                    v2 = copy(v)
-                    for a in 0:0.5:3, b in 0:0.5:3
-                        J = Jacobi(a, b)
-                        transform!(J, v)
-                        @test transform(J, v2) ≈ v
-                        itransform!(J, v)
-                        @test v2 ≈ v
+            @testset for T in [Float32, Float64], ET in Any[T, complex(T)]
+                v = Array{ET}(undef, 10)
+                v2 = similar(v)
+                @testset for a in 0:0.5:3, b in 0:0.5:3, d in Any[(), (0..1,)]
+                    J = Jacobi(a, b, d...)
+                    Slist = Any[J, NormalizedPolynomialSpace(J)]
+                    @testset for S in Slist
+                        test_transform!(v, v2, S)
+                    end
+                end
+                v = Array{ET}(undef, 10, 10)
+                v2 = similar(v)
+                @testset for a in 0:0.5:3, b in 0:0.5:3, d in Any[(), (0..1,)]
+                    J = Jacobi(a, b, d...)
+                    Slist = Any[J, NormalizedPolynomialSpace(J)]
+                    @testset for S1 in Slist, S2 in Slist
+                        S = S1 ⊗ S2
+                        test_transform!(v, v2, S)
+                    end
+                    @testset for S1 in Slist
+                        S = S1 ⊗ Chebyshev(d...)
+                        test_transform!(v, v2, S)
+                        S = S1 ⊗ Chebyshev()
+                        test_transform!(v, v2, S)
+                    end
+                    @testset for S2 in Slist
+                        S = Chebyshev(d...) ⊗ S2
+                        test_transform!(v, v2, S)
+                        S = Chebyshev() ⊗ S2
+                        test_transform!(v, v2, S)
                     end
                 end
             end
