@@ -136,6 +136,9 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
 
         @test_throws ArgumentError roots(Fun(zero))
         @test_throws ArgumentError roots(Fun(Chebyshev(),Float64[]))
+
+        f = Fun(Chebyshev(), [1,2,3])
+        @test sort(roots(f)) ≈ 1/6*[-1-√13, -1+√13]
     end
 
     @testset "Aliasing" begin
