@@ -212,13 +212,27 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
     end
 
     @testset "inplace transform" begin
-        for T in [Float32, Float64, BigFloat]
-            for v in Any[rand(T, 10), rand(complex(T), 10)]
-                v2 = copy(v)
-                transform!(Chebyshev(), v)
-                @test transform(Chebyshev(), v2) == v
-                itransform!(Chebyshev(), v)
-                @test v2 ≈ v
+        @testset for T in [Float32, Float64], ET in Any[T, complex(T)]
+            v = Array{ET}(undef, 10)
+            v2 = similar(v)
+            M = Array{ET}(undef, 10, 10)
+            M2 = similar(M)
+            A = Array{ET}(undef, 10, 10, 10)
+            A2 = similar(A)
+            @testset for d in Any[(), (0..1,)]
+                C = Chebyshev(d...)
+                Slist = Any[C, NormalizedPolynomialSpace(C)]
+                @testset for S in Slist
+                    test_transform!(v, v2, S)
+                end
+                @testset for S1 in Slist, S2 in Slist
+                    S = S1 ⊗ S2
+                    test_transform!(M, M2, S)
+                end
+                @testset for S1 in Slist, S2 in Slist, S3 in Slist
+                    S = S1 ⊗ S2 ⊗ S3
+                    test_transform!(A, A2, S)
+                end
             end
         end
     end
@@ -273,5 +287,15 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
             @test M^4 == M * M * M * M
             @test M^10 == foldr(*, fill(M, 10))
         end
+    end
+
+    @testset "values for ArraySpace Fun" begin
+        f = Fun(Chebyshev() ⊗ Chebyshev())
+        @test f.(points(f)) == points(f)
+        @test values(f) == itransform(space(f), coefficients(f))
+        a = transform(space(f), values(f))
+        b = coefficients(f)
+        nmin = min(length(a), length(b))
+        @test a[1:nmin] ≈ b[1:nmin]
     end
 end
