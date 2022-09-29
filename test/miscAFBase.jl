@@ -338,17 +338,30 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
         end
     end
 
-    @testset "ProductFun" begin
+    @testset "Bivariate" begin
         f = (x,y)->x^2 * y^3
         P = ProductFun(f, Chebyshev()⊗Chebyshev())
         x = 0.2; y = 0.3;
         @test P(x, y) ≈ f(x,y)
+
+        @test (P * one(P))(x,y) ≈ P(x,y)
+        @test (P + zero(P))(x,y) ≈ P(x,y)
 
         # coefficients copied from P above
         coeffs = SVector{4}(zeros(3), [0.375, 0, 0.375], zeros(3), [0.125, 0, 0.125])
         fv = [Fun(Chebyshev(), c) for c in coeffs]
         P2 = @inferred ProductFun(fv, Chebyshev())
         @test P2(x, y) ≈ f(x, y)
+
+        L = LowRankFun(f, Chebyshev()⊗Chebyshev())
+        @test (@inferred L * P)(x, y) ≈ (@inferred P * L)(x, y) ≈ f(x,y)^2
+
+        @test (L^0 * L)(x,y) ≈ L(x,y)
+        @test (@inferred((L -> L^1)(L)))(x,y) ≈ L(x,y)
+        @test (@inferred((L -> L^2)(L)))(x,y) ≈ (L*L)(x,y)
+        @test (@inferred((L -> L^4)(L)))(x,y) ≈ (L*L*L*L)(x,y)
+        @test (L * one(L))(x,y) ≈ L(x,y)
+        @test (L + zero(L))(x,y) ≈ L(x,y)
     end
 end
 
