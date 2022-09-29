@@ -337,6 +337,19 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
             @test (f + one(f))(x) ≈ f(x) .+ one.(f(x))
         end
     end
+
+    @testset "ProductFun" begin
+        f = (x,y)->x^2 * y^3
+        P = ProductFun(f, Chebyshev()⊗Chebyshev())
+        x = 0.2; y = 0.3;
+        @test P(x, y) ≈ f(x,y)
+
+        # coefficients copied from P above
+        coeffs = SVector{4}(zeros(3), [0.375, 0, 0.375], zeros(3), [0.125, 0, 0.125])
+        fv = [Fun(Chebyshev(), c) for c in coeffs]
+        P2 = @inferred ProductFun(fv, Chebyshev())
+        @test P2(x, y) ≈ f(x, y)
+    end
 end
 
 end # module
