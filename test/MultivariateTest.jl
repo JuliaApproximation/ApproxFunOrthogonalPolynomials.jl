@@ -67,16 +67,16 @@ end
     end
 
     @testset "LowRankFun" begin
-        @time F = LowRankFun((x,y)->besselj0(10(y-x)),Chebyshev(),Chebyshev())
+        @time F = @inferred LowRankFun((x,y)->besselj0(10(y-x)),Chebyshev(),Chebyshev())
 
         @test F(.123,.456) ≈ besselj0(10(.456-.123))
 
-        @time G = LowRankFun((x,y)->besselj0(10(y-x));method=:Cholesky)
+        @time G = @inferred LowRankFun((x,y)->besselj0(10(y-x));method=:Cholesky)
 
         @test G(.357,.246) ≈ besselj0(10(.246-.357))
 
         # test "fast" grid evaluation of LowRankFun
-        f = LowRankFun((x,y) -> exp(x) * cos(y)); n = 1000
+        f = @inferred LowRankFun((x,y) -> exp(x) * cos(y)); n = 1000
         x = range(-1, stop=1, length=n); y = range(-1, stop=1, length=n)
         X = x * fill(1.0,1,n); Y = fill(1.0, n) * y'
         @time v1 = f.(X, Y);
