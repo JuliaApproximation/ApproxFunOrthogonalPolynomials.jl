@@ -82,6 +82,11 @@ end
         @time v1 = f.(X, Y);
         @time v2 = f.(x, y');
         @test v1 ≈ v2
+
+        # ensure that all coefficients are captured
+        L = LowRankFun((x,y) -> x*y, Chebyshev() ⊗ Chebyshev())
+        F = Fun(L)
+        @test L(0.1, 0.2) ≈ F(0.1, 0.2)
     end
 
 
