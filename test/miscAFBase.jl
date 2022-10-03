@@ -270,6 +270,14 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
         @test rowrange(S, 1) == 2:2
         @test colrange(S, 2) == 1:1
         @test (@inferred BandedMatrix(S)) == (@inferred Matrix(S))
+
+        A = Derivative() * Multiplication(Fun()) : Chebyshev();
+        kr = 1:ApproxFunBase.InfiniteCardinal{0}()
+        B1 = A[kr, :][1:10, 1:10]
+        B2 = A[:, kr][1:10, 1:10]
+        B3 = A[:, :][1:10, 1:10]
+        B4 = A[kr, kr][1:10, 1:10]
+        @test B1 == B2 == B3 == B4
     end
 
     @testset "CachedOperator" begin
