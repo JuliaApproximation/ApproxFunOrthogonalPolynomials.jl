@@ -87,6 +87,14 @@ end
         L = LowRankFun((x,y) -> x*y, Chebyshev() ⊗ Chebyshev())
         F = Fun(L)
         @test L(0.1, 0.2) ≈ F(0.1, 0.2)
+
+        D1 = Derivative(space(L), [1,0])
+        D2 = Derivative(space(L), [0,1])
+        @test (D2 * L)(0.1, 0.2) ≈ Fun()(0.1)
+        @test (D1 * L)(0.1, 0.2) ≈ Fun()(0.2)
+        @test (D1[L] * L)(0.1, 0.2) ≈ 2Fun()(0.1) * Fun()(0.2)^2
+        @test ((Derivative() ⊗ I) * L)(0.1, 0.2) ≈ Fun()(0.2)
+        @test ((I ⊗ Derivative()) * L)(0.1, 0.2) ≈ Fun()(0.1)
     end
 
 
@@ -329,6 +337,16 @@ end
         F = LowRankFun((x,y)->hankelh1(0,10abs(y-x)),Chebyshev(1.0..2.0),Chebyshev(Segment(1.0im,2.0im)))
 
         @test F(1.5,1.5im) ≈ hankelh1(0,10abs(1.5im-1.5))
+
+        P = ProductFun((x,y)->x*y, Chebyshev() ⊗ Chebyshev())
+        @test Evaluation(1) * P == Fun()
+        @test Evaluation(-1) * P == -Fun()
+        D1 = Derivative(Chebyshev() ⊗ Chebyshev(), [1,0])
+        D2 = Derivative(Chebyshev() ⊗ Chebyshev(), [0,1])
+        @test (D2 * P)(0.1, 0.2) ≈ Fun()(0.1)
+        @test (D1 * P)(0.1, 0.2) ≈ Fun()(0.2)
+        @test ((I ⊗ Derivative()) * P)(0.1, 0.2) ≈ Fun()(0.1)
+        @test ((Derivative() ⊗ I) * P)(0.1, 0.2) ≈ Fun()(0.2)
     end
 
     @testset "Functional*Fun" begin
