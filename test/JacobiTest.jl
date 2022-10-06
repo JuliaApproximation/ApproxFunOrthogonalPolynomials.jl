@@ -377,4 +377,9 @@ import ApproxFunOrthogonalPolynomials: jacobip
             end
         end
     end
+
+    @testset "casting bug ApproxFun.jl#770" begin
+        f = Fun((t,x)-> im*exp(t)*sinpi(x), Legendre()^2)
+        @test f(0.1, 0.2) ≈ im*exp(0.1)*sinpi(0.2)
+    end
 end
