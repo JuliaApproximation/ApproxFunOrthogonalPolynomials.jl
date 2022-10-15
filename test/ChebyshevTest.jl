@@ -163,7 +163,10 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
 
         x = Fun(identity,0..100)
         f = sin(x^2)
-        @test ≈(f(.1),sin(.1^2);atol=1E-12)
+        # precision bug on v1.6 on Windows
+        windowsv16 = v"1.6" <= VERSION < v"1.7" && Sys.iswindows()
+        atol_test = windowsv16 ? 1E-11 : 1E-12
+        @test ≈(f(.1),sin(.1^2);atol = atol_test)
     end
 
     @testset "Reverse" begin
