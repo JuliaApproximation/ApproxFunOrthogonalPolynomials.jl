@@ -4,11 +4,7 @@ import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, fa
                     testblockbandedoperator
 import ApproxFunOrthogonalPolynomials: chebyshevtransform
 
-if VERSION < v"1.6-"
-	oneto(n) = Base.OneTo(n)
-else
-	import Base: oneto
-end
+import Base: oneto
 
 @testset "Multivariate" begin
     @testset "Square" begin
