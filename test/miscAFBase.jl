@@ -1,4 +1,4 @@
-module ApproxFunBaseTests
+module MiscApproxFunBaseTests
 
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase

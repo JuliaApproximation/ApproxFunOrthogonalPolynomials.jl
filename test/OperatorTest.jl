@@ -1,6 +1,7 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, BlockBandedMatrices,  LinearAlgebra, Test
-import ApproxFunBase: Multiplication,InterlaceOperator, Block, ∞,
-        testfunctional, testbandedoperator, testraggedbelowoperator, testinfoperator, testblockbandedoperator
+import ApproxFunBase: Multiplication, InterlaceOperator, Block, ∞
+using ApproxFunBaseTest: testfunctional, testbandedoperator, testraggedbelowoperator,
+                        testinfoperator, testblockbandedoperator
 import ApproxFunOrthogonalPolynomials: JacobiZ
 
 @testset "Operator" begin

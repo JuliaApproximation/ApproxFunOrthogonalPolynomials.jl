@@ -1,5 +1,6 @@
 using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
-import ApproxFunBase: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator, Block, ldiv_coefficients
+import ApproxFunBase: Block, ldiv_coefficients
+using ApproxFunBaseTest: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator
 
 @testset "PDE" begin
     @testset "Rectangle Laplace/Poisson" begin

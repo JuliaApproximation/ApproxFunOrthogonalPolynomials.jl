@@ -1,9 +1,9 @@
 using ApproxFunOrthogonalPolynomials, SpecialFunctions, LinearAlgebra, Test
 import DomainSets
 import DomainSets: UnionDomain
-import ApproxFunBase: space, SpaceOperator,
-                    testspace, testbandedoperator, testraggedbelowoperator, testcalculus, testtransforms,
-                    testfunctional
+import ApproxFunBase: space, SpaceOperator
+using ApproxFunBaseTest: testspace, testbandedoperator, testraggedbelowoperator,
+                        testcalculus, testtransforms, testfunctional
 
 @testset "Spaces" begin
     @testset "evaluate" begin

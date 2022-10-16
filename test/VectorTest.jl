@@ -1,9 +1,14 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, LazyArrays, FillArrays, LinearAlgebra, SpecialFunctions, Test
-    import ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
-                        ArraySpace, testblockbandedoperator, blocklengths, ∞,
-                        testraggedbelowoperator, Vec
+using ApproxFunOrthogonalPolynomials
+using ApproxFunBase
+using LazyArrays
+using FillArrays
+using LinearAlgebra
+using SpecialFunctions
+using Test
+import ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
+                        ArraySpace, blocklengths, ∞, Vec
 
-
+using ApproxFunBaseTest: testblockbandedoperator, testraggedbelowoperator
 
 
 @testset "Vector" begin

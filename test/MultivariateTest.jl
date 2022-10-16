@@ -1,6 +1,6 @@
 using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunctions, BlockBandedMatrices, Test
-import ApproxFunBase: testbandedblockbandedoperator, testraggedbelowoperator, factor, Block, cfstype,
-                    blocklengths, block, tensorizer, Vec, ArraySpace, ∞,
+import ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, Vec, ArraySpace, ∞
+using ApproxFunBaseTest: testbandedblockbandedoperator, testraggedbelowoperator,
                     testblockbandedoperator
 import ApproxFunOrthogonalPolynomials: chebyshevtransform
 
