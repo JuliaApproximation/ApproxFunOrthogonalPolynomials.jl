@@ -1,5 +1,5 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, Test
-    import ApproxFunBase: testbandedoperator
+import ApproxFunBaseTest: testbandedoperator
 
 
 @testset "Laguerre and WeightedLaguerre" begin

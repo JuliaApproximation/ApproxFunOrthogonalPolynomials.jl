@@ -1,7 +1,9 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, BandedMatrices, SpecialFunctions, Test
-    import ApproxFunBase: bandwidth
-
-
+using ApproxFunOrthogonalPolynomials
+using ApproxFunBase
+using ApproxFunBase: bandwidth
+using BandedMatrices
+using SpecialFunctions
+using Test
 
 @testset "Eigenvalue problems" begin
     @testset "Negative Laplacian with Neumann boundary conditions" begin

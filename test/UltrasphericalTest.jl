@@ -1,7 +1,7 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, Test, SpecialFunctions, LinearAlgebra
-import ApproxFunBase: testbandedbelowoperator, testbandedoperator, testspace, testtransforms, Vec,
-                    maxspace, NoSpace, hasconversion, testfunctional,
-                    reverseorientation, ReverseOrientation
+import ApproxFunBase: Vec, maxspace, NoSpace, hasconversion, reverseorientation, ReverseOrientation
+using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
+                    testfunctional
 import ApproxFunOrthogonalPolynomials: jacobip
 
 @testset "Ultraspherical" begin

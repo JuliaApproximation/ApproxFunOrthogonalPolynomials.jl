@@ -1,5 +1,6 @@
 using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
-import ApproxFunBase: testspace, recA, recB, recC, transform!, itransform!
+import ApproxFunBase: recA, recB, recC, transform!, itransform!
+import ApproxFunBaseTest: testspace
 import ApproxFunOrthogonalPolynomials: forwardrecurrence
 
 @testset "Chebyshev" begin
