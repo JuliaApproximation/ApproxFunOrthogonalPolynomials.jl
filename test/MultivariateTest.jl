@@ -357,6 +357,18 @@ import Base: oneto
         O = invoke(*, Tuple{ApproxFunBase.MultivariateFun, KroneckerOperator},
                 P, Derivative() ⊗ I)
         @test (O * Fun(P))(0.1, 0.2) ≈ x(0.1) * (y(0.2))^2
+
+        @testset "chopping" begin
+            M = [0 0 0; 0 1 0; 0 0 1]
+            P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
+            @test coefficients(P) == M
+            M = [0 0 0; 0 1 0; 0 0 0]
+            P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
+            @test coefficients(P) == @view M[1:2, 1:2]
+            M = zeros(3,3)
+            P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
+            @test all(iszero, coefficients(P))
+        end
     end
 
     @testset "Functional*Fun" begin
