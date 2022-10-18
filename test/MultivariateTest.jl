@@ -362,6 +362,9 @@ import Base: oneto
             M = [0 0 0; 0 1 0; 0 0 1]
             P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
             @test coefficients(P) == M
+            M = [0 0 0; 0 1 0; 0 0 1e-100]
+            P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
+            @test coefficients(P) == @view M[1:2, 1:2]
             M = [0 0 0; 0 1 0; 0 0 0]
             P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
             @test coefficients(P) == @view M[1:2, 1:2]
