@@ -20,6 +20,20 @@ function test_transform!(v, v2, S)
     @test v2 ≈ v
 end
 
+macro verbose(ex)
+    head = ex.head
+    args = ex.args
+    @assert args[1] == Symbol("@testset")
+    name = args[3] isa String ? args[3] : nothing
+    if VERSION >= v"1.8"
+        insert!(args, 3, Expr(:(=), :verbose, true))
+    end
+    quote
+        $(Expr(head, args...))
+        @info "Finished " * $name * " tests"
+    end
+end
+
 include("ClenshawTest.jl")
 include("ChebyshevTest.jl")
 include("ComplexTest.jl")

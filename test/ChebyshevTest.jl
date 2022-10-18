@@ -3,23 +3,19 @@ import ApproxFunBase: recA, recB, recC, transform!, itransform!
 import ApproxFunBaseTest: testspace
 import ApproxFunOrthogonalPolynomials: forwardrecurrence
 
-@testset "Chebyshev" begin
+@verbose @testset "Chebyshev" begin
     @testset "Forward recurrence" begin
         @test forwardrecurrence(Float64,Chebyshev(),0:9,1.0) == ones(10)
     end
 
     @testset "ChebyshevInterval" begin
-        @test @inferred Fun(x->2,10)(.1) ≈ 2
-        @test @inferred Fun(x->2)(.1) ≈ 2
-        @test @inferred Fun(Chebyshev,Float64[]).([0.,1.]) ≈ [0.,0.]
-        @test @inferred Fun(Chebyshev,[])(0.) ≈ 0.
-        @test @inferred Fun(x->4,Chebyshev(),1).coefficients == [4.0]
-        @test @inferred Fun(x->4).coefficients == [4.0]
-        @test @inferred Fun(4).coefficients == [4.0]
-
-
-        @test @inferred Fun(x->4).coefficients == [4.0]
-        @test @inferred Fun(4).coefficients == [4.0]
+        @test @inferred(Fun(x->2,10))(.1) ≈ 2
+        @test Fun(x->2)(.1) ≈ 2
+        @test @inferred(Fun(Chebyshev, Float64[])).([0.,1.]) ≈ [0.,0.]
+        @test Fun(Chebyshev, [])(0.) ≈ 0.
+        @test @inferred(Fun(x->4, Chebyshev(), 1)).coefficients == [4.0]
+        @test Fun(x->4).coefficients == [4.0]
+        @test @inferred(Fun(4)).coefficients == [4.0]
 
         f = @inferred Fun(ChebyshevInterval(), [1])
         @test f(0.1) == 1
@@ -61,8 +57,8 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
 
         r=2 .* rand(100) .- 1
 
-        @test @inferred maximum(abs,ef.(r)-exp.(r))<200eps()
-        @test @inferred maximum(abs,ecf.(r).-cos.(r).*exp.(r))<200eps()
+        @test @inferred(maximum(abs,ef.(r)-exp.(r))) < 200eps()
+        @test @inferred(maximum(abs,ecf.(r).-cos.(r).*exp.(r))) < 200eps()
 
         @test (@inferred (cf .* ef)(0.1)) ≈ ecf(0.1) ≈ cos(0.1)*exp(0.1)
         @test (@inferred domain(cf.*ef)) ≈ domain(ecf)
@@ -108,8 +104,8 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
         ef = Fun(exp,1..2)
         cf = Fun(cos,1..2)
 
-        ecf = Fun(x->cos(x).*exp(x),1..2)
-        eocf = Fun(x->cos(x)./exp(x),1..2)
+        ecf = Fun(x->cos(x)*exp(x),1..2)
+        eocf = Fun(x->cos(x)/exp(x),1..2)
 
         r=rand(100) .+ 1
         x=1.5
@@ -216,16 +212,16 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
     end
 
     @testset "inplace transform" begin
-        @testset for T in [Float32, Float64], ET in Any[T, complex(T)]
-            v = Array{ET}(undef, 10)
+        @testset for T in (Float32, Float64), ET in (T, complex(T))
+            v = Array{ET}(undef, 6)
             v2 = similar(v)
-            M = Array{ET}(undef, 10, 10)
+            M = Array{ET}(undef, 6, 6)
             M2 = similar(M)
-            A = Array{ET}(undef, 10, 10, 10)
+            A = Array{ET}(undef, 6, 6, 6)
             A2 = similar(A)
-            @testset for d in Any[(), (0..1,)]
+            @testset for d in ((), (0..1,))
                 C = Chebyshev(d...)
-                Slist = Any[C, NormalizedPolynomialSpace(C)]
+                Slist = (C, NormalizedPolynomialSpace(C))
                 @testset for S in Slist
                     test_transform!(v, v2, S)
                 end

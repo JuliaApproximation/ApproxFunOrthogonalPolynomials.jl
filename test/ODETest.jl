@@ -2,7 +2,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, Test, Laz
 import ApproxFunBase: Multiplication, interlace, ∞, ℵ₀
 using ApproxFunBaseTest: testraggedbelowoperator, testbandedoperator
 
-@testset "ODE" begin
+@verbose @testset "ODE" begin
     @testset "Airy" begin
         d=Interval(-10.,5.);
         S=Chebyshev(d)

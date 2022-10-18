@@ -11,7 +11,7 @@ import ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
 using ApproxFunBaseTest: testblockbandedoperator, testraggedbelowoperator
 
 
-@testset "Vector" begin
+@verbose @testset "Vector" begin
     @testset "Construction" begin
         f = Fun(x->[1.,0.])
         @test f(0.) ≈ [1.,0.]

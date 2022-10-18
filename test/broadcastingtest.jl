@@ -2,7 +2,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, LinearAlg
 
 
 
-@testset "broadcast" begin
+@verbose @testset "broadcast" begin
     @testset "Special functions" begin
         x = Fun()
         @test exp(x) ≈ exp.(x) atol=10eps()
