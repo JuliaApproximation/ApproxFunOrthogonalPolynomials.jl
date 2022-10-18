@@ -84,13 +84,16 @@ import Base: oneto
         F = Fun(L)
         @test L(0.1, 0.2) ≈ F(0.1, 0.2)
 
+        x = Fun(); y = x;
         D1 = Derivative(space(L), [1,0])
         D2 = Derivative(space(L), [0,1])
-        @test (D2 * L)(0.1, 0.2) ≈ Fun()(0.1)
-        @test (D1 * L)(0.1, 0.2) ≈ Fun()(0.2)
-        @test (D1[L] * L)(0.1, 0.2) ≈ 2Fun()(0.1) * Fun()(0.2)^2
-        @test ((Derivative() ⊗ I) * L)(0.1, 0.2) ≈ Fun()(0.2)
-        @test ((I ⊗ Derivative()) * L)(0.1, 0.2) ≈ Fun()(0.1)
+        @test (D2 * L)(0.1, 0.2) ≈ x(0.1)
+        @test (D1 * L)(0.1, 0.2) ≈ y(0.2)
+        # @test ((L * D1) * L)(0.1, 0.2) ≈ x(0.1) * (y(0.2))^2
+        # @test ((L * D2) * L)(0.1, 0.2) ≈ (x(0.1))^2 * y(0.2)
+        @test (D1[L] * L)(0.1, 0.2) ≈ 2x(0.1) * y(0.2)^2
+        @test ((Derivative() ⊗ I) * L)(0.1, 0.2) ≈ y(0.2)
+        @test ((I ⊗ Derivative()) * L)(0.1, 0.2) ≈ x(0.1)
     end
 
 
@@ -335,14 +338,40 @@ import Base: oneto
         @test F(1.5,1.5im) ≈ hankelh1(0,10abs(1.5im-1.5))
 
         P = ProductFun((x,y)->x*y, Chebyshev() ⊗ Chebyshev())
-        @test Evaluation(1) * P == Fun()
-        @test Evaluation(-1) * P == -Fun()
+        x = Fun(); y = x;
+        @test Evaluation(1) * P == x
+        @test Evaluation(-1) * P == -x
         D1 = Derivative(Chebyshev() ⊗ Chebyshev(), [1,0])
         D2 = Derivative(Chebyshev() ⊗ Chebyshev(), [0,1])
-        @test (D2 * P)(0.1, 0.2) ≈ Fun()(0.1)
-        @test (D1 * P)(0.1, 0.2) ≈ Fun()(0.2)
-        @test ((I ⊗ Derivative()) * P)(0.1, 0.2) ≈ Fun()(0.1)
-        @test ((Derivative() ⊗ I) * P)(0.1, 0.2) ≈ Fun()(0.2)
+        @test (D2 * P)(0.1, 0.2) ≈ x(0.1)
+        @test (D1 * P)(0.1, 0.2) ≈ y(0.2)
+        # @test ((P * D1) * P)(0.1, 0.2) ≈ x(0.1) * (y(0.2))^2
+        # @test ((P * D2) * P)(0.1, 0.2) ≈ (x(0.1))^2 * y(0.2)
+        @test ((I ⊗ Derivative()) * P)(0.1, 0.2) ≈ x(0.1)
+        @test ((Derivative() ⊗ I) * P)(0.1, 0.2) ≈ y(0.2)
+
+        # MultivariateFun methods
+        f = invoke(*, Tuple{KroneckerOperator, ApproxFunBase.MultivariateFun},
+                Derivative() ⊗ I, P)
+        @test f(0.1, 0.2) ≈ y(0.2)
+        O = invoke(*, Tuple{ApproxFunBase.MultivariateFun, KroneckerOperator},
+                P, Derivative() ⊗ I)
+        @test (O * Fun(P))(0.1, 0.2) ≈ x(0.1) * (y(0.2))^2
+
+        @testset "chopping" begin
+            M = [0 0 0; 0 1 0; 0 0 1]
+            P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
+            @test coefficients(P) == M
+            M = [0 0 0; 0 1 0; 0 0 1e-100]
+            P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
+            @test coefficients(P) == @view M[1:2, 1:2]
+            M = [0 0 0; 0 1 0; 0 0 0]
+            P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
+            @test coefficients(P) == @view M[1:2, 1:2]
+            # M = zeros(3,3)
+            # P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
+            # @test all(iszero, coefficients(P))
+        end
     end
 
     @testset "Functional*Fun" begin
