@@ -421,8 +421,11 @@ hasconversion(a::NormalizedPolynomialSpace,b::NormalizedPolynomialSpace) = hasco
 
 
 function Multiplication(f::Fun{U},sp::NormalizedPolynomialSpace) where U <: PolynomialSpace
-    csp = space(f)
-    MultiplicationWrapper(f,Conversion(csp,sp)*Multiplication(f,csp)*Conversion(sp,csp))
+    fsp = space(f)
+    unnorm_sp = sp.space
+    O = Conversion(unnorm_sp,sp) *
+            Multiplication(f,unnorm_sp) * Conversion(sp, unnorm_sp)
+    MultiplicationWrapper(f, O)
 end
 
 function Multiplication(f::Fun{U},sp::PolynomialSpace) where U <: NormalizedPolynomialSpace
@@ -432,5 +435,5 @@ end
 function Multiplication(f::Fun{U},sp::NormalizedPolynomialSpace) where U <: NormalizedPolynomialSpace
     csp = canonicalspace(f)
     fc = Conversion(space(f), csp)*f
-    MultiplicationWrapper(f,Conversion(csp,sp)*Multiplication(fc,csp)*Conversion(sp,csp))
+    Multiplication(fc, sp)
 end

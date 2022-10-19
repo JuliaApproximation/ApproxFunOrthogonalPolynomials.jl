@@ -377,6 +377,18 @@ import ApproxFunOrthogonalPolynomials: jacobip
                 end
             end
         end
+
+        @testset "Multiplication" begin
+            xJ = Fun(NormalizedJacobi(1,1))
+            xC = Fun()
+            xNC = Fun(NormalizedChebyshev())
+            @test (Multiplication(xC) * xJ)(0.4) ≈ (0.4)^2
+            @test (Multiplication(xNC) * xJ)(0.4) ≈ (0.4)^2
+            @test ApproxFunBase.isbanded(Multiplication(xC, NormalizedLegendre()))
+            @test ApproxFunBase.isbanded(Multiplication(xNC, NormalizedLegendre()))
+            @test ApproxFunBase.isbanded(Multiplication(xC, NormalizedJacobi(1,1)))
+            @test ApproxFunBase.isbanded(Multiplication(xNC, NormalizedJacobi(1,1)))
+        end
     end
 
     @testset "casting bug ApproxFun.jl#770" begin
