@@ -28,10 +28,7 @@ macro verbose(ex)
     if VERSION >= v"1.8"
         insert!(args, 3, Expr(:(=), :verbose, true))
     end
-    quote
-        $(Expr(head, args...))
-        @info "Finished " * $name * " tests"
-    end
+    Expr(head, args...)
 end
 
 include("ClenshawTest.jl")
