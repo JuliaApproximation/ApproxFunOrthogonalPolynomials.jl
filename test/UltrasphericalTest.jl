@@ -1,8 +1,12 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, Test, SpecialFunctions, LinearAlgebra
-import ApproxFunBase: Vec, maxspace, NoSpace, hasconversion, reverseorientation, ReverseOrientation
+using ApproxFunOrthogonalPolynomials
+using ApproxFunBase
+using Test
+using SpecialFunctions
+using LinearAlgebra
+using ApproxFunBase: Vec, maxspace, NoSpace, hasconversion, reverseorientation, ReverseOrientation
 using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
                     testfunctional
-import ApproxFunOrthogonalPolynomials: jacobip
+using ApproxFunOrthogonalPolynomials: jacobip
 
 @testset "Ultraspherical" begin
     @testset "Conversion" begin

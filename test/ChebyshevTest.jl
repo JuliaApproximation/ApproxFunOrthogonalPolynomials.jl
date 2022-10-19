@@ -1,7 +1,10 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
-import ApproxFunBase: recA, recB, recC, transform!, itransform!
-import ApproxFunBaseTest: testspace
-import ApproxFunOrthogonalPolynomials: forwardrecurrence
+using ApproxFunOrthogonalPolynomials
+using ApproxFunBase
+using LinearAlgebra
+using Test
+using ApproxFunBase: recA, recB, recC, transform!, itransform!
+using ApproxFunBaseTest: testspace
+using ApproxFunOrthogonalPolynomials: forwardrecurrence
 
 @verbose @testset "Chebyshev" begin
     @testset "Forward recurrence" begin

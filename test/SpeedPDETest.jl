@@ -1,6 +1,8 @@
 module SpeedPDETest
-using ApproxFunOrthogonalPolynomials, BlockBandedMatrices, Test
-import ApproxFunOrthogonalPolynomials: Block
+using ApproxFunOrthogonalPolynomials
+using BlockBandedMatrices
+using Test
+using ApproxFunOrthogonalPolynomials: Block
 using LinearAlgebra
 
 ## PDEs

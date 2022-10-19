@@ -1,6 +1,8 @@
 module SpeedODETest
-using ApproxFunOrthogonalPolynomials, SpecialFunctions, Test
-import ApproxFunBase: ldiv_coefficients
+using ApproxFunOrthogonalPolynomials
+using SpecialFunctions
+using Test
+using ApproxFunBase: ldiv_coefficients
 using LinearAlgebra
 
 ## ODEs

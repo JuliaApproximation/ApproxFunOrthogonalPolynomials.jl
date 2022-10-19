@@ -5,7 +5,7 @@ using FillArrays
 using LinearAlgebra
 using SpecialFunctions
 using Test
-import ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
+using ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
                         ArraySpace, blocklengths, ∞, Vec
 
 using ApproxFunBaseTest: testblockbandedoperator, testraggedbelowoperator

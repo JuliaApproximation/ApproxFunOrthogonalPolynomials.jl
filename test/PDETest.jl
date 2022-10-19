@@ -1,5 +1,8 @@
-using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
-import ApproxFunBase: Block, ldiv_coefficients
+using ApproxFunBase
+using ApproxFunOrthogonalPolynomials
+using LinearAlgebra
+using Test
+using ApproxFunBase: Block, ldiv_coefficients
 using ApproxFunBaseTest: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator
 
 @verbose @testset "PDE" begin
