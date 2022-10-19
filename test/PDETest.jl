@@ -2,7 +2,7 @@ using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
 import ApproxFunBase: Block, ldiv_coefficients
 using ApproxFunBaseTest: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator
 
-@testset "PDE" begin
+@verbose @testset "PDE" begin
     @testset "Rectangle Laplace/Poisson" begin
         dx = dy = ChebyshevInterval()
         d = dx × dy

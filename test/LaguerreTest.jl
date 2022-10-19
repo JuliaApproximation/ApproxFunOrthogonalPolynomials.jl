@@ -2,7 +2,7 @@ using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, Test
 import ApproxFunBaseTest: testbandedoperator
 
 
-@testset "Laguerre and WeightedLaguerre" begin
+@verbose @testset "Laguerre and WeightedLaguerre" begin
 
     @testset "General scaled rays" begin
         r = Ray(-1.0,0.0,2.0,true)

@@ -4,7 +4,7 @@ using ApproxFunBaseTest: testfunctional, testbandedoperator, testraggedbelowoper
                         testinfoperator, testblockbandedoperator
 import ApproxFunOrthogonalPolynomials: JacobiZ
 
-@testset "Operator" begin
+@verbose @testset "Operator" begin
     @testset "Evaluation" begin
         testfunctional(Evaluation(Ultraspherical(1),0.1))
         d = -4 .. 4

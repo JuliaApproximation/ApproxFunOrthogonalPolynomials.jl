@@ -5,7 +5,7 @@ using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace,
                     testfunctional
 import ApproxFunOrthogonalPolynomials: jacobip
 
-@testset "Jacobi" begin
+@verbose @testset "Jacobi" begin
     @testset "Basic" begin
         @test jacobip(0:5,2,0.5,0.1) ≈ [1.,0.975,-0.28031249999999996,-0.8636328125,-0.0022111816406250743,0.7397117980957031]
 
@@ -43,21 +43,21 @@ import ApproxFunOrthogonalPolynomials: jacobip
         @test norm(Fun(Fun(exp),Jacobi(-.5,-.5))-Fun(exp,Jacobi(-.5,-.5))) < 300eps()
 
         @testset "inplace transform" begin
-            @testset for T in [Float32, Float64], ET in Any[T, complex(T)]
+            @testset for T in (Float32, Float64), ET in (T, complex(T))
                 v = Array{ET}(undef, 10)
                 v2 = similar(v)
-                @testset for a in 0:0.5:3, b in 0:0.5:3, d in Any[(), (0..1,)]
+                @testset for a in 0:0.5:3, b in 0:0.5:3, d in ((), (0..1,))
                     J = Jacobi(a, b, d...)
-                    Slist = Any[J, NormalizedPolynomialSpace(J)]
+                    Slist = (J, NormalizedPolynomialSpace(J))
                     @testset for S in Slist
                         test_transform!(v, v2, S)
                     end
                 end
                 v = Array{ET}(undef, 10, 10)
                 v2 = similar(v)
-                @testset for a in 0:0.5:3, b in 0:0.5:3, d in Any[(), (0..1,)]
+                @testset for a in 0:0.5:3, b in 0:0.5:3, d in ((), (0..1,))
                     J = Jacobi(a, b, d...)
-                    Slist = Any[J, NormalizedPolynomialSpace(J)]
+                    Slist = (J, NormalizedPolynomialSpace(J))
                     @testset for S1 in Slist, S2 in Slist
                         S = S1 ⊗ S2
                         test_transform!(v, v2, S)
