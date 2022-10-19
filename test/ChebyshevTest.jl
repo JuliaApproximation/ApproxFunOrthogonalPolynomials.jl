@@ -272,6 +272,9 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
             f = (Derivative() + Fun(s)) * Fun(s)
             g = ones(s) + Fun(s)^2
             @test f ≈ g
+
+            @test space(1 + Fun(NormalizedChebyshev())) == NormalizedChebyshev()
+            @test space(1 + Fun(NormalizedChebyshev(0..1))) == NormalizedChebyshev(0..1)
         end
     end
 

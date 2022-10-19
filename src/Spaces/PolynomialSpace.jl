@@ -342,6 +342,8 @@ struct NormalizedPolynomialSpace{S,D,R} <: Space{D,R}
     NormalizedPolynomialSpace{S,D,R}(space) where {S,D,R} = new{S,D,R}(space)
 end
 
+@containsconstants NormalizedPolynomialSpace
+
 domain(S::NormalizedPolynomialSpace) = domain(S.space)
 canonicalspace(S::NormalizedPolynomialSpace) = S.space
 setdomain(NS::NormalizedPolynomialSpace, d::Domain) = NormalizedPolynomialSpace(setdomain(canonicalspace(NS), d))

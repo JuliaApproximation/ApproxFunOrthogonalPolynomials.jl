@@ -389,6 +389,11 @@ import ApproxFunOrthogonalPolynomials: jacobip
             @test ApproxFunBase.isbanded(Multiplication(xC, NormalizedJacobi(1,1)))
             @test ApproxFunBase.isbanded(Multiplication(xNC, NormalizedJacobi(1,1)))
         end
+
+        @testset "space promotion" begin
+            @test space(1 + Fun(NormalizedLegendre())) == NormalizedLegendre()
+            @test space(1 + Fun(NormalizedJacobi(1,1,0..1))) == NormalizedJacobi(1,1,0..1)
+        end
     end
 
     @testset "casting bug ApproxFun.jl#770" begin
