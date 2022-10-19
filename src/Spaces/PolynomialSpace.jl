@@ -435,5 +435,5 @@ end
 function Multiplication(f::Fun{U},sp::NormalizedPolynomialSpace) where U <: NormalizedPolynomialSpace
     csp = canonicalspace(f)
     fc = Conversion(space(f), csp)*f
-    MultiplicationWrapper(f,Conversion(csp,sp)*Multiplication(fc,csp)*Conversion(sp,csp))
+    Multiplication(fc, sp)
 end

@@ -379,7 +379,9 @@ import ApproxFunOrthogonalPolynomials: jacobip
         end
 
         @testset "Multiplication" begin
-            @test (Multiplication(Fun()) * Fun(NormalizedJacobi(1,1)))(0.4) ≈ (0.4)^2
+            xJ = Fun(NormalizedJacobi(1,1))
+            @test (Multiplication(Fun()) * xJ)(0.4) ≈ (0.4)^2
+            @test (Multiplication(Fun(NormalizedChebyshev())) * xJ)(0.4) ≈ (0.4)^2
         end
     end
 
