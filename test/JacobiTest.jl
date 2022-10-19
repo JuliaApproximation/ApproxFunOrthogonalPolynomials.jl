@@ -377,6 +377,10 @@ import ApproxFunOrthogonalPolynomials: jacobip
                 end
             end
         end
+
+        @testset "Multiplication" begin
+            @test (Multiplication(Fun()) * Fun(NormalizedJacobi(1,1)))(0.4) ≈ (0.4)^2
+        end
     end
 
     @testset "casting bug ApproxFun.jl#770" begin
