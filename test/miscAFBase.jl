@@ -8,7 +8,7 @@ using StaticArrays
 using BandedMatrices
 
 using IntervalSets: AbstractInterval
-using IntervalSets: endpoints, closedendpoints
+import IntervalSets: endpoints, closedendpoints
 
 struct UniqueInterval{T, I<:AbstractInterval{T}} <: AbstractInterval{T}
     parentinterval :: I
