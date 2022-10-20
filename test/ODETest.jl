@@ -1,5 +1,9 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, Test, LazyArrays
-import ApproxFunBase: Multiplication, interlace, ∞, ℵ₀
+using ApproxFunOrthogonalPolynomials
+using ApproxFunBase
+using SpecialFunctions
+using Test
+using LazyArrays
+using ApproxFunBase: Multiplication, interlace, ∞, ℵ₀
 using ApproxFunBaseTest: testraggedbelowoperator, testbandedoperator
 
 @verbose @testset "ODE" begin

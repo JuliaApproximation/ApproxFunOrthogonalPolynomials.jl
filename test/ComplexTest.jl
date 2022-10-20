@@ -1,4 +1,5 @@
-using ApproxFunOrthogonalPolynomials, Test
+using ApproxFunOrthogonalPolynomials
+using Test
 
 @testset "Complex" begin
     @testset "Differentiation" begin

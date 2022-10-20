@@ -1,5 +1,8 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, Test
-import ApproxFunBaseTest: testbandedoperator
+using ApproxFunOrthogonalPolynomials
+using ApproxFunBase
+using SpecialFunctions
+using Test
+using ApproxFunBaseTest: testbandedoperator
 
 @testset "Hermite and GaussWeight" begin
     @testset "Evaluation" begin

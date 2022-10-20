@@ -1,4 +1,6 @@
-using ApproxFunOrthogonalPolynomials, LinearAlgebra, Test
+using ApproxFunOrthogonalPolynomials
+using LinearAlgebra
+using Test
 using Aqua
 
 @testset "Project quality" begin

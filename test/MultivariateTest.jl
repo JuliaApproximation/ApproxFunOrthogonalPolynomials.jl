@@ -1,10 +1,15 @@
-using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunctions, BlockBandedMatrices, Test
-import ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, Vec, ArraySpace, ∞
+using ApproxFunBase
+using ApproxFunOrthogonalPolynomials
+using LinearAlgebra
+using SpecialFunctions
+using BlockBandedMatrices
+using Test
+using ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, Vec, ArraySpace, ∞
 using ApproxFunBaseTest: testbandedblockbandedoperator, testraggedbelowoperator,
                     testblockbandedoperator
-import ApproxFunOrthogonalPolynomials: chebyshevtransform
+using ApproxFunOrthogonalPolynomials: chebyshevtransform
 
-import Base: oneto
+using Base: oneto
 
 @verbose @testset "Multivariate" begin
     @testset "Square" begin
