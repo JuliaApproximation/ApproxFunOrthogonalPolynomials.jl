@@ -304,4 +304,19 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
         nmin = min(length(a), length(b))
         @test a[1:nmin] ≈ b[1:nmin]
     end
+
+    @testset "constant propagation in Dirichlet" begin
+        D = if VERSION >= v"1.8"
+            @inferred (r -> Dirichlet(r))(Chebyshev(0..1))
+        else
+            Dirichlet(Chebyshev(0..1))
+        end
+        # Dirichlet constraints don't depend on the domain
+        D2 = Dirichlet(Chebyshev())
+        @test Matrix(D[:, 1:4]) == Matrix(D2[:, 1:4])
+
+        D = @inferred (() -> Dirichlet(Chebyshev(), 2))()
+        D2 = @inferred (() -> Dirichlet(Chebyshev(-1..1), 2))()
+        @test Matrix(D[:, 1:4]) == Matrix(D2[:, 1:4])
+    end
 end

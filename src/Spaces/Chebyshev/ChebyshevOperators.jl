@@ -125,11 +125,19 @@ function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},M,OT,T},
     end
 end
 
-function Dirichlet(S::Chebyshev,order)
+@inline function _Dirichlet_Chebyshev(S, order)
     order == 0 && return ConcreteDirichlet(S,ArraySpace([ConstantSpace.(Point.(endpoints(domain(S))))...]),0)
     default_Dirichlet(S,order)
 end
-
+@static if VERSION >= v"1.8"
+    Base.@constprop :aggressive function Dirichlet(S::Chebyshev, order)
+        _Dirichlet_Chebyshev(S, order)
+    end
+else
+    function Dirichlet(S::Chebyshev, order)
+        _Dirichlet_Chebyshev(S, order)
+    end
+end
 
 function getindex(op::ConcreteDirichlet{<:Chebyshev},
                                              k::Integer,j::Integer)
