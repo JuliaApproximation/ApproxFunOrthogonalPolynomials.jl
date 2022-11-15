@@ -31,32 +31,33 @@ getindex(op::ConcreteEvaluation{<:Jacobi},k::Integer) = op[k:k][1]
 
 
 function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)}, kr::AbstractRange)
-    @assert op.order <= 2
+    order = op.order
+    @assert order <= 2
     sp=op.space
     T=eltype(op)
     RT=real(T)
     a=strictconvert(RT,sp.a);b=strictconvert(RT,sp.b)
     d=domain(op)
+    isempty(kr) && return zeros(T, 0)
 
-    if op.order == 0
+
+    if order == 0
         jacobip(T,kr.-1,a,b,-one(T))
-    elseif op.order == 1 &&  b==0 && isa(d, IntervalOrSegment)
+    elseif order == 1 &&  b==0 && isa(d, IntervalOrSegment)
         T[tocanonicalD(d,leftendpoint(d))/2*(a+k)*(k-1)*(-1)^k for k=kr]
-    elseif op.order == 1 && isa(d, IntervalOrSegment)
+    elseif order == 1 && isa(d, IntervalOrSegment)
         D = Derivative(sp)
-        if kr[1]==1 && kr[end] ≥ 2
-            labels = (-1:maximum(kr))[kr][2:end]
-            J = T[zero(T); jacobip(T, labels, 1+a, 1+b, -one(T))]
-            d = [0; [D[k+1, k+2] for k in labels]]
-            d .* J
-        elseif kr[1]==1  # kr[end] ≤ 1
-            zeros(T,length(kr))
-        else
-            J = jacobip(T,kr.-2,1+a,1+b,-one(T))
-            d = [D[k-1, k] for k in kr]
-            d .* J
+        kr_red = kr .- (order + 1)
+        labels = reverse(range(stop=max(0, minimum(kr_red)), start=maximum(kr_red), step=-step(kr)))
+        z = Zeros{T}(length(minimum(kr):order))
+        J = jacobip(T, labels, 1+a, 1+b, -one(T))
+        d = T[D[k+1, k+2] for k in labels]
+        if !isempty(z)
+            J = T[z; J]
+            d = T[z; d]
         end
-    elseif op.order == 2 && b==0 && d isa ChebyshevInterval
+        d .* J
+    elseif order == 2 && b==0 && d isa ChebyshevInterval
         T[-0.125*(a+k)*(a+k+1)*(k-2)*(k-1)*(-1)^k for k=kr]
     else
         error("Not implemented")
@@ -64,29 +65,28 @@ function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)}, kr::Abs
 end
 
 function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(rightendpoint)}, kr::AbstractRange)
-    @assert op.order <= 2
+    order = op.order
+    @assert order <= 2
     sp=op.space
     T=eltype(op)
     RT=real(T)
     a=strictconvert(RT,sp.a);b=strictconvert(RT,sp.b)
     d=domain(op)
 
-    if op.order == 0
+    if order == 0
         jacobip(T,kr.-1,a,b,one(T))
-    elseif op.order == 1 && isa(d,IntervalOrSegment)
+    elseif order == 1 && isa(d,IntervalOrSegment)
         D = Derivative(sp)
-        if kr[1]==1 && kr[end] ≥ 2
-            labels = (-1:maximum(kr))[kr][2:end]
-            J = T[zero(T); jacobip(T, labels, 1+a, 1+b, one(T))]
-            d = [0; [D[k+1, k+2] for k in labels]]
-            d .* J
-        elseif kr[1]==1  # kr[end] ≤ 1
-            zeros(T,length(kr))
-        else
-            J = jacobip(T,kr.-2,1+a,1+b,one(T))
-            d = [D[k-1, k] for k in kr]
-            d .* J
+        kr_red = kr .- (order + 1)
+        labels = reverse(range(stop=max(0, minimum(kr_red)), start=maximum(kr_red), step=-step(kr)))
+        z = Zeros{T}(length(minimum(kr):order))
+        J = jacobip(T, labels, 1+a, 1+b, one(T))
+        d = T[D[k+1, k+2] for k in labels]
+        if !isempty(z)
+            J = T[z; J]
+            d = T[z; d]
         end
+        d .* J
     else
         error("Not implemented")
     end
