@@ -48,7 +48,7 @@ function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)}, kr::Abs
     elseif order == 1 && isa(d, IntervalOrSegment)
         D = Derivative(sp)
         kr_red = kr .- (order + 1)
-        labels = reverse(range(stop=max(0, minimum(kr_red)), start=maximum(kr_red), step=-step(kr)))
+        labels = reverse(range(maximum(kr_red), max(0, minimum(kr_red)), step=-step(kr)))
         z = Zeros{T}(length(minimum(kr):order))
         J = jacobip(T, labels, 1+a, 1+b, -one(T))
         d = T[D[k+1, k+2] for k in labels]
@@ -78,7 +78,7 @@ function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(rightendpoint)}, kr::Ab
     elseif order == 1 && isa(d,IntervalOrSegment)
         D = Derivative(sp)
         kr_red = kr .- (order + 1)
-        labels = reverse(range(stop=max(0, minimum(kr_red)), start=maximum(kr_red), step=-step(kr)))
+        labels = reverse(range(maximum(kr_red), max(0, minimum(kr_red)), step=-step(kr)))
         z = Zeros{T}(length(minimum(kr):order))
         J = jacobip(T, labels, 1+a, 1+b, one(T))
         d = T[D[k+1, k+2] for k in labels]
