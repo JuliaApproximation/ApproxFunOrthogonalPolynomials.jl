@@ -404,4 +404,26 @@ using ApproxFunOrthogonalPolynomials: jacobip
         f = Fun((t,x)-> im*exp(t)*sinpi(x), Legendre()^2)
         @test f(0.1, 0.2) ≈ im*exp(0.1)*sinpi(0.2)
     end
+
+    @testset "Evaluation" begin
+        c = [i^2 for i in 1:4]
+        for d in Any[0..1, ChebyshevInterval()], (a,b) in Any[(1,1), (2,3), (2.5, 0.4)]
+            for sp in Any[Jacobi(a,b), Jacobi(a,b,d)]
+                d = domain(sp)
+                f = Fun(sp, c)
+                for ep in [leftendpoint, rightendpoint]
+                    E = ApproxFunBase.ConcreteEvaluation(sp, ep, 0)
+                    @test E[2:4] == E[1:4][2:end]
+                    @test E[1:2:5] == E[1:5][1:2:5]
+                    @test E[2:2:6] == E[1:6][2:2:6]
+                    @test E * f ≈ f(ep(d))
+                    D = ApproxFunBase.ConcreteEvaluation(sp, ep, 1)
+                    @test D[2:4] == D[1:4][2:end]
+                    @test D[1:2:5] == D[1:5][1:2:5]
+                    @test D[2:2:6] == D[1:6][2:2:6]
+                    @test D * f ≈ f'(ep(d))
+                end
+            end
+        end
+    end
 end

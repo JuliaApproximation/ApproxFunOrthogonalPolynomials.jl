@@ -1,7 +1,7 @@
 ## Evaluation
 
 
-function Evaluation(S::Jacobi,x::Union{typeof(leftendpoint),typeof(leftendpoint)},order)
+function Evaluation(S::Jacobi,x::Union{typeof(leftendpoint),typeof(rightendpoint)},order)
     if order ≤ 2
         ConcreteEvaluation(S,x,order)
     else
@@ -30,57 +30,62 @@ end
 getindex(op::ConcreteEvaluation{<:Jacobi},k::Integer) = op[k:k][1]
 
 
-function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)},kr::AbstractRange)
+function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)}, kr::AbstractRange)
     @assert op.order <= 2
     sp=op.space
     T=eltype(op)
     RT=real(T)
     a=strictconvert(RT,sp.a);b=strictconvert(RT,sp.b)
+    d=domain(op)
 
     if op.order == 0
         jacobip(T,kr.-1,a,b,-one(T))
-    elseif op.order == 1&&  b==0
-        d=domain(op)
-        @assert isa(d,IntervalOrSegment)
+    elseif op.order == 1 &&  b==0 && isa(d, IntervalOrSegment)
         T[tocanonicalD(d,leftendpoint(d))/2*(a+k)*(k-1)*(-1)^k for k=kr]
-    elseif op.order == 1
-        d=domain(op)
-        @assert isa(d,IntervalOrSegment)
+    elseif op.order == 1 && isa(d, IntervalOrSegment)
+        D = Derivative(sp)
         if kr[1]==1 && kr[end] ≥ 2
-            tocanonicalD(d,leftendpoint(d)).*(a .+ b .+ kr).*T[zero(T);jacobip(T,0:kr[end]-2,1+a,1+b,-one(T))]/2
+            labels = (-1:maximum(kr))[kr][2:end]
+            J = T[zero(T); jacobip(T, labels, 1+a, 1+b, -one(T))]
+            d = [0; [D[k+1, k+2] for k in labels]]
+            d .* J
         elseif kr[1]==1  # kr[end] ≤ 1
             zeros(T,length(kr))
         else
-            tocanonicalD(d,leftendpoint(d)) .* (a.+b.+kr).*jacobip(T,kr.-1,1+a,1+b,-one(T))/2
+            J = jacobip(T,kr.-2,1+a,1+b,-one(T))
+            d = [D[k-1, k] for k in kr]
+            d .* J
         end
-    elseif op.order == 2
-        @assert b==0
-        @assert domain(op) == ChebyshevInterval()
+    elseif op.order == 2 && b==0 && d isa ChebyshevInterval
         T[-0.125*(a+k)*(a+k+1)*(k-2)*(k-1)*(-1)^k for k=kr]
     else
         error("Not implemented")
     end
 end
 
-function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(rightendpoint)},kr::AbstractRange)
+function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(rightendpoint)}, kr::AbstractRange)
     @assert op.order <= 2
     sp=op.space
     T=eltype(op)
     RT=real(T)
     a=strictconvert(RT,sp.a);b=strictconvert(RT,sp.b)
-
+    d=domain(op)
 
     if op.order == 0
         jacobip(T,kr.-1,a,b,one(T))
-    elseif op.order == 1
-        d=domain(op)
-        @assert isa(d,IntervalOrSegment)
+    elseif op.order == 1 && isa(d,IntervalOrSegment)
+        D = Derivative(sp)
         if kr[1]==1 && kr[end] ≥ 2
-            tocanonicalD(d,leftendpoint(d))*((a+b).+kr).*T[zero(T);jacobip(T,0:kr[end]-2,1+a,1+b,one(T))]/2
+            labels = (-1:maximum(kr))[kr][2:end]
+            J = T[zero(T); jacobip(T, labels, 1+a, 1+b, one(T))]
+            d = [0; [D[k+1, k+2] for k in labels]]
+            d .* J
         elseif kr[1]==1  # kr[end] ≤ 1
             zeros(T,length(kr))
         else
-            tocanonicalD(d,leftendpoint(d))*((a+b).+kr).*jacobip(T,kr.-1,1+a,1+b,one(T))/2
+            J = jacobip(T,kr.-2,1+a,1+b,one(T))
+            d = [D[k-1, k] for k in kr]
+            d .* J
         end
     else
         error("Not implemented")
