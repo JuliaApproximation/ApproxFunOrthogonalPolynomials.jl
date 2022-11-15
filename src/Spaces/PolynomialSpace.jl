@@ -302,38 +302,49 @@ function forwardrecurrence(::Type{T},S::Space,r::AbstractRange,x::Number) where 
 end
 
 
-function Evaluation(S::PolynomialSpace,x,order)
-    if order == 0
-        ConcreteEvaluation(S,x,order)
-    else
-        # assume Derivative is available
-        D = Derivative(S,order)
-        EvaluationWrapper(S,x,order,Evaluation(rangespace(D),x)*D)
-    end
-end
-
+Evaluation(S::PolynomialSpace,x,order) = ConcreteEvaluation(S,x,order)
 
 function getindex(op::ConcreteEvaluation{J,typeof(leftendpoint)},kr::AbstractRange) where J<:PolynomialSpace
-    sp=op.space
-    T=eltype(op)
-    @assert op.order == 0
-    forwardrecurrence(T,sp,kr.-1,-one(T))
+    _getindex(op, leftendpoint(domain(op)), kr)
 end
 
 function getindex(op::ConcreteEvaluation{J,typeof(rightendpoint)},kr::AbstractRange) where J<:PolynomialSpace
-    sp=op.space
-    T=eltype(op)
-    @assert op.order == 0
-    forwardrecurrence(T,sp,kr.-1,one(T))
+    _getindex(op, rightendpoint(domain(op)), kr)
 end
 
+function getindex(op::ConcreteEvaluation{J,TT}, kr::AbstractRange) where {J<:PolynomialSpace,TT<:Number}
+    _getindex(op, op.x, kr)
+end
 
-function getindex(op::ConcreteEvaluation{J,TT},kr::AbstractRange) where {J<:PolynomialSpace,TT<:Number}
-    sp=op.space
-    T=eltype(op)
-    x=op.x
-    @assert op.order == 0
-    forwardrecurrence(T,sp,kr .- 1,tocanonical(sp,x))
+function _getindex(op::ConcreteEvaluation{<:PolynomialSpace}, x, kr::AbstractRange)
+    _getindex(eltype(op), op.space, op.order, x, kr)
+end
+
+function _getindex(::Type{T}, sp, order, x, kr::AbstractRange) where {T}
+    if order == 0
+        forwardrecurrence(T,sp,kr .- 1,tocanonical(sp,x))
+    else
+        z = Zeros{T}(length(range(minimum(kr), order, step=step(kr))))
+        kr_red = kr .- (order + 1)
+        labels = reverse(range(maximum(kr_red), max(0, minimum(kr_red)), step=-step(kr)))
+        if !isempty(labels)
+            D = Derivative(sp, order)
+            P = forwardrecurrence(T, rangespace(D), labels, tocanonical(sp,x))
+            bw = bandwidth(D, 2)
+            rows = 1:maximum(kr)
+            B = D[rows, rows .+ bw]
+            Bv = @view B[diagind(B)]
+            d = Bv[labels .+ 1]
+        else
+            P = T[]
+            d = T[]
+        end
+        if !isempty(z)
+            P = T[z; P]
+            d = T[z; d]
+        end
+        d .* P
+    end
 end
 
 
