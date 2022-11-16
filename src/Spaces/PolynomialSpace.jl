@@ -305,22 +305,22 @@ end
 Evaluation(S::PolynomialSpace,x,order) = ConcreteEvaluation(S,x,order)
 
 function getindex(op::ConcreteEvaluation{J,typeof(leftendpoint)},kr::AbstractRange) where J<:PolynomialSpace
-    _getindex(op, leftendpoint(domain(op)), kr)
+    _getindex_evaluation(op, leftendpoint(domain(op)), kr)
 end
 
 function getindex(op::ConcreteEvaluation{J,typeof(rightendpoint)},kr::AbstractRange) where J<:PolynomialSpace
-    _getindex(op, rightendpoint(domain(op)), kr)
+    _getindex_evaluation(op, rightendpoint(domain(op)), kr)
 end
 
 function getindex(op::ConcreteEvaluation{J,TT}, kr::AbstractRange) where {J<:PolynomialSpace,TT<:Number}
-    _getindex(op, op.x, kr)
+    _getindex_evaluation(op, op.x, kr)
 end
 
-function _getindex(op::ConcreteEvaluation{<:PolynomialSpace}, x, kr::AbstractRange)
-    _getindex(eltype(op), op.space, op.order, x, kr)
+function _getindex_evaluation(op::ConcreteEvaluation{<:PolynomialSpace}, x, kr::AbstractRange)
+    _getindex_evaluation(eltype(op), op.space, op.order, x, kr)
 end
 
-function _getindex(::Type{T}, sp, order, x, kr::AbstractRange) where {T}
+function _getindex_evaluation(::Type{T}, sp, order, x, kr::AbstractRange) where {T}
     if order == 0
         forwardrecurrence(T,sp,kr .- 1,tocanonical(sp,x))
     else

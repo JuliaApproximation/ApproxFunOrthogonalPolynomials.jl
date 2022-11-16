@@ -35,18 +35,7 @@ function nonzeroband(::Type{T}, D, labels, order) where {T}
     end
 end
 
-function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)}, kr::AbstractRange)
-    _getindex(op, leftendpoint(domain(op)), kr)
-end
-
-function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(rightendpoint)}, kr::AbstractRange)
-    _getindex(op, rightendpoint(domain(op)), kr)
-end
-
-function _getindex(op::ConcreteEvaluation{<:Jacobi}, x, kr::AbstractRange)
-    _getindex(eltype(op), op.space, op.order, x, kr)
-end
-function _getindex(::Type{T}, sp::Jacobi, order, x, kr::AbstractRange) where {T}
+function _getindex_evaluation(::Type{T}, sp::Jacobi, order, x, kr::AbstractRange) where {T}
     RT=real(T)
     a=strictconvert(RT,sp.a)
     b=strictconvert(RT,sp.b)
@@ -75,11 +64,6 @@ function _getindex(::Type{T}, sp::Jacobi, order, x, kr::AbstractRange) where {T}
         error("Not implemented")
     end
 end
-
-function getindex(op::ConcreteEvaluation{<:Jacobi,<:Number},kr::AbstractRange)
-    _getindex(op, op.x, kr)
-end
-
 
 ## Derivative
 
