@@ -1,44 +1,3 @@
-## Evaluation
-
-# avoid ambiguity
-for OP in (:leftendpoint,:rightendpoint)
-    @eval getindex(op::ConcreteEvaluation{<:Jacobi,typeof($OP)},k::Integer) =
-        op[k:k][1]
-end
-
-getindex(op::ConcreteEvaluation{<:Jacobi},k::Integer) = op[k:k][1]
-
-function _getindex_evaluation(::Type{T}, sp::Jacobi, order, x, kr::AbstractRange) where {T}
-    Base.require_one_based_indexing(kr)
-    RT=real(T)
-    a=strictconvert(RT,sp.a)
-    b=strictconvert(RT,sp.b)
-    d=domain(sp)
-    y = tocanonical(d, x)
-    if order == 0
-        jacobip(T, kr.-1, a, b, y)
-    elseif d isa IntervalOrSegment
-        D = Derivative(sp, order)
-        z = Zeros{T}(length(range(minimum(kr), order, step=step(kr))))
-        kr_red = kr .- (order + 1)
-        labels = reverse(range(maximum(kr_red), max(0, minimum(kr_red)), step=-step(kr)))
-        if !isempty(labels)
-            J = jacobip(T, labels, order+a, order+b, y)
-            d = nonzeroband(T, D, labels, order)
-        else
-            J = T[]
-            d = T[]
-        end
-        if !isempty(z)
-            J = T[z; J]
-            d = T[z; d]
-        end
-        d .* J
-    else
-        error("Not implemented")
-    end
-end
-
 ## Derivative
 
 function Derivative(J::Jacobi,k::Integer)
@@ -58,7 +17,19 @@ getindex(T::ConcreteDerivative{J},k::Integer,j::Integer) where {J<:Jacobi} =
     j==k+1 ? eltype(T)((k+1+T.space.a+T.space.b)/complexlength(domain(T))) : zero(eltype(T))
 
 
+# Evaluation
 
+Evaluation(S::Jacobi,x::typeof(leftendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::Jacobi,x::typeof(rightendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::Jacobi,x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+
+Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::typeof(leftendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::typeof(rightendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
 
 ## Integral
 

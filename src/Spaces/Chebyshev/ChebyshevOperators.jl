@@ -13,6 +13,18 @@ recγ(::Type{T},::Chebyshev,k) where {T} = one(T)/2   # one(T) ensures we get co
 
 ## Evaluation
 
+Evaluation(S::Chebyshev,x::typeof(leftendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::Chebyshev,x::typeof(rightendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::Chebyshev,x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+
+Evaluation(S::NormalizedPolynomialSpace{<:Chebyshev},x::typeof(leftendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::NormalizedPolynomialSpace{<:Chebyshev},x::typeof(rightendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::NormalizedPolynomialSpace{<:Chebyshev},x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+
 function evaluatechebyshev(n::Integer,x::T) where T<:Number
     if n == 1
         [one(T)]
