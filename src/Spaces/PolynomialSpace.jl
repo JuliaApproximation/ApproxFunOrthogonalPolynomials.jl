@@ -321,6 +321,7 @@ function _getindex_evaluation(op::ConcreteEvaluation{<:PolynomialSpace}, x, kr::
 end
 
 function _getindex_evaluation(::Type{T}, sp, order, x, kr::AbstractRange) where {T}
+    Base.require_one_based_indexing(kr)
     if order == 0
         forwardrecurrence(T,sp,kr .- 1,tocanonical(sp,x))
     else

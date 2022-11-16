@@ -36,6 +36,7 @@ function nonzeroband(::Type{T}, D, labels, order) where {T}
 end
 
 function _getindex_evaluation(::Type{T}, sp::Jacobi, order, x, kr::AbstractRange) where {T}
+    Base.require_one_based_indexing(kr)
     RT=real(T)
     a=strictconvert(RT,sp.a)
     b=strictconvert(RT,sp.b)

@@ -13,14 +13,6 @@ recγ(::Type{T},::Chebyshev,k) where {T} = one(T)/2   # one(T) ensures we get co
 
 ## Evaluation
 
-Evaluation(S::Chebyshev,x::typeof(leftendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-Evaluation(S::Chebyshev,x::typeof(rightendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-
-Evaluation(S::Chebyshev,x::Number,o::Integer) =
-    o==0 ? ConcreteEvaluation(S,x,o) : EvaluationWrapper(S,x,o,Evaluation(x)*Derivative(S,o))
-
 function evaluatechebyshev(n::Integer,x::T) where T<:Number
     if n == 1
         [one(T)]
@@ -28,15 +20,21 @@ function evaluatechebyshev(n::Integer,x::T) where T<:Number
         p = zeros(T,n)
         p[1] = one(T)
         p[2] = x
+        twox = 2x
 
         for j=2:n-1
-            p[j+1] = 2x*p[j] - p[j-1]
+            p[j+1] = muladd(twox, p[j], -p[j-1])
         end
 
         p
     end
 end
 
+function forwardrecurrence(::Type{T},S::Chebyshev,r::AbstractUnitRange{<:Integer},x::Number) where {T}
+    @assert !isempty(r) && first(r) == 0
+    y = tocanonical(S, x)
+    evaluatechebyshev(length(r), T(y))
+end
 
 function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)},j::Integer) where {DD<:IntervalOrSegment,RR}
     T=eltype(op)
@@ -60,7 +58,8 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint
     end
 end
 
-function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)},k::AbstractRange) where {DD<:IntervalOrSegment,RR}
+function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)},k::AbstractUnitRange) where {DD<:IntervalOrSegment,RR}
+    Base.require_one_based_indexing(k)
     T=eltype(op)
     x = op.x
     d = domain(op)
@@ -69,15 +68,13 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)
     n=length(k)
 
     ret = Array{T}(undef, n)
-    k1=1-first(k)
-    @simd for j=k
-        @inbounds ret[j+k1]=(-1)^(p+1)*(-one(T))^j
+    for (ind, j) in enumerate(k)
+        ret[ind]=(-1)^(p+1)*(-one(T))^j
     end
 
-    for m=0:p-1
-        k1=1-first(k)
-        @simd for j=k
-            @inbounds ret[j+k1] *= (j-1)^2-m^2
+    for m in 0:p-1
+        for (ind, j) in enumerate(k)
+            ret[ind] *= (j-1)^2-m^2
         end
         scal!(strictconvert(T,1/(2m+1)), ret)
     end
@@ -86,7 +83,8 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)
 end
 
 
-function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint)},k::AbstractRange) where {DD<:IntervalOrSegment,RR}
+function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint)},k::AbstractUnitRange) where {DD<:IntervalOrSegment,RR}
+    Base.require_one_based_indexing(k)
     T=eltype(op)
     x = op.x
     d = domain(op)
@@ -96,33 +94,14 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint
 
     ret = fill(one(T),n)
 
-    for m=0:p-1
-        k1=1-first(k)
-        @simd for j=k
-            @inbounds ret[j+k1] *= (j-1)^2-m^2
+    for m in 0:p-1
+        for (ind, j) in enumerate(k)
+            ret[ind] *= (j-1)^2-m^2
         end
         scal!(strictconvert(T,1/(2m+1)), ret)
     end
 
     scal!(cst,ret)
-end
-
-function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},M,OT,T},
-                j::Integer) where {DD<:IntervalOrSegment,RR,M<:Real,OT,T}
-    if op.order == 0
-        strictconvert(T,evaluatechebyshev(j,tocanonical(domain(op),op.x))[end])
-    else
-        error("Only zero–second order implemented")
-    end
-end
-
-function getindex(op::ConcreteEvaluation{Chebyshev{DD,RR},M,OT,T},
-                                             k::AbstractRange) where {DD<:IntervalOrSegment,RR,M<:Real,OT,T}
-    if op.order == 0
-        Array{T}(evaluatechebyshev(k[end],tocanonical(domain(op),op.x))[k])
-    else
-        error("Only zero–second order implemented")
-    end
 end
 
 @inline function _Dirichlet_Chebyshev(S, order)
