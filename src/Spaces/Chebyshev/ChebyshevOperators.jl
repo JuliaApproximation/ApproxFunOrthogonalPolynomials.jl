@@ -117,8 +117,14 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint
     scal!(cst,ret)
 end
 
+convert_vector_or_svector(v::AbstractVector) = convert(Vector, v)
+convert_vector_or_svector(t::Tuple) = SVector(t)
+
 @inline function _Dirichlet_Chebyshev(S, order)
-    order == 0 && return ConcreteDirichlet(S,ArraySpace([ConstantSpace.(Point.(endpoints(domain(S))))...]),0)
+    order == 0 && return ConcreteDirichlet(S,
+        ArraySpace(convert_vector_or_svector(
+            ConstantSpace.(Point.(endpoints(domain(S)))))),
+        0)
     default_Dirichlet(S,order)
 end
 @static if VERSION >= v"1.8"
