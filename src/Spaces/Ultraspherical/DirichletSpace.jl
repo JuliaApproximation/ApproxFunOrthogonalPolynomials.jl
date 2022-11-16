@@ -158,7 +158,7 @@ function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{1,0,D,R},typeof(lefte
     d = domain(B)
 
     if B.order == 0
-        Float64[k==1 ? 1.0 : 0.0 for k=kr]
+        eltype(B)[k==1 ? 1.0 : 0.0 for k=kr]
     else
         (Evaluation(d,B.x,B.order)*Conversion(domainspace(B)))[kr]
     end
@@ -168,7 +168,7 @@ function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{1,0,D,R},typeof(right
     d = domain(B)
 
     if B.order == 0
-        Float64[k==1 ? 1.0 : 2.0 for k=kr]
+        eltype(B)[k==1 ? 1.0 : 2.0 for k=kr]
     else
         (Evaluation(d,B.x,B.order)*Conversion(domainspace(B)))[kr]
     end
@@ -178,7 +178,7 @@ function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{0,1,D,R},typeof(lefte
     S = Space(domain(B))
 
     if B.order == 0
-        Float64[k==1 ? 1.0 : -(-1)^k*2.0 for k=kr]
+        eltype(B)[k==1 ? 1.0 : -(-1)^k*2.0 for k=kr]
     else
         (Evaluation(S,B.x,B.order)*Conversion(domainspace(B),S))[kr]
     end
@@ -189,7 +189,7 @@ function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{0,1,D,R},typeof(right
 
 
     if B.order == 0
-        Float64[k==1 ? 1.0 : 0.0 for k=kr]
+        eltype(B)[k==1 ? 1.0 : 0.0 for k=kr]
     else
         (Evaluation(S,B.x,B.order)*Conversion(domainspace(B),S))[kr]
     end
@@ -200,7 +200,7 @@ function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{1,1,D,R},typeof(lefte
     S = Space(domain(B))
 
     if B.order == 0
-        Float64[k==1 ? 1.0 : (k==2 ? -1.0 : 0.0) for k=kr]
+        eltype(B)[k==1 ? 1.0 : (k==2 ? -1.0 : 0.0) for k=kr]
     else
         getindex(Evaluation(S,B.x,B.order)*Conversion(domainspace(B),S),kr)
     end
@@ -210,7 +210,7 @@ function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{1,1,D,R},typeof(right
     S = Space(domain(B))
 
     if B.order == 0
-        Float64[k==1||k==2 ? 1.0 : 0.0 for k=kr]
+        eltype(B)[k==1||k==2 ? 1.0 : 0.0 for k=kr]
     else
         getindex(Evaluation(S,B.x,B.order)*Conversion(domainspace(B),S),kr)
     end

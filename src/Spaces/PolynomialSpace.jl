@@ -301,39 +301,74 @@ function forwardrecurrence(::Type{T},S::Space,r::AbstractRange,x::Number) where 
     return v[r.+1]
 end
 
-
-function Evaluation(S::PolynomialSpace,x,order)
-    if order == 0
-        ConcreteEvaluation(S,x,order)
-    else
-        # assume Derivative is available
-        D = Derivative(S,order)
-        EvaluationWrapper(S,x,order,Evaluation(rangespace(D),x)*D)
-    end
+getindex(op::ConcreteEvaluation{<:PolynomialSpace}, k::Integer) = op[k:k][1]
+# avoid ambiguity
+for OP in (:leftendpoint, :rightendpoint)
+    @eval getindex(op::ConcreteEvaluation{<:PolynomialSpace,typeof($OP)},k::Integer) =
+        op[k:k][1]
 end
 
-
 function getindex(op::ConcreteEvaluation{J,typeof(leftendpoint)},kr::AbstractRange) where J<:PolynomialSpace
-    sp=op.space
-    T=eltype(op)
-    @assert op.order == 0
-    forwardrecurrence(T,sp,kr.-1,-one(T))
+    _getindex_evaluation(op, leftendpoint(domain(op)), kr)
 end
 
 function getindex(op::ConcreteEvaluation{J,typeof(rightendpoint)},kr::AbstractRange) where J<:PolynomialSpace
-    sp=op.space
-    T=eltype(op)
-    @assert op.order == 0
-    forwardrecurrence(T,sp,kr.-1,one(T))
+    _getindex_evaluation(op, rightendpoint(domain(op)), kr)
 end
 
+function getindex(op::ConcreteEvaluation{J,TT}, kr::AbstractRange) where {J<:PolynomialSpace,TT<:Number}
+    _getindex_evaluation(op, op.x, kr)
+end
 
-function getindex(op::ConcreteEvaluation{J,TT},kr::AbstractRange) where {J<:PolynomialSpace,TT<:Number}
-    sp=op.space
-    T=eltype(op)
-    x=op.x
-    @assert op.order == 0
-    forwardrecurrence(T,sp,kr .- 1,tocanonical(sp,x))
+function _getindex_evaluation(op::ConcreteEvaluation{<:PolynomialSpace}, x, kr::AbstractRange)
+    _getindex_evaluation(eltype(op), op.space, op.order, x, kr)
+end
+
+function _getindex_evaluation(::Type{T}, sp, order, x, kr::AbstractRange) where {T}
+    Base.require_one_based_indexing(kr)
+    isempty(kr) && return zeros(T, 0)
+    if order == 0
+        forwardrecurrence(T,sp,kr .- 1,tocanonical(sp,x))
+    else
+        z = Zeros{T}(length(range(minimum(kr), order, step=step(kr))))
+        kr_red = kr .- (order + 1)
+        polydegrees = reverse(range(maximum(kr_red), max(0, minimum(kr_red)), step=-step(kr)))
+        D = Derivative(sp, order)
+        if !isempty(polydegrees)
+            P = forwardrecurrence(T, rangespace(D), polydegrees, tocanonical(sp,x))
+            # in case the derivative has only one non-zero band, the matrix-vector
+            # multiplication simplifies considerably.
+            # This branch is particularly useful for ConcreteDerivatives where
+            # indexing is fast, as the non-zero band may be computed without
+            # evaluating the matrix
+            if bandwidth(D, 1) == -bandwidth(D, 2)
+                d = nonzeroband(T, D, polydegrees, order)
+                Pd = P .* d
+                if !isempty(z)
+                    Pd = T[z; Pd]
+                end
+            else
+                # in general, this is a banded matrix-vector product
+                Dtv = view(transpose(D), kr, 1:length(P))
+                Pd = strictconvert(Vector{T},  mul_coefficients(Dtv, P))
+            end
+        else
+            Pd = T[z;]
+        end
+        Pd
+    end
+end
+
+function nonzeroband(::Type{T}, D::ConcreteDerivative, polydegrees, order) where {T}
+    bw = bandwidth(D, 2)
+    T[D[k+1, k+1+bw] for k in polydegrees]
+end
+function nonzeroband(::Type{T}, D, polydegrees, order) where {T}
+    bw = bandwidth(D, 2)
+    rows = 1:(maximum(polydegrees) + order + 1)
+    B = D[rows, rows .+ bw]
+    Bv = @view B[diagind(B)]
+    Bv[polydegrees .+ 1]
 end
 
 

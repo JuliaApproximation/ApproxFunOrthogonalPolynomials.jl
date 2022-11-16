@@ -1,99 +1,3 @@
-## Evaluation
-
-
-function Evaluation(S::Jacobi,x::Union{typeof(leftendpoint),typeof(leftendpoint)},order)
-    if order ≤ 2
-        ConcreteEvaluation(S,x,order)
-    else
-        # assume Derivative is available
-        D = Derivative(S,order)
-        EvaluationWrapper(S,x,order,Evaluation(rangespace(D),x)*D)
-    end
-end
-
-function Evaluation(S::Jacobi,x,order)
-    if order == 0
-        ConcreteEvaluation(S,x,order)
-    else
-        # assume Derivative is available
-        D = Derivative(S,order)
-        EvaluationWrapper(S,x,order,Evaluation(rangespace(D),x)*D)
-    end
-end
-
-# avoid ambiguity
-for OP in (:leftendpoint,:rightendpoint)
-    @eval getindex(op::ConcreteEvaluation{<:Jacobi,typeof($OP)},k::Integer) =
-        op[k:k][1]
-end
-
-getindex(op::ConcreteEvaluation{<:Jacobi},k::Integer) = op[k:k][1]
-
-
-function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(leftendpoint)},kr::AbstractRange)
-    @assert op.order <= 2
-    sp=op.space
-    T=eltype(op)
-    RT=real(T)
-    a=strictconvert(RT,sp.a);b=strictconvert(RT,sp.b)
-
-    if op.order == 0
-        jacobip(T,kr.-1,a,b,-one(T))
-    elseif op.order == 1&&  b==0
-        d=domain(op)
-        @assert isa(d,IntervalOrSegment)
-        T[tocanonicalD(d,leftendpoint(d))/2*(a+k)*(k-1)*(-1)^k for k=kr]
-    elseif op.order == 1
-        d=domain(op)
-        @assert isa(d,IntervalOrSegment)
-        if kr[1]==1 && kr[end] ≥ 2
-            tocanonicalD(d,leftendpoint(d)).*(a .+ b .+ kr).*T[zero(T);jacobip(T,0:kr[end]-2,1+a,1+b,-one(T))]/2
-        elseif kr[1]==1  # kr[end] ≤ 1
-            zeros(T,length(kr))
-        else
-            tocanonicalD(d,leftendpoint(d)) .* (a.+b.+kr).*jacobip(T,kr.-1,1+a,1+b,-one(T))/2
-        end
-    elseif op.order == 2
-        @assert b==0
-        @assert domain(op) == ChebyshevInterval()
-        T[-0.125*(a+k)*(a+k+1)*(k-2)*(k-1)*(-1)^k for k=kr]
-    else
-        error("Not implemented")
-    end
-end
-
-function getindex(op::ConcreteEvaluation{<:Jacobi,typeof(rightendpoint)},kr::AbstractRange)
-    @assert op.order <= 2
-    sp=op.space
-    T=eltype(op)
-    RT=real(T)
-    a=strictconvert(RT,sp.a);b=strictconvert(RT,sp.b)
-
-
-    if op.order == 0
-        jacobip(T,kr.-1,a,b,one(T))
-    elseif op.order == 1
-        d=domain(op)
-        @assert isa(d,IntervalOrSegment)
-        if kr[1]==1 && kr[end] ≥ 2
-            tocanonicalD(d,leftendpoint(d))*((a+b).+kr).*T[zero(T);jacobip(T,0:kr[end]-2,1+a,1+b,one(T))]/2
-        elseif kr[1]==1  # kr[end] ≤ 1
-            zeros(T,length(kr))
-        else
-            tocanonicalD(d,leftendpoint(d))*((a+b).+kr).*jacobip(T,kr.-1,1+a,1+b,one(T))/2
-        end
-    else
-        error("Not implemented")
-    end
-end
-
-
-function getindex(op::ConcreteEvaluation{<:Jacobi,<:Number},kr::AbstractRange)
-    @assert op.order == 0
-    jacobip(eltype(op),kr.-1,op.space.a,op.space.b,tocanonical(domain(op),op.x))
-end
-
-
 ## Derivative
 
 function Derivative(J::Jacobi,k::Integer)
@@ -113,7 +17,19 @@ getindex(T::ConcreteDerivative{J},k::Integer,j::Integer) where {J<:Jacobi} =
     j==k+1 ? eltype(T)((k+1+T.space.a+T.space.b)/complexlength(domain(T))) : zero(eltype(T))
 
 
+# Evaluation
 
+Evaluation(S::Jacobi,x::typeof(leftendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::Jacobi,x::typeof(rightendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::Jacobi,x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+
+Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::typeof(leftendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::typeof(rightendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
 
 ## Integral
 
