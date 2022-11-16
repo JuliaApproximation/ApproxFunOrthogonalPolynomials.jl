@@ -154,10 +154,14 @@ end
 points(L::Laguerre,n) = map(x -> mappoint(Ray(),L.domain,x), gausslaguerre(n,1.0L.α)[1])
 
 
-# TODO: Separate off a real case for the real axis.
+function _toeplitzop_laguerrederiv(L::Laguerre, k)
+    d = L.domain
+    c = cisangle(d)
+    ToeplitzOperator(typeof(c)[], [zeros(k); (-1.)^k] * conj(c)/d.L)
+end
 Derivative(L::Laguerre,k) =
-    DerivativeWrapper(SpaceOperator(ToeplitzOperator(Complex{Float64}[],[zeros(k);(-1.)^k]*conj(cisangle(L.domain))/L.domain.L),
-                                    L,Laguerre(L.α+k,L.domain)))
+    DerivativeWrapper(SpaceOperator(_toeplitzop_laguerrederiv(L, k),
+                                    L, Laguerre(L.α+k,L.domain)))
 
 
 union_rule(A::Laguerre,B::Laguerre) = Laguerre(min(A.α,B.α))
