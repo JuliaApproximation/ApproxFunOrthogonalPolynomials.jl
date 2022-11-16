@@ -331,11 +331,7 @@ function _getindex_evaluation(::Type{T}, sp, order, x, kr::AbstractRange) where 
         if !isempty(labels)
             D = Derivative(sp, order)
             P = forwardrecurrence(T, rangespace(D), labels, tocanonical(sp,x))
-            bw = bandwidth(D, 2)
-            rows = 1:maximum(kr)
-            B = D[rows, rows .+ bw]
-            Bv = @view B[diagind(B)]
-            d = Bv[labels .+ 1]
+            d = nonzeroband(T, D, labels, order)
         else
             P = T[]
             d = T[]
@@ -346,6 +342,18 @@ function _getindex_evaluation(::Type{T}, sp, order, x, kr::AbstractRange) where 
         end
         d .* P
     end
+end
+
+function nonzeroband(::Type{T}, D::ConcreteDerivative, labels, order) where {T}
+    bw = bandwidth(D, 2)
+    T[D[k+1, k+1+bw] for k in labels]
+end
+function nonzeroband(::Type{T}, D, labels, order) where {T}
+    bw = bandwidth(D, 2)
+    rows = 1:(maximum(labels) + order + 1)
+    B = D[rows, rows .+ bw]
+    Bv = @view B[diagind(B)]
+    Bv[labels .+ 1]
 end
 
 

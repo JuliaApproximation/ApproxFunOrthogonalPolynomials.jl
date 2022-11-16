@@ -1,20 +1,5 @@
 ## Evaluation
 
-
-function Evaluation(S::Jacobi,x::Union{typeof(leftendpoint),typeof(rightendpoint)},order)
-    ConcreteEvaluation(S,x,order)
-end
-
-function Evaluation(S::Jacobi,x,order)
-    if order == 0
-        ConcreteEvaluation(S,x,order)
-    else
-        # assume Derivative is available
-        D = Derivative(S,order)
-        EvaluationWrapper(S,x,order,Evaluation(rangespace(D),x)*D)
-    end
-end
-
 # avoid ambiguity
 for OP in (:leftendpoint,:rightendpoint)
     @eval getindex(op::ConcreteEvaluation{<:Jacobi,typeof($OP)},k::Integer) =
@@ -22,18 +7,6 @@ for OP in (:leftendpoint,:rightendpoint)
 end
 
 getindex(op::ConcreteEvaluation{<:Jacobi},k::Integer) = op[k:k][1]
-
-function nonzeroband(::Type{T}, D, labels, order) where {T}
-    if order == 1
-        T[D[k+1, k+2] for k in labels]
-    else
-        bw = bandwidth(D, 2)
-        rows = 1:(maximum(labels) + order + 1)
-        B = D[rows, rows .+ bw]
-        Bv = @view B[diagind(B)]
-        Bv[labels .+ 1]
-    end
-end
 
 function _getindex_evaluation(::Type{T}, sp::Jacobi, order, x, kr::AbstractRange) where {T}
     Base.require_one_based_indexing(kr)

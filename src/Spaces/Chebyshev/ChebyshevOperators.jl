@@ -30,10 +30,11 @@ function evaluatechebyshev(n::Integer,x::T) where T<:Number
     end
 end
 
+# We assume that x is already scaled to the canonical domain. S is unused here
 function forwardrecurrence(::Type{T},S::Chebyshev,r::AbstractUnitRange{<:Integer},x::Number) where {T}
-    @assert !isempty(r) && first(r) == 0
-    y = tocanonical(S, x)
-    evaluatechebyshev(length(r), T(y))
+    @assert !isempty(r) && first(r) >= 0
+    v = evaluatechebyshev(maximum(r)+1, T(x))
+    first(r) == 0 ? v : v[r .+ 1]
 end
 
 function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)},j::Integer) where {DD<:IntervalOrSegment,RR}
