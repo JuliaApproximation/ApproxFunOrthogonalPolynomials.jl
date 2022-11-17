@@ -93,6 +93,8 @@ import SpecialFunctions: sinpi, cospi, airy, besselh,
                     abs, sign, log, expm1, tan, abs2, sqrt, angle, max, min, cbrt, log,
                     atan, acos, asin, erfc, inv
 
+using StaticArrays: SVector
+
 points(d::IntervalOrSegmentDomain{T},n::Integer) where {T} =
     fromcanonical.(Ref(d), chebyshevpoints(float(real(eltype(T))), n))  # eltype to handle point
 bary(v::AbstractVector{Float64},d::IntervalOrSegmentDomain,x::Float64) = bary(v,tocanonical(d,x))

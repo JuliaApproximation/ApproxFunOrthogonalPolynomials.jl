@@ -1,7 +1,10 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, LinearAlgebra, Test
-import ApproxFunBase: recA, recB, recC, transform!, itransform!
-import ApproxFunBaseTest: testspace
-import ApproxFunOrthogonalPolynomials: forwardrecurrence
+using ApproxFunOrthogonalPolynomials
+using ApproxFunBase
+using LinearAlgebra
+using Test
+using ApproxFunBase: recA, recB, recC, transform!, itransform!
+using ApproxFunBaseTest: testspace
+using ApproxFunOrthogonalPolynomials: forwardrecurrence
 
 @verbose @testset "Chebyshev" begin
     @testset "Forward recurrence" begin
@@ -272,6 +275,9 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
             f = (Derivative() + Fun(s)) * Fun(s)
             g = ones(s) + Fun(s)^2
             @test f ≈ g
+
+            @test space(1 + Fun(NormalizedChebyshev())) == NormalizedChebyshev()
+            @test space(1 + Fun(NormalizedChebyshev(0..1))) == NormalizedChebyshev(0..1)
         end
     end
 
@@ -297,5 +303,79 @@ import ApproxFunOrthogonalPolynomials: forwardrecurrence
         b = coefficients(f)
         nmin = min(length(a), length(b))
         @test a[1:nmin] ≈ b[1:nmin]
+    end
+
+    @testset "constant propagation in Dirichlet" begin
+        D = if VERSION >= v"1.8"
+            @inferred (r -> Dirichlet(r))(Chebyshev(0..1))
+        else
+            Dirichlet(Chebyshev(0..1))
+        end
+        # Dirichlet constraints don't depend on the domain
+        D2 = Dirichlet(Chebyshev())
+        @test Matrix(D[:, 1:4]) == Matrix(D2[:, 1:4])
+
+        D = @inferred (() -> Dirichlet(Chebyshev(), 2))()
+        D2 = @inferred (() -> Dirichlet(Chebyshev(-1..1), 2))()
+        @test Matrix(D[:, 1:4]) == Matrix(D2[:, 1:4])
+    end
+
+    @testset "Evaluation" begin
+        c = [i^2 for i in 1:4]
+        @testset for d in Any[0..1, ChebyshevInterval()]
+            @testset for _sp in Any[Chebyshev(), Chebyshev(d)],
+                    sp in Any[_sp, NormalizedPolynomialSpace(_sp)]
+                d = domain(sp)
+                f = Fun(sp, c)
+                for ep in [leftendpoint, rightendpoint],
+                        ev in [ApproxFunBase.ConcreteEvaluation, Evaluation]
+                    E = @inferred ev(sp, ep, 0)
+                    @test E[2:4] ≈ E[1:4][2:end]
+                    @test E[1:2:5] ≈ E[1:5][1:2:5]
+                    @test E[2:2:6] ≈ E[1:6][2:2:6]
+                    @test Number(E * f) ≈ f(ep(d))
+                    E2 = @inferred ev(sp, ep(d), 0)
+                    @test Number(E2 * f) ≈ f(ep(d))
+
+                    D = @inferred ev(sp, ep, 1)
+                    @test D[2:4] ≈ D[1:4][2:end]
+                    @test D[1:2:5] ≈ D[1:5][1:2:5]
+                    @test D[2:2:6] ≈ D[1:6][2:2:6]
+                    @test Number(D * f) ≈ f'(ep(d))
+                    Dp = @inferred ev(sp, ep(d), 1)
+                    @test Number(Dp * f) ≈ f'(ep(d))
+
+                    D2 = @inferred ev(sp, ep, 2)
+                    @test D2[2:4] ≈ D2[1:4][2:end]
+                    @test D2[1:2:5] ≈ D2[1:5][1:2:5]
+                    @test D2[2:2:6] ≈ D2[1:6][2:2:6]
+                    @test Number(D2 * f) ≈ f''(ep(d))
+                    D2p = @inferred ev(sp, ep(d), 2)
+                    @test Number(D2p * f) ≈ f''(ep(d))
+
+                    D3 = @inferred ev(sp, ep, 3)
+                    @test D3[2:4] ≈ D3[1:4][2:end]
+                    @test D3[1:2:5] ≈ D3[1:5][1:2:5]
+                    @test D3[2:2:6] ≈ D3[1:6][2:2:6]
+                    @test Number(D3 * f) ≈ f'''(ep(d))
+                    D3p = @inferred ev(sp, ep(d), 3)
+                    @test Number(D3p * f) ≈ f'''(ep(d))
+                end
+            end
+        end
+
+        @testset "ChebyshevDirichlet" begin
+            function Evaluation2(sp::ChebyshevDirichlet,x,ord)
+                S=Space(domain(sp))
+                ApproxFunBase.EvaluationWrapper(sp,x,ord,Evaluation(S,x,ord)*Conversion(sp,S))
+            end
+            sp = ChebyshevDirichlet()
+            d = domain(sp)
+            @testset for ep in [leftendpoint, rightendpoint]
+                A = @inferred ApproxFunBase.ConcreteEvaluation(sp, ep, 1)
+                B = @inferred Evaluation2(sp, ep, 1)
+                @test A[1:10] ≈ B[1:10]
+            end
+        end
     end
 end

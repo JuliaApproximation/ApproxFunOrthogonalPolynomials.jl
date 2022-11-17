@@ -1,5 +1,6 @@
 module SpeedOperatorTest
-using ApproxFunOrthogonalPolynomials, Test
+using ApproxFunOrthogonalPolynomials
+using Test
 
 
 d=Interval(-1000.,5.)

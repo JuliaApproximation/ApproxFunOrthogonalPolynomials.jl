@@ -1,7 +1,10 @@
-using ApproxFunOrthogonalPolynomials, SpecialFunctions, LinearAlgebra, Test
-import DomainSets
-import DomainSets: UnionDomain
-import ApproxFunBase: space, SpaceOperator
+using ApproxFunOrthogonalPolynomials
+using SpecialFunctions
+using LinearAlgebra
+using Test
+using DomainSets
+using DomainSets: UnionDomain
+using ApproxFunBase: space, SpaceOperator
 using ApproxFunBaseTest: testspace, testbandedoperator, testraggedbelowoperator,
                         testcalculus, testtransforms, testfunctional
 
