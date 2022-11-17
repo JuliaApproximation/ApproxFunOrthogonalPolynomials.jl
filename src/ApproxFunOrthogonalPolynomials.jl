@@ -49,7 +49,7 @@ import DomainSets: Domain, indomain, UnionDomain, FullSpace, Point,
 import BandedMatrices: bandshift, bandwidth, colstop, bandwidths, BandedMatrix
 
 import Base: convert, getindex, *, +, -, ==, <, <=, >, |, !, !=, eltype,
-                >=, /, ^, \, ∪, transpose, size, copyto!, copy, (:),
+                >=, /, ^, \, ∪, transpose, size, copyto!, copy,
                 map, vcat, hcat, show, stride, sum, cumsum, conj, inv,
                 complex, reverse, exp, sqrt, abs, sign, issubset, values,
                 first, last, rand, intersect, setdiff,
@@ -57,6 +57,11 @@ import Base: convert, getindex, *, +, -, ==, <, <=, >, |, !, !=, eltype,
                 minimum, maximum, extrema, argmax, argmin,
                 zeros, zero, one, promote_rule, length, resize!, isinf,
                 getproperty, cld, div, real, imag,
+                max, min, log, acosh, tanh, atanh,
+                atan, sinh, asinh,
+                tan, tanh, asin, sec, acos,
+                sin, cos, sinh, cosh,
+                asinh, acosh, atanh,
                 Array, Vector, Matrix, view, ones, split
 
 import LinearAlgebra: norm, mul!, det, eigvals, qr, Tridiagonal, transpose
@@ -68,7 +73,6 @@ import FastTransforms: plan_chebyshevtransform, plan_chebyshevtransform!,
 import BlockBandedMatrices: blockbandwidths, subblockbandwidths
 
 # we need to import all special functions to use Calculus.symbolic_derivatives_1arg
-# we can't do importall Base as we replace some Base definitions
 import SpecialFunctions: erfcx, dawson, erf,
                     hankelh1, hankelh2, besselj, bessely, besseli, besselk,
                     besselkx, hankelh1x, hankelh2x,
