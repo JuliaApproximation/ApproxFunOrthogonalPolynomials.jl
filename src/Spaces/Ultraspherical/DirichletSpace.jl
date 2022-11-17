@@ -9,7 +9,7 @@ struct ChebyshevDirichlet{left,right,D,R} <: PolynomialSpace{D,R}
     ChebyshevDirichlet{left,right,D,R}() where {left,right,D,R} = new(strictconvert(D, ChebyshevInterval()))
 end
 
-for TYP in (:Number,:AbstractArray,:Vec,:Fun)
+for TYP in (:Number,:AbstractArray,:SVector,:Fun)
     @eval evaluate(f::AbstractVector,S::ChebyshevDirichlet,x::$TYP) =
         evaluate(Fun(Fun(S,f),canonicalspace(S)),x)
 end

@@ -32,7 +32,7 @@ end
 
 # we need the ... for multi-dimensional
 evaluate(f::AbstractVector,S::PolynomialSpace,x,y,z...) =
-    evaluate(f,S,Vec(x,y,z...))
+    evaluate(f,S,SVector(x,y,z...))
 
 function evaluate(f::AbstractVector, S::PolynomialSpace, x::Fun)
     if issubset(Interval(minimum(x),maximum(x)),domain(S))

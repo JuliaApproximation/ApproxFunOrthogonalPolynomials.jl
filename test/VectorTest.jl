@@ -6,7 +6,8 @@ using LinearAlgebra
 using SpecialFunctions
 using Test
 using ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
-                        ArraySpace, blocklengths, ∞, Vec
+                        ArraySpace, blocklengths, ∞
+using StaticArrays: SVector
 
 using ApproxFunBaseTest: testblockbandedoperator, testraggedbelowoperator
 
