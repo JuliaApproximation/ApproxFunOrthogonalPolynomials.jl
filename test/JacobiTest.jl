@@ -3,11 +3,12 @@ using ApproxFunBase
 using Test
 using SpecialFunctions
 using LinearAlgebra
-using ApproxFunBase: Vec, maxspace, NoSpace, hasconversion,
+using ApproxFunBase: maxspace, NoSpace, hasconversion,
                     reverseorientation, ReverseOrientation, transform!, itransform!
 using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
                     testfunctional
 using ApproxFunOrthogonalPolynomials: jacobip
+using StaticArrays: SVector
 
 @verbose @testset "Jacobi" begin
     @testset "Basic" begin
@@ -211,7 +212,7 @@ using ApproxFunOrthogonalPolynomials: jacobip
     end
 
     @testset "vector valued case" begin
-        f=Fun((x,y)->real(exp(x+im*y)), Legendre(Segment(Vec(0.,0.),Vec(1.,1.))))
+        f=Fun((x,y)->real(exp(x+im*y)), Legendre(Segment(SVector(0.,0.),SVector(1.,1.))))
         @test f(0.1,0.1) ≈ real(exp(0.1+0.1im))
     end
 

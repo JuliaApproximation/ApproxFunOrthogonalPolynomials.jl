@@ -24,20 +24,20 @@ Arc(c::T,r::V,t::Tuple{V1,V2}) where {T<:Number,V<:Real,V1<:Real,V2<:Real} =
     Arc{promote_type(T,V,V1,V2),
         promote_type(real(T),V,V1,V2),
         Complex{promote_type(real(T),V,V1,V2)}}(c,r,t)
-Arc(c::Vec{2,T},r::V,t::Tuple{V,V}) where {T<:Number,V<:Real} =
-    Arc{Vec{2,promote_type(T,V)},
+Arc(c::SVector{2,T},r::V,t::Tuple{V,V}) where {T<:Number,V<:Real} =
+    Arc{SVector{2,promote_type(T,V)},
         promote_type(real(T),V),
-        Vec{2,promote_type(real(T),V)}}(c,r,t)
-Arc(c::Vec{2,T},r::V,t::Tuple{V1,V2}) where {T<:Number,V<:Real,V1<:Real,V2<:Real} =
-    Arc{Vec{2,promote_type(T,V,V1,V2)},
+        SVector{2,promote_type(real(T),V)}}(c,r,t)
+Arc(c::SVector{2,T},r::V,t::Tuple{V1,V2}) where {T<:Number,V<:Real,V1<:Real,V2<:Real} =
+    Arc{SVector{2,promote_type(T,V,V1,V2)},
         promote_type(real(T),V,V1,V2),
-        Vec{2,promote_type(T,V,V1,V2)}}(c,r,t)
+        SVector{2,promote_type(T,V,V1,V2)}}(c,r,t)
 
-Arc(c::Tuple,r,t) = Arc(Vec(c...),r,t)
+Arc(c::Tuple,r,t) = Arc(SVector(c...),r,t)
 Arc(c,r,t0,t1) = Arc(c,r,(t0,t1))
 
 
-complex(a::Arc{V}) where {V<:Vec} = Arc(complex(a.center...),a.radius,a.angles)
+complex(a::Arc{V}) where {V<:SVector} = Arc(complex(a.center...),a.radius,a.angles)
 
 isambiguous(d::Arc) =
     isnan(d.center) && isnan(d.radius) && isnan(d.angles[1]) && isnan(d.angles[2])
@@ -75,12 +75,12 @@ fromcanonical(a::Arc{T,V,TT},x) where {T<:Number,V<:Real,TT<:Complex} =
     mobiusinv(a,x)
 fromcanonicalD(a::Arc{T},x) where {T<:Number} = mobiusinvD(a,x)
 
-tocanonical(a::Arc{V},x::Vec) where {V<:Vec} =
+tocanonical(a::Arc{V},x::SVector) where {V<:SVector} =
     tocanonical(complex(a),complex(x...))
-fromcanonical(a::Arc{V},x::Number) where {V<:Vec} =
-    Vec(reim(fromcanonical(complex(a),x))...)
-fromcanonicalD(a::Arc{V},x::Number) where {V<:Vec} =
-    Vec(reim(fromcanonicalD(complex(a),x))...)
+fromcanonical(a::Arc{V},x::Number) where {V<:SVector} =
+    SVector(reim(fromcanonical(complex(a),x))...)
+fromcanonicalD(a::Arc{V},x::Number) where {V<:SVector} =
+    SVector(reim(fromcanonicalD(complex(a),x))...)
 
 ## information
 
