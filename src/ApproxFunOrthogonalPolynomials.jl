@@ -48,35 +48,32 @@ import DomainSets: Domain, indomain, UnionDomain, FullSpace, Point,
 
 import BandedMatrices: bandshift, bandwidth, colstop, bandwidths, BandedMatrix
 
-import Base: convert, getindex, *, +, -, ==, <, <=, >, |, !, !=, eltype,
-                >=, /, ^, \, ∪, transpose, size, copyto!, copy,
-                map, vcat, hcat, show, stride, sum, cumsum, conj, inv,
-                complex, reverse, exp, sqrt, abs, sign, issubset, values,
+import Base: convert, getindex, eltype, >=, /, ^,
+                show, stride, sum, cumsum, conj, inv,
+                complex, exp, sqrt, abs, sign, issubset,
                 first, last, rand, intersect, setdiff,
-                isless, union, angle, isnan, isapprox, isempty, sort, merge,
-                minimum, maximum, extrema, argmax, argmin,
-                zeros, zero, one, promote_rule, length, resize!, isinf,
-                getproperty, cld, div, real, imag,
-                max, min, log, acosh, tanh, atanh,
-                atan, sinh, asinh,
-                tan, tanh, asin, sec, acos,
-                sin, cos, sinh, cosh,
-                asinh, acosh, atanh,
-                Array, Vector, Matrix, view, ones, split
+                isless, union, angle, isnan, isapprox, isempty,
+                minimum, maximum, extrema, zeros, one, promote_rule,
+                getproperty, real, imag, max, min, log, acos,
+                sin, cos, asinh, acosh, atanh, ones
+                # atan, tan, tanh, asin, sec, sinh, cosh,
+                # split
 
-import LinearAlgebra: norm, mul!, det, eigvals, qr, Tridiagonal, transpose
-
-import FastTransforms: plan_chebyshevtransform, plan_chebyshevtransform!,
+using FastTransforms: plan_chebyshevtransform, plan_chebyshevtransform!,
                         plan_ichebyshevtransform, plan_ichebyshevtransform!,
-                        pochhammer, lgamma, chebyshevtransform!, ichebyshevtransform!
+                        pochhammer, lgamma
 
-import BlockBandedMatrices: blockbandwidths, subblockbandwidths
+import BlockBandedMatrices: blockbandwidths
 
 # we need to import all special functions to use Calculus.symbolic_derivatives_1arg
-import SpecialFunctions: erfcx, dawson, erf,
+import SpecialFunctions: erfcx, dawson,
                     hankelh1, hankelh2, besselj, bessely, besseli, besselk,
-                    besselkx, hankelh1x, hankelh2x,
-                    expm1, eta, gamma, erfc
+                    besselkx, hankelh1x, hankelh2x
+                    # The following are not extended here.
+                    # Some of these are extended in ApproxFunBase
+                    # erf, erfinv, erfc, erfcinv, erfi, gamma, lgamma, digamma, invdigamma,
+                    # trigamma, airyai, airybi, airyaiprime, airybiprime, besselj0,
+                    # besselj1, bessely0, bessely1
 
 using StaticArrays: SVector
 
