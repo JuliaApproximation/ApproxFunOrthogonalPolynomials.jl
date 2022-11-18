@@ -48,7 +48,7 @@ import DomainSets: Domain, indomain, UnionDomain, FullSpace, Point,
 
 import BandedMatrices: bandshift, bandwidth, colstop, bandwidths, BandedMatrix
 
-import Base: convert, getindex, eltype, >=, /, ^,
+import Base: convert, getindex, eltype, <, <=, +, -, *, /, ^,
                 show, stride, sum, cumsum, conj, inv,
                 complex, exp, sqrt, abs, sign, issubset,
                 first, last, rand, intersect, setdiff,
