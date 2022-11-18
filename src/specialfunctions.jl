@@ -75,9 +75,10 @@ for (op,ODE,RHS,growth) in ((:(hankelh1),"f^2*f'*D^2+(f*f'^2-f^2*f'')*D+(f^2-ν^
                 opfxmin,opfxmax = $op(ν,f(xmin)),$op(ν,f(xmax))
                 opmax = maximum(abs,(opfxmin,opfxmax))
             end
-            D=Derivative(space(f))
-            B=[Evaluation(space(f),xmin),Evaluation(space(f),xmax)]
-            u=\([B;eval($L)],[opfxmin;opfxmax;eval($R)];tolerance=eps(T)*opmax)
+            Sf = space(f)
+            D=Derivative(Sf)
+            B=[Evaluation(Sf,xmin), Evaluation(Sf,xmax)]
+            u=\([B;$L],[opfxmin;opfxmax;$R];tolerance=eps(T)*opmax)
 
             setdomain(u,domain(fin))
         end

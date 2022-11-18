@@ -37,14 +37,10 @@ setdomain(S::ChebyshevDirichlet{l,r},d::Domain) where {l,r} = ChebyshevDirichlet
 Base.isless(a::Chebyshev,b::ChebyshevDirichlet) = false
 <(a::Chebyshev,b::ChebyshevDirichlet) = false
 <=(a::Chebyshev,b::ChebyshevDirichlet) = false
->(a::Chebyshev,b::ChebyshevDirichlet) = true
->=(a::Chebyshev,b::ChebyshevDirichlet) = true
 
 Base.isless(a::ChebyshevDirichlet,b::Chebyshev) = true
 <(a::ChebyshevDirichlet,b::Chebyshev) = true
 <=(a::ChebyshevDirichlet,b::Chebyshev) = true
->(a::ChebyshevDirichlet,b::Chebyshev) = false
->=(a::ChebyshevDirichlet,b::Chebyshev) = false
 
 ## coefficients
 
