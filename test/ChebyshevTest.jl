@@ -268,6 +268,8 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
             f2 = Fun(f, s2)
             @test f1 == f2
             @test D1 * f1 == D2 * f2
+
+            @test (@inferred (D1 -> eltype(D1 + D1))(D1)) == eltype(D1)
         end
 
         @testset "space promotion" begin
