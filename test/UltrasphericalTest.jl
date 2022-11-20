@@ -35,11 +35,11 @@ using ApproxFunOrthogonalPolynomials: jacobip
     end
 
     @testset "Normalized space" begin
-        for f in Any[x -> 3x^3 + 5x^2 + 2, x->x, identity]
-            for dt in Any[(), (0..1,)],
-                    S in Any[Ultraspherical(1, dt...),
+        for f in (x -> 3x^3 + 5x^2 + 2, x->x, identity)
+            for dt in ((), (0..1,)),
+                    S in (Ultraspherical(1, dt...),
                              Ultraspherical(0.5,dt...),
-                             Ultraspherical(3, dt...)]
+                             Ultraspherical(3, dt...))
 
                 NS = NormalizedPolynomialSpace(S)
                 fS = Fun(f, S)
@@ -63,16 +63,16 @@ using ApproxFunOrthogonalPolynomials: jacobip
             L = ultra2leg(ApproxFunBase.canonicalspace(U))
             NormalizedPolynomialSpace(L)
         end
-        @testset for T in Any[Float32, Float64], ET in Any[T, complex(T)]
+        @testset for T in (Float32, Float64), ET in (T, complex(T))
             v = Array{ET}(undef, 10)
             v2 = similar(v)
             M = Array{ET}(undef, 10, 10)
             M2 = similar(M)
             A = Array{ET}(undef, 10, 10, 10)
             A2 = similar(A)
-            @testset for d in Any[(), (0..1,)], order in Any[0.5, 1, 3]
+            @testset for d in ((), (0..1,)), order in (0.5, 1, 3)
                 U = Ultraspherical(order, d...)
-                Slist = Any[U, NormalizedPolynomialSpace(U)]
+                Slist = (U, NormalizedPolynomialSpace(U))
                 @testset for S in Slist
                     if order == 0.5
                         L = ultra2leg(S)
@@ -100,6 +100,7 @@ using ApproxFunOrthogonalPolynomials: jacobip
                     test_transform!(A, A2, S)
                 end
             end
+        endend
         end
     end
 
@@ -110,13 +111,13 @@ using ApproxFunOrthogonalPolynomials: jacobip
 
     @testset "Evaluation" begin
         c = [i^2 for i in 1:4]
-        @testset for d in Any[0..1, ChebyshevInterval()], order in Any[1, 2, 0.5]
-            @testset for _sp in Any[Ultraspherical(order), Ultraspherical(order,d)],
-                    sp in Any[_sp, NormalizedPolynomialSpace(_sp)]
+        @testset for d in (0..1, ChebyshevInterval()), order in (1, 2, 0.5)
+            @testset for _sp in (Ultraspherical(order), Ultraspherical(order,d)),
+                    sp in (_sp, NormalizedPolynomialSpace(_sp))
                 d = domain(sp)
                 f = Fun(sp, c)
-                for ep in [leftendpoint, rightendpoint],
-                        ev in [ApproxFunBase.ConcreteEvaluation, Evaluation]
+                for ep in (leftendpoint, rightendpoint),
+                        ev in (ApproxFunBase.ConcreteEvaluation, Evaluation)
                     E = @inferred ev(sp, ep, 0)
                     @test E[2:4] ≈ E[1:4][2:end]
                     @test E[1:2:5] ≈ E[1:5][1:2:5]
