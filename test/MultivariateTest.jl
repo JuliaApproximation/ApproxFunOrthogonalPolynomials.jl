@@ -4,10 +4,11 @@ using LinearAlgebra
 using SpecialFunctions
 using BlockBandedMatrices
 using Test
-using ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, Vec, ArraySpace, ∞
+using ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, ArraySpace, ∞
 using ApproxFunBaseTest: testbandedblockbandedoperator, testraggedbelowoperator,
                     testblockbandedoperator
 using ApproxFunOrthogonalPolynomials: chebyshevtransform
+using StaticArrays: SVector
 
 using Base: oneto
 
@@ -185,20 +186,20 @@ using Base: oneto
     end
 
 
-    @testset  "Vec segment" begin
-        d = Segment(Vec(0.,0.) , Vec(1.,1.))
+    @testset  "SVector segment" begin
+        d = Segment(SVector(0.,0.) , SVector(1.,1.))
         x = Fun()
         @test (ApproxFunBase.complexlength(d)*x/2)(0.1)  ≈ (d.b - d.a)*0.1/2
         @test ApproxFunBase.fromcanonical(d,x)(0.1) ≈ (d.b+d.a)/2 + (d.b - d.a)*0.1/2
 
-        x,y = Fun(Segment(Vec(0.,0.) , Vec(2.,1.)))
+        x,y = Fun(Segment(SVector(0.,0.) , SVector(2.,1.)))
         @test x(0.2,0.1) ≈ 0.2
         @test y(0.2,0.1) ≈ 0.1
 
         d=Segment((0.,0.),(1.,1.))
         f=Fun(xy->exp(-xy[1]-2cos(xy[2])),d)
         @test f(0.5,0.5) ≈ exp(-0.5-2cos(0.5))
-        @test f(Vec(0.5,0.5)) ≈ exp(-0.5-2cos(0.5))
+        @test f(SVector(0.5,0.5)) ≈ exp(-0.5-2cos(0.5))
 
         f=Fun(xy->exp(-xy[1]-2cos(xy[2])),d,20)
         @test f(0.5,0.5) ≈ exp(-0.5-2cos(0.5))
@@ -368,7 +369,7 @@ using Base: oneto
     end
 
     @testset "off domain evaluate" begin
-        g = Fun(1, Segment(Vec(0,-1) , Vec(π,-1)))
+        g = Fun(1, Segment(SVector(0,-1) , SVector(π,-1)))
         @test g(0.1,-1) ≈ 1
         @test g(0.1,1) ≈ 0
     end

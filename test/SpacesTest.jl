@@ -61,7 +61,8 @@ using ApproxFunBaseTest: testspace, testbandedoperator, testraggedbelowoperator,
 
         s=Fun(sin,-2..2)|>abs
         c=Fun(cos,-2..2)|>abs
-        sc=Fun(x -> abs(sin(x))+abs(cos(x)), ContinuousSpace(PiecewiseSegment([-2,(-π/2),0,π/2,2])))
+        csp = @inferred ContinuousSpace(PiecewiseSegment([-2,(-π/2),0,π/2,2]))
+        sc=Fun(x -> abs(sin(x))+abs(cos(x)), csp)
         @test norm(sc-(c+s))<100eps()
 
         @test sc * sc == sc^2

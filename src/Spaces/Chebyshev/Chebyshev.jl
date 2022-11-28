@@ -208,9 +208,9 @@ _padua_length(N) = Int(cld(-3+sqrt(1+8N),2))
 function squarepoints(::Type{T}, N) where T
     pts = paduapoints(T, _padua_length(N))
     n = size(pts,1)
-    ret = Array{Vec{2,T}}(undef, n)
+    ret = Array{SVector{2,T}}(undef, n)
     @inbounds for k=1:n
-        ret[k] = Vec{2,T}(pts[k,1],pts[k,2])
+        ret[k] = SVector{2,T}(pts[k,1],pts[k,2])
     end
     ret
 end

@@ -268,6 +268,8 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
             f2 = Fun(f, s2)
             @test f1 == f2
             @test D1 * f1 == D2 * f2
+
+            @test (@inferred (D1 -> eltype(D1 + D1))(D1)) == eltype(D1)
         end
 
         @testset "space promotion" begin
@@ -305,19 +307,41 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
         @test a[1:nmin] ≈ b[1:nmin]
     end
 
-    @testset "constant propagation in Dirichlet" begin
-        D = if VERSION >= v"1.8"
-            @inferred (r -> Dirichlet(r))(Chebyshev(0..1))
-        else
-            Dirichlet(Chebyshev(0..1))
-        end
-        # Dirichlet constraints don't depend on the domain
-        D2 = Dirichlet(Chebyshev())
-        @test Matrix(D[:, 1:4]) == Matrix(D2[:, 1:4])
+    @testset "Constant propagation" begin
+        @testset "Dirichlet" begin
+            D = if VERSION >= v"1.8"
+                @inferred (r -> Dirichlet(r))(Chebyshev(0..1))
+            else
+                Dirichlet(Chebyshev(0..1))
+            end
+            # Dirichlet constraints don't depend on the domain
+            D2 = Dirichlet(Chebyshev())
+            @test Matrix(D[:, 1:4]) == Matrix(D2[:, 1:4])
 
-        D = @inferred (() -> Dirichlet(Chebyshev(), 2))()
-        D2 = @inferred (() -> Dirichlet(Chebyshev(-1..1), 2))()
-        @test Matrix(D[:, 1:4]) == Matrix(D2[:, 1:4])
+            D = @inferred (() -> Dirichlet(Chebyshev(), 2))()
+            D2 = @inferred (() -> Dirichlet(Chebyshev(-1..1), 2))()
+            @test Matrix(D[:, 1:4]) == Matrix(D2[:, 1:4])
+        end
+
+        @testset "Multiplication" begin
+            f = () -> Fun(0..1) * Derivative(Chebyshev(0..1))
+            A = VERSION >= v"1.8" ? (@inferred f()) : f()
+            @test (A * Fun(0..1))(0.5) ≈ 0.5
+
+            f = () -> Fun() * Derivative(Chebyshev())
+            A = VERSION >= v"1.8" ? (@inferred f()) : f()
+            @test (A * Fun())(0.5) ≈ 0.5
+        end
+    end
+
+    @testset "Inference in PlusOperator" begin
+        f = () -> Derivative(Chebyshev(0..1)) + Derivative(Chebyshev(0..1))
+        A = VERSION >= v"1.8" ? (@inferred f()) : f()
+        @test (A * Fun(0..1))(0.5) ≈ 2.0
+
+        f = () -> Derivative(Chebyshev()) + Derivative(Chebyshev())
+        A = VERSION >= v"1.8" ? (@inferred f()) : f()
+        @test (A * Fun())(0.5) ≈ 2.0
     end
 
     @testset "Evaluation" begin

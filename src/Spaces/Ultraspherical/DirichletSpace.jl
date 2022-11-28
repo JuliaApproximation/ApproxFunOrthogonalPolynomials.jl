@@ -9,7 +9,7 @@ struct ChebyshevDirichlet{left,right,D,R} <: PolynomialSpace{D,R}
     ChebyshevDirichlet{left,right,D,R}() where {left,right,D,R} = new(strictconvert(D, ChebyshevInterval()))
 end
 
-for TYP in (:Number,:AbstractArray,:Vec,:Fun)
+for TYP in (:Number,:AbstractArray,:SVector,:Fun)
     @eval evaluate(f::AbstractVector,S::ChebyshevDirichlet,x::$TYP) =
         evaluate(Fun(Fun(S,f),canonicalspace(S)),x)
 end
@@ -37,14 +37,10 @@ setdomain(S::ChebyshevDirichlet{l,r},d::Domain) where {l,r} = ChebyshevDirichlet
 Base.isless(a::Chebyshev,b::ChebyshevDirichlet) = false
 <(a::Chebyshev,b::ChebyshevDirichlet) = false
 <=(a::Chebyshev,b::ChebyshevDirichlet) = false
->(a::Chebyshev,b::ChebyshevDirichlet) = true
->=(a::Chebyshev,b::ChebyshevDirichlet) = true
 
 Base.isless(a::ChebyshevDirichlet,b::Chebyshev) = true
 <(a::ChebyshevDirichlet,b::Chebyshev) = true
 <=(a::ChebyshevDirichlet,b::Chebyshev) = true
->(a::ChebyshevDirichlet,b::Chebyshev) = false
->=(a::ChebyshevDirichlet,b::Chebyshev) = false
 
 ## coefficients
 
