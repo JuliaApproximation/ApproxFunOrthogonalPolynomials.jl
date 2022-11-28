@@ -1,11 +1,11 @@
 export ContinuousSpace
 
-struct ContinuousSpace{T,R} <: Space{PiecewiseSegment{T},R}
-    domain::PiecewiseSegment{T}
+struct ContinuousSpace{T,R,P<:PiecewiseSegment{T}} <: Space{P,R}
+    domain::P
 end
 
 ContinuousSpace(d::PiecewiseSegment{T}) where {T} =
-    ContinuousSpace{T,real(eltype(T))}(d)
+    ContinuousSpace{T,real(eltype(T)),typeof(d)}(d)
 
 
 Space(d::PiecewiseSegment) = ContinuousSpace(d)

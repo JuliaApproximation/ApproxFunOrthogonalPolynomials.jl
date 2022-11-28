@@ -1,8 +1,12 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, BlockBandedMatrices,  LinearAlgebra, Test
-import ApproxFunBase: Multiplication, InterlaceOperator, Block, ∞
+using ApproxFunOrthogonalPolynomials
+using ApproxFunBase
+using BlockBandedMatrices
+using LinearAlgebra
+using Test
+using ApproxFunBase: Multiplication, InterlaceOperator, Block, ∞
 using ApproxFunBaseTest: testfunctional, testbandedoperator, testraggedbelowoperator,
                         testinfoperator, testblockbandedoperator
-import ApproxFunOrthogonalPolynomials: JacobiZ
+using ApproxFunOrthogonalPolynomials: JacobiZ
 
 @verbose @testset "Operator" begin
     @testset "Evaluation" begin

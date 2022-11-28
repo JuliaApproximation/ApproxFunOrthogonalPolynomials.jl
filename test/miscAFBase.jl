@@ -144,9 +144,9 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
     end
 
     @testset "inplace transform" begin
-        @testset for sp_c in Any[Legendre(), Chebyshev(), Jacobi(1,2), Jacobi(0.3, 2.3),
-                Ultraspherical(1), Ultraspherical(2)]
-            @testset for sp in Any[sp_c, NormalizedPolynomialSpace(sp_c)]
+        @testset for sp_c in (Legendre(), Chebyshev(), Jacobi(1,2), Jacobi(0.3, 2.3),
+                Ultraspherical(1), Ultraspherical(2))
+            @testset for sp in (sp_c, NormalizedPolynomialSpace(sp_c))
                 v = rand(10)
                 v2 = copy(v)
                 @test itransform!(sp, transform!(sp, v)) ≈ v
@@ -370,6 +370,13 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
         @test (@inferred((L -> L^4)(L)))(x,y) ≈ (L*L*L*L)(x,y)
         @test (L * one(L))(x,y) ≈ L(x,y)
         @test (L + zero(L))(x,y) ≈ L(x,y)
+    end
+
+    @testset "Multiplication" begin
+        # empty coefficients
+        f = () -> Multiplication(Fun(Chebyshev(), Float64[]), Ultraspherical(1))
+        M = VERSION >= v"1.8" ? (@inferred f()) : f()
+        @test all(iszero, coefficients(M * Fun()))
     end
 end
 

@@ -1,10 +1,16 @@
-using ApproxFunBase, ApproxFunOrthogonalPolynomials, LinearAlgebra, SpecialFunctions, BlockBandedMatrices, Test
-import ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, Vec, ArraySpace, ∞
+using ApproxFunBase
+using ApproxFunOrthogonalPolynomials
+using LinearAlgebra
+using SpecialFunctions
+using BlockBandedMatrices
+using Test
+using ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, ArraySpace, ∞
 using ApproxFunBaseTest: testbandedblockbandedoperator, testraggedbelowoperator,
                     testblockbandedoperator
-import ApproxFunOrthogonalPolynomials: chebyshevtransform
+using ApproxFunOrthogonalPolynomials: chebyshevtransform
+using StaticArrays: SVector
 
-import Base: oneto
+using Base: oneto
 
 @verbose @testset "Multivariate" begin
     @testset "vectorization order" begin
@@ -180,20 +186,20 @@ import Base: oneto
     end
 
 
-    @testset  "Vec segment" begin
-        d = Segment(Vec(0.,0.) , Vec(1.,1.))
+    @testset  "SVector segment" begin
+        d = Segment(SVector(0.,0.) , SVector(1.,1.))
         x = Fun()
         @test (ApproxFunBase.complexlength(d)*x/2)(0.1)  ≈ (d.b - d.a)*0.1/2
         @test ApproxFunBase.fromcanonical(d,x)(0.1) ≈ (d.b+d.a)/2 + (d.b - d.a)*0.1/2
 
-        x,y = Fun(Segment(Vec(0.,0.) , Vec(2.,1.)))
+        x,y = Fun(Segment(SVector(0.,0.) , SVector(2.,1.)))
         @test x(0.2,0.1) ≈ 0.2
         @test y(0.2,0.1) ≈ 0.1
 
         d=Segment((0.,0.),(1.,1.))
         f=Fun(xy->exp(-xy[1]-2cos(xy[2])),d)
         @test f(0.5,0.5) ≈ exp(-0.5-2cos(0.5))
-        @test f(Vec(0.5,0.5)) ≈ exp(-0.5-2cos(0.5))
+        @test f(SVector(0.5,0.5)) ≈ exp(-0.5-2cos(0.5))
 
         f=Fun(xy->exp(-xy[1]-2cos(xy[2])),d,20)
         @test f(0.5,0.5) ≈ exp(-0.5-2cos(0.5))
@@ -363,7 +369,7 @@ import Base: oneto
     end
 
     @testset "off domain evaluate" begin
-        g = Fun(1, Segment(Vec(0,-1) , Vec(π,-1)))
+        g = Fun(1, Segment(SVector(0,-1) , SVector(π,-1)))
         @test g(0.1,-1) ≈ 1
         @test g(0.1,1) ≈ 0
     end
@@ -420,28 +426,42 @@ import Base: oneto
 
         @test F(1.5,1.5im) ≈ hankelh1(0,10abs(1.5im-1.5))
 
+        P = ProductFun((x,y)->x^2*y^3, Chebyshev() ⊗ Chebyshev())
+        @test (Derivative() * P)(0.1, 0.2) ≈ ProductFun((x,y)->2x*y^3)(0.1, 0.2)
+        @test (P * Derivative())(0.1, 0.2) ≈ ProductFun((x,y)->x^2*3y^2)(0.1, 0.2)
+
         P = ProductFun((x,y)->x*y, Chebyshev() ⊗ Chebyshev())
-        x = Fun(); y = x;
-        @test Evaluation(1) * P == x
-        @test Evaluation(-1) * P == -x
+        xf = Fun(); yf = xf;
+        xi, yi = 0.1, 0.2
+        x, y = xf(xi), yf(yi)
+        @test Evaluation(1) * P == xf
+        @test Evaluation(-1) * P == -xf
         D1 = Derivative(Chebyshev() ⊗ Chebyshev(), [1,0])
         D2 = Derivative(Chebyshev() ⊗ Chebyshev(), [0,1])
-        @test (D2 * P)(0.1, 0.2) ≈ x(0.1)
-        @test (D1 * P)(0.1, 0.2) ≈ y(0.2)
-        @test ((P * D1) * P)(0.1, 0.2) ≈ x(0.1) * (y(0.2))^2
-        @test ((P * D2) * P)(0.1, 0.2) ≈ (x(0.1))^2 * y(0.2)
-        @test ((I ⊗ Derivative()) * P)(0.1, 0.2) ≈ x(0.1)
-        @test ((Derivative() ⊗ I) * P)(0.1, 0.2) ≈ y(0.2)
+        @test (D2 * P)(xi, yi) ≈ x
+        @test (D1 * P)(xi, yi) ≈ y
+        @test ((P * D1) * P)(xi, yi) ≈ x * y^2
+        @test ((P * D2) * P)(xi, yi) ≈ x^2 * y
+        @test ((I ⊗ Derivative()) * P)(xi, yi) ≈ x
+        @test ((Derivative() ⊗ I) * P)(xi, yi) ≈ y
+
+        # distribute over plus operator
+        @test ((D1 + Multiplication(xf)⊗I) * P)(xi, yi) ≈ y +  x^2 * y
+        @test ((P * (D1 + Multiplication(xf)⊗I)) * P)(xi, yi) ≈ x * y^2 +  x^3 * y^2
+
+        A = (Multiplication(xf)⊗I) * Derivative(Chebyshev()^2, [0,1])
+        @test (A * P)(xi, yi) ≈ x^2
 
         # MultivariateFun methods
         f = invoke(*, Tuple{KroneckerOperator, ApproxFunBase.MultivariateFun},
                 Derivative() ⊗ I, P)
-        @test f(0.1, 0.2) ≈ y(0.2)
+        @test f(xi, yi) ≈ y
         O = invoke(*, Tuple{ApproxFunBase.MultivariateFun, KroneckerOperator},
                 P, Derivative() ⊗ I)
-        @test (O * Fun(P))(0.1, 0.2) ≈ x(0.1) * (y(0.2))^2
+        @test (O * Fun(P))(xi, yi) ≈ x * y^2
 
         @testset "chopping" begin
+            local P
             M = [0 0 0; 0 1 0; 0 0 1]
             P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
             @test coefficients(P) == M
@@ -454,6 +474,23 @@ import Base: oneto
             M = zeros(3,3)
             P = ProductFun(M, Chebyshev() ⊗ Chebyshev(), chopping = true)
             @test all(iszero, coefficients(P))
+        end
+
+        @testset "KroneckerOperator" begin
+            local P
+            P = ProductFun((x,y)->x^2*y^3, Chebyshev() ⊗ Chebyshev())
+            A = Multiplication(xf)⊗I
+            a = (KroneckerOperator(A) * P)(xi, yi)
+            b = (A * P)(xi, yi)
+            @test a ≈ b
+            a = ((P * KroneckerOperator(A)) * P)(xi, yi)
+            b = ((P * A) * P)(xi, yi)
+            @test a ≈ b
+            # distribute a KroneckerOperator over a times operator
+            A = (Multiplication(xf)⊗I) * Derivative(Chebyshev()^2, [0,1])
+            a = ((P * A) * P)(xi, yi)
+            b = ((P * KroneckerOperator(A)) * P)(xi, yi)
+            @test a ≈ b
         end
     end
 
@@ -472,5 +509,14 @@ import Base: oneto
 
         f=Fun((x,y)->[exp(x*cos(y)) cos(x*sin(y)); 2 1],ChebyshevInterval()^2)
         @test f(0.1,0.2) ≈ [exp(0.1*cos(0.2)) cos(0.1*sin(0.2));2 1]
+    end
+
+    @testset "grad" begin
+        f = Fun((x,y)->x^2*y^3, Chebyshev()^2)
+        g = grad(f)
+        @test g == grad(space(f))*f == grad(domain(f)) * f
+        x = 0.1; y = 0.2
+        @test g[1](x, y) ≈ 2x*y^3
+        @test g[2](x, y) ≈ x^2*3y^2
     end
 end

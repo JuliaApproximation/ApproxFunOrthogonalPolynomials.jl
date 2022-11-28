@@ -26,21 +26,24 @@ Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Ultraspherical,V<:Chebyshe
 Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Ultraspherical,V<:Ultraspherical} =
     stride(M.f)
 
-
-function Multiplication(f::Fun{C},sp::Ultraspherical{Int}) where C<:Chebyshev
+@inline function _Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{Int})
     if order(sp) == 1
         cfs = f.coefficients
         MultiplicationWrapper(f,
             SpaceOperator(
-                length(cfs) > 0 ?
-                    SymToeplitzOperator(cfs/2) +
-                        HankelOperator(view(cfs,3:length(cfs))/(-2)) :
+                SymToeplitzOperator(cfs/2) +
                     HankelOperator(view(cfs,3:length(cfs))/(-2)),
-                          sp,sp))
-
+                sp, sp)
+        )
     else
         ConcreteMultiplication(f,sp)
     end
+end
+@static if VERSION >= v"1.8"
+    Base.@constprop aggressive Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{Int}) =
+        _Multiplication(f, sp)
+else
+    Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{Int}) = _Multiplication(f, sp)
 end
 
 
@@ -350,3 +353,15 @@ end
 
 ReverseOrientation(S::Ultraspherical) = ReverseOrientationWrapper(NegateEven(S,reverseorientation(S)))
 Reverse(S::Ultraspherical) = ReverseWrapper(NegateEven(S,S))
+
+Evaluation(S::Ultraspherical,x::typeof(leftendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::Ultraspherical,x::typeof(rightendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::Ultraspherical,x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+
+Evaluation(S::NormalizedPolynomialSpace{<:Ultraspherical},x::typeof(leftendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::NormalizedPolynomialSpace{<:Ultraspherical},x::typeof(rightendpoint),o::Integer) =
+    ConcreteEvaluation(S,x,o)
+Evaluation(S::NormalizedPolynomialSpace{<:Ultraspherical},x::Number,o::Integer) = ConcreteEvaluation(S,x,o)

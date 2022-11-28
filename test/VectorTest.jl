@@ -5,8 +5,9 @@ using FillArrays
 using LinearAlgebra
 using SpecialFunctions
 using Test
-import ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
-                        ArraySpace, blocklengths, ∞, Vec
+using ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
+                        ArraySpace, blocklengths, ∞
+using StaticArrays: SVector
 
 using ApproxFunBaseTest: testblockbandedoperator, testraggedbelowoperator
 

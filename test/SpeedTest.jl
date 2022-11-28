@@ -1,5 +1,8 @@
 module SpeedTest
-using ApproxFunOrthogonalPolynomials, Test
+
+using ApproxFunOrthogonalPolynomials
+using Test
+
 c = rand(1000)
 x=rand(10000)
 f=Fun(Chebyshev,c)

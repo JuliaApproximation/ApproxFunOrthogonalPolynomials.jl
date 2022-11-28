@@ -1,6 +1,8 @@
-using ApproxFunOrthogonalPolynomials, ApproxFunBase, SpecialFunctions, LinearAlgebra, Test
-
-
+using ApproxFunOrthogonalPolynomials
+using ApproxFunBase
+using SpecialFunctions
+using LinearAlgebra
+using Test
 
 @verbose @testset "broadcast" begin
     @testset "Special functions" begin

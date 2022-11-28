@@ -1,4 +1,6 @@
-using ApproxFunOrthogonalPolynomials, StaticArrays, Test
+using ApproxFunOrthogonalPolynomials
+using StaticArrays
+using Test
 
 @testset "Clenshaw" begin
     test_function = Fun(sin, 50)
