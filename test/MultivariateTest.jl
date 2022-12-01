@@ -13,6 +13,82 @@ using StaticArrays: SVector
 using Base: oneto
 
 @verbose @testset "Multivariate" begin
+    @testset "vectorization order" begin
+        @testset "2D trivial" begin
+            S = Chebyshev()^2
+            it = tensorizer(S)
+            expected_order = [(1, 1)
+                            (1,2)
+                            (2,1)
+                            (1,3)
+                            (2,2)
+                            (3,1)
+                            (1,4)
+                            (2,3)]
+            k = 0
+            for i in it
+                k = k + 1
+                if k>length(expected_order)
+                    break
+                end
+                @test i == expected_order[k]
+            end
+        end
+
+        @testset "3D trivial" begin
+            S = Chebyshev()^3
+            it = tensorizer(S)
+            expected_order = [(1, 1, 1)
+                            (1,1,2)
+                            (1,2,1)
+                            (2,1,1)
+                            (1,1,3)
+                            (1,2,2)
+                            (2,1,2)
+                            (1,3,1)
+                            (2,2,1)
+                            (3,1,1)
+                            (1,1,4)
+                            (1,2,3)
+                            (2,1,3)
+                            (1,3,2)
+                            (2,2,2)
+                            (3,1,2)
+                            (1,4,1)
+                            (2,3,1)
+                            (3,2,1)
+                            (4,1,1)]
+            # convert tuples to arrays for n>2 dimensions
+            expected_order = [[v...] for v ∈ expected_order]
+            k = 0
+            for i in it
+                k = k + 1
+                if k>length(expected_order)
+                    break
+                end
+                @test i == expected_order[k]
+            end
+        end
+    end
+
+    @testset "Evaluation" begin
+        
+        @testset "2D" begin
+            f2 = Fun(Chebyshev()^2, [1.0])
+            @test f2(0.2, 0.4) == 1.0
+        end
+
+        @testset "3D" begin
+            f3 = Fun(Chebyshev()^3, [1.0])
+            @test f3(0.2, 0.4, 0.2) == 1.0
+        end
+
+        @testset "20D" begin
+            f20 = Fun(Chebyshev()^20, [1.0])
+            @test f20(rand(20)) == 1.0
+        end
+    end
+    
     @testset "Square" begin
         S = Space(ChebyshevInterval()^2)
         @test @inferred(blocklengths(S)) ≡ oneto(∞)
@@ -59,13 +135,55 @@ using Base: oneto
         f=Fun(gg)
         @test f(0.,0.) ≈ ff(0.,0.)
 
+    end
 
+    @testset "Arithmetic" begin
         # Fun +-* constant
         f=Fun((x,y)->exp(x)*cos(y))
 
         @test f(0.1,0.2)+2 ≈ (f+2)(0.1,0.2)
         @test f(0.1,0.2)-2 ≈ (f-2)(0.1,0.2)
         @test f(0.1,0.2)*2 ≈ (f*2)(0.1,0.2)
+
+        @testset "Addition" begin
+            # coefficients
+             c_1 = rand(20)
+             c_2 = rand(30)
+ 
+             added_coef = [c_2[1:20]+c_1;c_2[21:end]]
+ 
+             # 2D
+             f2_1 = Fun(Chebyshev()^2, c_1)
+             f2_2 = Fun(Chebyshev()^2, c_2)
+             @test coefficients(f2_1+f2_2) == added_coef
+ 
+             @test (f2_1+f2_2)(0.3, 0.5)≈f2_1(0.3, 0.5)+f2_2(0.3, 0.5)
+ 
+             # 3D
+             f3_1 = Fun(Chebyshev()^3, c_1)
+             f3_2 = Fun(Chebyshev()^3, c_2)
+             @test coefficients(f3_1+f3_2) == added_coef
+ 
+             @test (f3_1+f3_2)(0.3, 0.5, 0.6)≈f3_1(0.3, 0.5, 0.6)+f3_2(0.3, 0.5, 0.6)
+         end
+ 
+         @testset "Multiplication" begin
+             # coefficients
+             c_1 = rand(20)
+             c_2 = rand(30)
+ 
+             # 2D
+             f2_1 = Fun(Chebyshev()^2, c_1)
+             f2_2 = Fun(Chebyshev()^2, c_2)
+ 
+             @test (f2_1 * f2_2)(0.4, 0.5) ≈ f2_1(0.4, 0.5) * f2_2(0.4, 0.5)
+ 
+             # 3D: not implemented in code yet
+             #f3_1 = Fun(Chebyshev()^3, c_1)
+             #f3_2 = Fun(Chebyshev()^3, c_2)
+ 
+             #@test (f3_1*f3_2)(0.4,0.5,0.6) ≈ f3_1(0.4,0.5,0.6)*f3_2(0.4,0.5,0.6)
+         end
     end
 
     @testset "LowRankFun" begin
