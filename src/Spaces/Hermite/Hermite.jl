@@ -87,8 +87,9 @@ Fun(::typeof(identity), sp::GaussWeight) = Fun(identity, sp.space)
 
 spacescompatible(a::GaussWeight,b::GaussWeight)=spacescompatible(a.space,b.space)&&isapprox(a.L,b.L)
 
-function Derivative(sp::GaussWeight,k::Integer)
-   if k == 1
+function Derivative(sp::GaussWeight,k::Number)
+    @assert Integer(k) == k "order must be an integer"
+    if k == 1
         x = Multiplication(Fun(identity,sp.space),sp.space)
         D = Derivative(sp.space)
         D2 = D - (2sp.L)x
