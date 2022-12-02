@@ -1,6 +1,7 @@
 ## Derivative
 
-function Derivative(J::Jacobi,k::Integer)
+function Derivative(J::Jacobi,k::Number)
+    @assert Integer(k) == k "order must be an integer"
     k==1 ? ConcreteDerivative(J,1) :
         DerivativeWrapper(
             TimesOperator(
@@ -33,7 +34,8 @@ Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::Number,o::Integer) = Concre
 
 ## Integral
 
-function Integral(J::Jacobi,k::Integer)
+function Integral(J::Jacobi,k::Number)
+    @assert Integer(k) == k "order must be an integer"
     if k > 1
         Q=Integral(J,1)
         IntegralWrapper(TimesOperator(Integral(rangespace(Q),k-1),Q),J,k)

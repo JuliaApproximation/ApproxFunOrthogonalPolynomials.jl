@@ -214,8 +214,10 @@ end
 
 ## Derivative
 
-Derivative(sp::Chebyshev{DD},order::Integer) where {DD<:IntervalOrSegment} =
+function Derivative(sp::Chebyshev{DD},order::Number) where {DD<:IntervalOrSegment}
+    @assert Integer(order) == order "order must be an integer"
     ConcreteDerivative(sp,order)
+end
 
 
 rangespace(D::ConcreteDerivative{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment,RR} =
