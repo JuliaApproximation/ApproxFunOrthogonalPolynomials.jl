@@ -215,7 +215,7 @@ end
 ## Derivative
 
 function Derivative(sp::Chebyshev{DD},order::Number) where {DD<:IntervalOrSegment}
-    @assert Integer(order) == order "order must be an integer"
+    assert_integer(order)
     ConcreteDerivative(sp,order)
 end
 
