@@ -55,11 +55,11 @@ end
 
 
 function Derivative(sp::Ultraspherical{LT,DD}, m::Number) where {LT,DD<:IntervalOrSegment}
-    @assert Integer(m) == m "order must be an integer"
+    assert_integer(m)
     ConcreteDerivative(sp,m)
 end
 function Integral(sp::Ultraspherical{LT,DD}, m::Number) where {LT,DD<:IntervalOrSegment}
-    @assert Integer(m) == m "order must be an integer"
+    assert_integer(m)
     λ = order(sp)
     if m ≤ λ
         ConcreteIntegral(sp,m)

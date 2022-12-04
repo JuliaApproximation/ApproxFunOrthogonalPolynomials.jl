@@ -40,7 +40,8 @@ import ApproxFunBase: Fun, SubSpace, WeightSpace, NoSpace, HeavisideSpace,
                     components, promoterangespace,
                     block, blockstart, blockstop, blocklengths, isblockbanded,
                     pointscompatible, affine_setdiff, complexroots,
-                    ℓ⁰, recα, recβ, recγ, ℵ₀, ∞, RectDomain
+                    ℓ⁰, recα, recβ, recγ, ℵ₀, ∞, RectDomain,
+                    assert_integer
 
 import DomainSets: Domain, indomain, UnionDomain, FullSpace, Point,
             Interval, ChebyshevInterval, boundary, rightendpoint, leftendpoint,
