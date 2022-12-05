@@ -85,6 +85,9 @@ using StaticArrays: SVector
 
 import LinearAlgebra: isdiag, eigvals, eigen
 
+using OddEvenIntegers
+using HalfIntegers
+
 export bandmatrices_eigen, SymmetricEigensystem, SkewSymmetricEigensystem
 
 points(d::IntervalOrSegmentDomain{T},n::Integer) where {T} =

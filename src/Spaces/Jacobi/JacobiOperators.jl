@@ -245,7 +245,7 @@ function Conversion(A::Jacobi,B::Chebyshev)
     elseif A.a == A.b == 0
         ConversionWrapper(
             SpaceOperator(
-                ConcreteConversion(Ultraspherical(1//2),B),
+                ConcreteConversion(Ultraspherical(half(Odd(1))),B),
                 A,B))
     elseif A.a == A.b
         US = Ultraspherical(A)
@@ -263,7 +263,7 @@ function Conversion(A::Chebyshev,B::Jacobi)
     elseif B.a == B.b == 0
         ConversionWrapper(
             SpaceOperator(
-                ConcreteConversion(A,Ultraspherical(1//2,domain(B))),
+                ConcreteConversion(A,Ultraspherical(half(Odd(1)),domain(B))),
                 A,B))
     elseif B.a == B.b
         US = Ultraspherical(B)
@@ -285,7 +285,7 @@ function Conversion(A::Jacobi,B::Ultraspherical)
     elseif A.a == A.b == 0
         ConversionWrapper(
             SpaceOperator(
-                Conversion(Ultraspherical(1//2),B),
+                Conversion(Ultraspherical(half(Odd(1))),B),
                 A,B))
     elseif A.a == A.b
         US = Ultraspherical(A)
@@ -306,7 +306,7 @@ function Conversion(A::Ultraspherical,B::Jacobi)
     elseif B.a == B.b == 0
         ConversionWrapper(
             SpaceOperator(
-                Conversion(A,Ultraspherical(1//2,domain(B))),
+                Conversion(A,Ultraspherical(half(Odd(1)),domain(B))),
                 A,B))
     elseif B.a == B.b
         US = Ultraspherical(B)
