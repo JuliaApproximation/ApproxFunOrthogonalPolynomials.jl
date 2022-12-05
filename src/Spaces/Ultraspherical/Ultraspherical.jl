@@ -31,6 +31,7 @@ NormalizedUltraspherical(m,d) = NormalizedPolynomialSpace(Ultraspherical(m,d))
 
 
 order(S::Ultraspherical) = S.order
+order(N::NormalizedPolynomialSpace{<:Ultraspherical}) = order(N.space)
 setdomain(S::Ultraspherical,d::Domain) = Ultraspherical(order(S),d)
 
 

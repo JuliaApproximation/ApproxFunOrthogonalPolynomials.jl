@@ -21,10 +21,8 @@ Jacobi(b,a) = Jacobi(b,a,ChebyshevInterval())
 Jacobi(A::Ultraspherical) = Jacobi(order(A)-0.5,order(A)-0.5,domain(A))
 Jacobi(A::Chebyshev) = Jacobi(-0.5,-0.5,domain(A))
 
-NormalizedJacobi(b,a,d) = NormalizedPolynomialSpace(Jacobi(b,a,d))
-NormalizedJacobi(b,a) = NormalizedPolynomialSpace(Jacobi(b,a))
-NormalizedLegendre(d) = NormalizedPolynomialSpace(Legendre(d))
-NormalizedLegendre() = NormalizedPolynomialSpace(Legendre())
+NormalizedJacobi(s...) = NormalizedPolynomialSpace(Jacobi(s...))
+NormalizedLegendre(d...) = NormalizedPolynomialSpace(Legendre(d...))
 
 normalization(::Type{T}, sp::Jacobi, k::Int) where T = FastTransforms.Anαβ(k, sp.a, sp.b)
 
@@ -35,6 +33,10 @@ function Ultraspherical(J::Jacobi)
         error("Cannot construct Ultraspherical with a=$(J.a) and b=$(J.b)")
     end
 end
+NormalizedUltraspherical(NS::NormalizedPolynomialSpace{<:Jacobi}) =
+    NormalizedPolynomialSpace(Ultraspherical(NS.space))
+NormalizedJacobi(NS::NormalizedPolynomialSpace{<:Union{Ultraspherical, Chebyshev}}) =
+    NormalizedPolynomialSpace(Jacobi(NS.space))
 
 Base.promote_rule(::Type{Jacobi{D,R1}},::Type{Jacobi{D,R2}}) where {D,R1,R2} =
     Jacobi{D,promote_type(R1,R2)}
