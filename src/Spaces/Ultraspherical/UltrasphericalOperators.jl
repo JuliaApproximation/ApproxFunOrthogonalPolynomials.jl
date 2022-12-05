@@ -26,7 +26,7 @@ Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Ultraspherical,V<:Chebyshe
 Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Ultraspherical,V<:Ultraspherical} =
     stride(M.f)
 
-@inline function _Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{Int})
+@inline function _Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical)
     if order(sp) == 1
         cfs = f.coefficients
         MultiplicationWrapper(f,
@@ -40,10 +40,10 @@ Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Ultraspherical,V<:Ultrasph
     end
 end
 @static if VERSION >= v"1.8"
-    Base.@constprop aggressive Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{Int}) =
+    Base.@constprop aggressive Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical) =
         _Multiplication(f, sp)
 else
-    Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{Int}) = _Multiplication(f, sp)
+    Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical) = _Multiplication(f, sp)
 end
 
 
@@ -134,8 +134,12 @@ function Conversion(A::Chebyshev,B::Ultraspherical)
     end
 end
 
+
+isequalhalf(x) = x == 0.5
+isequalhalf(::Integer) = false
+
 function Conversion(A::Ultraspherical,B::Chebyshev)
-    if order(A) == 1//2
+    if isequalhalf(order(A))
         ConcreteConversion(A,B)
     else
         error("Not implemented")

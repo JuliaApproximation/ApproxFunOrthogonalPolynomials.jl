@@ -98,7 +98,7 @@ for (Func,Len,Sum) in ((:DefiniteIntegral,:complexlength,:sum),(:DefiniteLineInt
     @eval begin
         $Func(S::Jacobi{<:IntervalOrSegment}) = $ConcFunc(S)
 
-        function getindex(Σ::$ConcFunc{Jacobi{D,R},T},k::Integer) where {D<:IntervalOrSegment,R,T}
+        function getindex(Σ::$ConcFunc{<:Jacobi{<:IntervalOrSegment},T}, k::Integer) where {T}
             dsp = domainspace(Σ)
 
             if dsp.b == dsp.a == 0
@@ -109,7 +109,7 @@ for (Func,Len,Sum) in ((:DefiniteIntegral,:complexlength,:sum),(:DefiniteLineInt
             end
         end
 
-        function bandwidths(Σ::$ConcFunc{Jacobi{D,R}}) where {D<:IntervalOrSegment,R}
+        function bandwidths(Σ::$ConcFunc{<:Jacobi{<:IntervalOrSegment}})
             if domainspace(Σ).b == domainspace(Σ).a == 0
                 0,0  # first entry
             else
@@ -187,10 +187,10 @@ end
 
 # return the space that has banded Conversion to the other
 function conversion_rule(A::Jacobi,B::Jacobi)
-    if !isapproxinteger(A.a-B.a) || !isapproxinteger(A.b-B.b)
-        NoSpace()
-    else
+    if isapproxinteger(A.a-B.a) && isapproxinteger(A.b-B.b)
         Jacobi(min(A.b,B.b),min(A.a,B.a),domain(A))
+    else
+        NoSpace()
     end
 end
 
@@ -212,8 +212,11 @@ function Conversion(A::Jacobi,B::PolynomialSpace)
              ConversionWrapper(TimesOperator(Conversion(J,B),Conversion(A,J)))
 end
 
+isequalminhalf(x) = x == -0.5
+isequalminhalf(::Integer) = false
+
 function Conversion(A::Jacobi,B::Chebyshev)
-    if A.a == A.b == -0.5
+    if isequalminhalf(A.a) && isequalminhalf(A.b)
         ConcreteConversion(A,B)
     elseif A.a == A.b == 0
         ConversionWrapper(
@@ -230,7 +233,7 @@ function Conversion(A::Jacobi,B::Chebyshev)
 end
 
 function Conversion(A::Chebyshev,B::Jacobi)
-    if B.a == B.b == -0.5
+    if isequalminhalf(B.a) && isequalminhalf(B.b)
         ConcreteConversion(A,B)
     elseif B.a == B.b == 0
         ConversionWrapper(
@@ -248,10 +251,10 @@ end
 
 
 function Conversion(A::Jacobi,B::Ultraspherical)
-    if A.a == A.b == -0.5
+    if isequalminhalf(A.a) && isequalminhalf(A.b)
         ConversionWrapper(Conversion(Chebyshev(domain(A)),B)*
             ConcreteConversion(A,Chebyshev(domain(A))))
-    elseif A.a == A.b == order(B)-0.5
+    elseif isequalminhalf(A.a - order(B)) && isequalminhalf(A.b - order(B))
         ConcreteConversion(A,B)
     elseif A.a == A.b == 0
         ConversionWrapper(
@@ -268,10 +271,10 @@ function Conversion(A::Jacobi,B::Ultraspherical)
 end
 
 function Conversion(A::Ultraspherical,B::Jacobi)
-    if B.a == B.b == -0.5
+    if isequalminhalf(B.a) && isequalminhalf(B.b)
         ConversionWrapper(ConcreteConversion(Chebyshev(domain(A)),B)*
             Conversion(A,Chebyshev(domain(A))))
-    elseif B.a == B.b == order(A)-0.5
+    elseif isequalminhalf(B.a - order(A)) && isequalminhalf(B.b - order(A))
         ConcreteConversion(A,B)
     elseif B.a == B.b == 0
         ConversionWrapper(
@@ -391,9 +394,8 @@ function BandedMatrix(S::SubOperator{T,ConcreteConversion{J,US,T},Tuple{UnitRang
 end
 
 
-
-
-
+isapproxminhalf(a) = a ≈ -0.5
+isapproxminhalf(::Integer) = false
 
 function union_rule(A::Jacobi,B::Jacobi)
     if domainscompatible(A,B)
@@ -414,14 +416,14 @@ end
 
 function union_rule(A::Chebyshev,B::Jacobi)
     if domainscompatible(A, B)
-        if isapprox(B.a,-0.5) && isapprox(B.b,-0.5)
+        if isapproxminhalf(B.a) && isapproxminhalf(B.b)
             # the spaces are the same
             A
         else
             union(Jacobi(A),B)
         end
     else
-        if isapprox(B.a,-0.5) && isapprox(B.b,-0.5)
+        if isapproxminhalf(B.a) && isapproxminhalf(B.b)
             union(A, Chebyshev(domain(B)))
         else
             NoSpace()
@@ -431,14 +433,14 @@ end
 function union_rule(A::Ultraspherical,B::Jacobi)
     m=order(A)
     if domainscompatible(A, B)
-        if isapprox(B.a,m-0.5) && isapprox(B.b,m-0.5)
+        if isapproxminhalf(B.a-m) && isapproxminhalf(B.b-m)
             # the spaces are the same
             A
         else
             union(Jacobi(A),B)
         end
     else
-        if isapprox(B.a,m-0.5) && isapprox(B.b,m-0.5)
+        if isapproxminhalf(B.a-m) && isapproxminhalf(B.b-m)
             union(A, Ultraspherical(m, domain(B)))
         else
             NoSpace()
@@ -449,10 +451,10 @@ end
 for (OPrule,OP) in ((:conversion_rule,:conversion_type), (:maxspace_rule,:maxspace))
     @eval begin
         function $OPrule(A::Chebyshev,B::Jacobi)
-            if B.a ≈ -0.5 && B.b ≈ -0.5
+            if isapproxminhalf(B.a) && isapproxminhalf(B.b)
                 # the spaces are the same
                 A
-            elseif isapproxinteger(B.a+0.5) && isapproxinteger(B.b+0.5)
+            elseif isapproxinteger_addhalf(B.a) && isapproxinteger_addhalf(B.b)
                 $OP(Jacobi(A),B)
             else
                 NoSpace()
@@ -460,10 +462,10 @@ for (OPrule,OP) in ((:conversion_rule,:conversion_type), (:maxspace_rule,:maxspa
         end
         function $OPrule(A::Ultraspherical,B::Jacobi)
             m = order(A)
-            if B.a ≈ m-0.5 && B.b ≈ m-0.5
+            if isapproxminhalf(B.a - m) && isapproxminhalf(B.b - m)
                 # the spaces are the same
                 A
-            elseif isapproxinteger(B.a+0.5) && isapproxinteger(B.b+0.5)
+            elseif isapproxinteger_addhalf(B.a) && isapproxinteger_addhalf(B.b)
                 $OP(Jacobi(A),B)
             else
                 NoSpace()
