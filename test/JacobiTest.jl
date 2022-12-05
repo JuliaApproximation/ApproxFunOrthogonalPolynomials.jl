@@ -47,42 +47,6 @@ using StaticArrays: SVector
         testtransforms(Jacobi(-0.5,-0.5))
         @test norm(Fun(Fun(exp),Jacobi(-.5,-.5))-Fun(exp,Jacobi(-.5,-.5))) < 300eps()
 
-        @testset "inplace transform" begin
-            @testset for T in (Float32, Float64), ET in (T, complex(T))
-                v = Array{ET}(undef, 10)
-                v2 = similar(v)
-                @testset for a in 0:0.5:3, b in 0:0.5:3, d in ((), (0..1,))
-                    J = Jacobi(a, b, d...)
-                    Slist = (J, NormalizedPolynomialSpace(J))
-                    @testset for S in Slist
-                        test_transform!(v, v2, S)
-                    end
-                end
-                v = Array{ET}(undef, 10, 10)
-                v2 = similar(v)
-                @testset for a in 0:0.5:3, b in 0:0.5:3, d in ((), (0..1,))
-                    J = Jacobi(a, b, d...)
-                    Slist = (J, NormalizedPolynomialSpace(J))
-                    @testset for S1 in Slist, S2 in Slist
-                        S = S1 ⊗ S2
-                        test_transform!(v, v2, S)
-                    end
-                    @testset for S1 in Slist
-                        S = S1 ⊗ Chebyshev(d...)
-                        test_transform!(v, v2, S)
-                        S = S1 ⊗ Chebyshev()
-                        test_transform!(v, v2, S)
-                    end
-                    @testset for S2 in Slist
-                        S = Chebyshev(d...) ⊗ S2
-                        test_transform!(v, v2, S)
-                        S = Chebyshev() ⊗ S2
-                        test_transform!(v, v2, S)
-                    end
-                end
-            end
-        end
-
         @testset for d in [-1..1, 0..1]
             f = Fun(x->x^2, Chebyshev(d))
             C = space(f)
@@ -93,6 +57,53 @@ using StaticArrays: SVector
                     if !any(isnan, coefficients(g))
                         @test Conversion(C, J) * f ≈ g
                     end
+                end
+            end
+        end
+
+        @testset "conversion between spaces" begin
+            for u in (Ultraspherical(1), Chebyshev())
+                @test NormalizedPolynomialSpace(Jacobi(u)) ==
+                    NormalizedJacobi(NormalizedPolynomialSpace(u))
+            end
+            for j in (Legendre(), Jacobi(1,1))
+                @test NormalizedPolynomialSpace(Ultraspherical(j)) ==
+                    NormalizedUltraspherical(NormalizedPolynomialSpace(j))
+            end
+        end
+    end
+
+    @testset "inplace transform" begin
+        @testset for T in (Float32, Float64), ET in (T, complex(T))
+            v = Array{ET}(undef, 10)
+            v2 = similar(v)
+            @testset for a in 0:0.5:3, b in 0:0.5:3, d in ((), (0..1,))
+                J = Jacobi(a, b, d...)
+                Slist = (J, NormalizedPolynomialSpace(J))
+                @testset for S in Slist
+                    test_transform!(v, v2, S)
+                end
+            end
+            v = Array{ET}(undef, 10, 10)
+            v2 = similar(v)
+            @testset for a in 0:0.5:3, b in 0:0.5:3, d in ((), (0..1,))
+                J = Jacobi(a, b, d...)
+                Slist = (J, NormalizedPolynomialSpace(J))
+                @testset for S1 in Slist, S2 in Slist
+                    S = S1 ⊗ S2
+                    test_transform!(v, v2, S)
+                end
+                @testset for S1 in Slist
+                    S = S1 ⊗ Chebyshev(d...)
+                    test_transform!(v, v2, S)
+                    S = S1 ⊗ Chebyshev()
+                    test_transform!(v, v2, S)
+                end
+                @testset for S2 in Slist
+                    S = Chebyshev(d...) ⊗ S2
+                    test_transform!(v, v2, S)
+                    S = Chebyshev() ⊗ S2
+                    test_transform!(v, v2, S)
                 end
             end
         end
