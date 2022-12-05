@@ -462,4 +462,15 @@ using StaticArrays: SVector
             end
         end
     end
+
+    @testset "type inference" begin
+        x = @inferred ApproxFunBase.maxspace(Jacobi(1,1), Jacobi(2,2))
+        @test x == Jacobi(2,2)
+
+        x = @inferred ApproxFunBase.union_rule(Chebyshev(), Jacobi(1,1))
+        @test x == Jacobi(-0.5, -0.5)
+
+        x = @inferred ApproxFunBase.conversion_rule(Jacobi(1,1), Jacobi(2,2))
+        @test x == Jacobi(1,1)
+    end
 end
