@@ -100,7 +100,7 @@ plan_itransform!(sp::Ultraspherical,cfs::AbstractVector) = UltrasphericalIPlan(o
 #domain(S) may be any domain
 
 ones(::Type{T},S::Ultraspherical) where {T<:Number} = Fun(S,fill(one(T),1))
-ones(S::Ultraspherical) = Fun(S,fill(1.0,1))
+ones(S::Ultraspherical) = ones(Float64, S)
 
 
 
@@ -118,7 +118,11 @@ Base.last(f::Fun{Ultraspherical{Int,D,R}}) where {D,R} = reduce(+,coefficients(f
 Base.first(f::Fun{Ultraspherical{O,D,R}}) where {O,D,R} = f(leftendpoint(domain(f)))
 Base.last(f::Fun{Ultraspherical{O,D,R}}) where {O,D,R} = f(rightendpoint(domain(f)))
 
-Fun(::typeof(identity), d::Ultraspherical) = Fun(Fun(identity, domain(d)),d)
+function Fun(::typeof(identity), s::Ultraspherical)
+    d = domain(s)
+    m = order(s)
+    Fun(s, [mean(d), complexlength(d)/4m])
+end
 
 
 ## Calculus
