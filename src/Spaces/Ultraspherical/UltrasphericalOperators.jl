@@ -58,14 +58,14 @@ function Derivative(sp::Ultraspherical{LT,DD}, m::Number) where {LT,DD<:Interval
     assert_integer(m)
     ConcreteDerivative(sp,m)
 end
-function Integral(sp::Ultraspherical{LT,DD}, m::Number) where {LT,DD<:IntervalOrSegment}
+function Integral(sp::Ultraspherical{<:Any,<:IntervalOrSegment}, m::Number)
     assert_integer(m)
     λ = order(sp)
     if m ≤ λ
         ConcreteIntegral(sp,m)
     else # Convert up
-        nsp = Ultraspherical(λ+1,domain(sp))
-        IntegralWrapper(Integral(nsp,m)*Conversion(sp,nsp),m)
+        nsp = Ultraspherical(m,domain(sp))
+        IntegralWrapper(ConcreteIntegral(nsp,m)*Conversion(sp,nsp),m)
     end
 end
 
