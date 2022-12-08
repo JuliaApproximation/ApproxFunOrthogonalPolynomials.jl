@@ -36,15 +36,18 @@ end
 normalization(::Type{T}, sp::Chebyshev, k::Int) where T = T(π)/(2-FastTransforms.δ(k,0))
 
 Space(d::SegmentDomain) = Chebyshev(d)
+_norm(x) = norm(x)
+_norm(x::Real) = abs(x) # this preserves integers, whereas norm returns a float
 function Space(d::AbstractInterval)
     a,b = endpoints(d)
-    if isinf(norm(a)) && isinf(norm(b))
-        Chebyshev(Line(d))
-    elseif isinf(norm(a)) || isinf(norm(b))
-        Chebyshev(Ray(d))
+    d2 = if isinf(_norm(a)) && isinf(_norm(b))
+        Line(d)
+    elseif isinf(_norm(a)) || isinf(_norm(b))
+        Ray(d)
     else
-        Chebyshev(d)
+        d
     end
+    Chebyshev(d2)
 end
 
 
