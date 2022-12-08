@@ -39,6 +39,18 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
         @test y == 2Fun()
     end
 
+    @testset "inference in Space(::Interval)" begin
+        S = @inferred Space(0..1)
+        f = Fun(S)
+        g = Fun(domain(S))
+        @test f(0.2) ≈ g(0.2) ≈ 0.2
+
+        S = Space(0.0..1.0)
+        f = Fun(S)
+        g = Fun(domain(S))
+        @test f(0.2) ≈ g(0.2) ≈ 0.2
+    end
+
     @testset "Algebra" begin
         ef = @inferred Fun(exp,ChebyshevInterval())
         @test ef == @inferred -(-ef)

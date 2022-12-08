@@ -165,4 +165,15 @@ using ApproxFunOrthogonalPolynomials: jacobip
             end
         end
     end
+
+    @testset "Integral" begin
+        d = 0..1
+        A = @inferred Integral(0..1)
+        x = Derivative() * A * Fun(d)
+        @test x(0.2) ≈ 0.2
+        d = 0.0..1.0
+        A = @inferred Integral(d)
+        x = Derivative() * A * Fun(d)
+        @test x(0.2) ≈ 0.2
+    end
 end
