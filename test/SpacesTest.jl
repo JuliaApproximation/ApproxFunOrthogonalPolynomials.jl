@@ -5,8 +5,8 @@ using Test
 using DomainSets
 using DomainSets: UnionDomain
 using ApproxFunBase: space, SpaceOperator
-using ApproxFunBaseTest: testspace, testbandedoperator, testraggedbelowoperator,
-                        testcalculus, testtransforms, testfunctional
+using ApproxFunBaseTest: testbandedoperator, testraggedbelowoperator,
+                        testtransforms, testfunctional
 
 @testset "Spaces" begin
     @testset "evaluate" begin

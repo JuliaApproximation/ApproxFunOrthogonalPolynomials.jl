@@ -5,7 +5,7 @@ using LinearAlgebra
 using Test
 using ApproxFunBase: Multiplication, InterlaceOperator, Block, ∞
 using ApproxFunBaseTest: testfunctional, testbandedoperator, testraggedbelowoperator,
-                        testinfoperator, testblockbandedoperator
+                        testblockbandedoperator
 using ApproxFunOrthogonalPolynomials: JacobiZ
 
 @verbose @testset "Operator" begin
