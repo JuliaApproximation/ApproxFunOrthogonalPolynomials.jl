@@ -7,7 +7,7 @@ using ApproxFunBaseTest: testbandedoperator
 
 @verbose @testset "Laguerre and WeightedLaguerre" begin
     @testset "Ray" begin
-        r = @inferred Ray(0..Inf)
+        r = VERSION >= v"1.8" ? @inferred(Ray(0..Inf)) : Ray(0..Inf)
         L = Laguerre(1.0,r)
         f = x -> exp.(-x)
         F = Fun(f, L)
