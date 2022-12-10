@@ -166,6 +166,13 @@ using ApproxFunOrthogonalPolynomials: jacobip
         end
     end
 
+    @testset "Multiplication" begin
+        M = Multiplication(Fun(), Ultraspherical(0.5))
+        f = Fun(Ultraspherical(0.5))
+        f2 = Fun(x->x^2, Ultraspherical(0.5))
+        @test M * f ≈ f2
+    end
+
     @testset "Integral" begin
         d = 0..1
         A = @inferred Integral(0..1)

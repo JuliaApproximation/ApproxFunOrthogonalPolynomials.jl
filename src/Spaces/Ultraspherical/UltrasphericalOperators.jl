@@ -134,8 +134,12 @@ function Conversion(A::Chebyshev,B::Ultraspherical)
     end
 end
 
+
+isequalhalf(x) = x == 0.5
+isequalhalf(::Integer) = false
+
 function Conversion(A::Ultraspherical,B::Chebyshev)
-    if order(A) == 1//2
+    if isequalhalf(order(A))
         ConcreteConversion(A,B)
     else
         error("Not implemented")

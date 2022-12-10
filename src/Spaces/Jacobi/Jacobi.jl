@@ -5,15 +5,15 @@ export Jacobi, NormalizedJacobi, Legendre, NormalizedLegendre
 `Jacobi(b,a)` represents the space spanned by Jacobi polynomials `P_k^{(a,b)}`,
 which are orthogonal with respect to the weight `(1+x)^β*(1-x)^α`
 """
-struct Jacobi{D<:Domain,R} <: PolynomialSpace{D,R}
-    b::R
-    a::R
+struct Jacobi{D<:Domain,R,T} <: PolynomialSpace{D,R}
+    b::T
+    a::T
     domain::D
-    Jacobi{D,R}(b,a,d) where {D,R} = new{D,R}(b,a,d)
+    Jacobi{D,R}(b::T,a::T,d::D) where {D,R,T} = new{D,R,T}(b,a,d)
 end
 Jacobi(b::T,a::T,d::Domain) where {T} =
     Jacobi{typeof(d),promote_type(T,real(prectype(d)))}(b, a, d)
-Legendre(domain) = Jacobi(0.,0.,domain)
+Legendre(domain) = Jacobi(0,0,domain)
 Legendre() = Legendre(ChebyshevInterval())
 Jacobi(b,a,d::Domain) = Jacobi(promote(b,a)...,d)
 Jacobi(b,a,d) = Jacobi(b,a,Domain(d))
@@ -38,16 +38,18 @@ NormalizedUltraspherical(NS::NormalizedPolynomialSpace{<:Jacobi}) =
 NormalizedJacobi(NS::NormalizedPolynomialSpace{<:Union{Ultraspherical, Chebyshev}}) =
     NormalizedPolynomialSpace(Jacobi(NS.space))
 
-Base.promote_rule(::Type{Jacobi{D,R1}},::Type{Jacobi{D,R2}}) where {D,R1,R2} =
-    Jacobi{D,promote_type(R1,R2)}
-convert(::Type{Jacobi{D,R1}},J::Jacobi{D,R2}) where {D,R1,R2} =
-    Jacobi{D,R1}(J.b,J.a,J.domain)
+Base.promote_rule(::Type{Jacobi{D,R1,T1}},::Type{Jacobi{D,R2,T2}}) where {D,R1,R2,T1,T2} =
+    Jacobi{D,promote_type(R1,R2),promote_type(T1,T2)}
+convert(::Type{Jacobi{D,R1,T1}},J::Jacobi{D,R2,T2}) where {D,R1,R2,T1,T2} =
+    Jacobi{D,R1}(T1(J.b)::T1, T1(J.a)::T1, J.domain)::Jacobi{D,R1,T1}
 
 
 spacescompatible(a::Jacobi,b::Jacobi) = a.a ≈ b.a && a.b ≈ b.b && domainscompatible(a,b)
 
+isapproxinteger_addhalf(a) = isapproxinteger(a+0.5)
+isapproxinteger_addhalf(::Integer) = false
 function canonicalspace(S::Jacobi)
-    if isapproxinteger(S.a+0.5) && isapproxinteger(S.b+0.5)
+    if isapproxinteger_addhalf(S.a) && isapproxinteger_addhalf(S.b)
         Chebyshev(domain(S))
     else
         # return space with parameters in (-1,0.]
