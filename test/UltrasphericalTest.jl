@@ -3,10 +3,6 @@ using ApproxFunBase
 using Test
 using SpecialFunctions
 using LinearAlgebra
-using ApproxFunBase: maxspace, NoSpace, hasconversion, reverseorientation, ReverseOrientation
-using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
-                    testfunctional
-using ApproxFunOrthogonalPolynomials: jacobip
 
 @testset "Ultraspherical" begin
     @testset "identity fun" begin
