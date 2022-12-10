@@ -6,9 +6,15 @@ using ApproxFunBaseTest: testbandedoperator
 
 
 @verbose @testset "Laguerre and WeightedLaguerre" begin
-
+    @testset "Ray" begin
+        r = @inferred Ray(0..Inf)
+        L = Laguerre(1.0,r)
+        f = x -> exp.(-x)
+        F = Fun(f, L)
+        @test F(.3) ≈ -F'(.3)
+    end
     @testset "General scaled rays" begin
-        r = Ray(-1.0,0.0,2.0,true)
+        r = @inferred (() -> Ray(-1.0,0.0,2.0,true))()
         L = Laguerre(1.0,r)
         f = x -> exp.(-x)
         F = Fun(f, L)
