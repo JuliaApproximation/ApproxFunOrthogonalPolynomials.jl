@@ -58,14 +58,14 @@ function Derivative(sp::Ultraspherical{LT,DD}, m::Number) where {LT,DD<:Interval
     assert_integer(m)
     ConcreteDerivative(sp,m)
 end
-function Integral(sp::Ultraspherical{LT,DD}, m::Number) where {LT,DD<:IntervalOrSegment}
+function Integral(sp::Ultraspherical{<:Any,<:IntervalOrSegment}, m::Number)
     assert_integer(m)
     λ = order(sp)
     if m ≤ λ
         ConcreteIntegral(sp,m)
     else # Convert up
-        nsp = Ultraspherical(λ+1,domain(sp))
-        IntegralWrapper(Integral(nsp,m)*Conversion(sp,nsp),m)
+        nsp = Ultraspherical(m,domain(sp))
+        IntegralWrapper(ConcreteIntegral(nsp,m)*Conversion(sp,nsp),m)
     end
 end
 
@@ -252,6 +252,7 @@ end
 
 
 function coefficients(g::AbstractVector,sp::Ultraspherical{Int},C::Chebyshev)
+    domainscompatible(C,sp) || throw(ArgumentError("domains don't match: $(domain(sp)) and $(domain(C))"))
     if order(sp) == 1
         ultraiconversion(g)
     else
@@ -260,6 +261,7 @@ function coefficients(g::AbstractVector,sp::Ultraspherical{Int},C::Chebyshev)
     end
 end
 function coefficients(g::AbstractVector,C::Chebyshev,sp::Ultraspherical)
+    domainscompatible(C,sp) || throw(ArgumentError("domains don't match: $(domain(C)) and $(domain(sp))"))
     if order(sp) == 1
         ultraconversion(g)
     else

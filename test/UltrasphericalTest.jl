@@ -9,6 +9,18 @@ using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace,
 using ApproxFunOrthogonalPolynomials: jacobip
 
 @testset "Ultraspherical" begin
+    @testset "identity fun" begin
+        for d in (ChebyshevInterval(), 3..4, Segment(2, 5), Segment(1, 4im)), order in (1, 2, 0.5)
+            s = Ultraspherical(order, d)
+            f = Fun(s)
+            xl = leftendpoint(domain(s))
+            xr = rightendpoint(domain(s))
+            xm = (xl + xr)/2
+            @test f(xl) ≈ xl
+            @test f(xr) ≈ xr
+            @test f(xm) ≈ xm
+        end
+    end
     @testset "Conversion" begin
         # Tests whether invalid/unimplemented arguments correctly throws ArgumentError
         @test_throws ArgumentError Conversion(Ultraspherical(2), Ultraspherical(1))
@@ -159,5 +171,16 @@ using ApproxFunOrthogonalPolynomials: jacobip
         f = Fun(Ultraspherical(0.5))
         f2 = Fun(x->x^2, Ultraspherical(0.5))
         @test M * f ≈ f2
+    end
+
+    @testset "Integral" begin
+        d = 0..1
+        A = @inferred Integral(0..1)
+        x = Derivative() * A * Fun(d)
+        @test x(0.2) ≈ 0.2
+        d = 0.0..1.0
+        A = @inferred Integral(d)
+        x = Derivative() * A * Fun(d)
+        @test x(0.2) ≈ 0.2
     end
 end
