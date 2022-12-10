@@ -25,8 +25,20 @@ Ray{a}() where {a} = Ray{a,Float64}()
 angle(d::Ray{a}) where {a} = a*π
 
 # ensure the angle is always in (-1,1]
-Ray(c,a,L,o) = Ray{a==0 ? false : (abs(a)≈(1.0π) ? true : mod(a/π-1,-2)+1),typeof(c)}(c,L,o)
-Ray(c,a,o) = Ray{a==0 ? false : (abs(a)≈(1.0π) ? true : mod(a/π-1,-2)+1),typeof(c)}(c,one(typeof(c)),o)
+@inline function _Ray(c,a,L,o)
+    angle = if iszero(a)
+        false
+    else
+        (abs(a)≈(1.0π) ? true : mod(a/π-1,-2)+1)
+    end
+    Ray{angle,typeof(c)}(c,L,o)
+end
+@static if VERSION >= v"1.8"
+    Base.@constprop :aggressive Ray(c,a,L,o) = _Ray(c,a,L,o)
+else
+    Ray(c,a,L,o) = _Ray(c,a,L,o)
+end
+Ray(c,a,o) = Ray(c,a,one(typeof(c)),o)
 Ray(c,a) = Ray(c,a,one(typeof(c)),true)
 
 Ray() = Ray{false}()
@@ -35,14 +47,17 @@ Ray() = Ray{false}()
 
 ##deal with vector
 
+_rayangle(x) = angle(x)
+_rayangle(x::Real) = 0
+
 function convert(::Type{Ray}, d::AbstractInterval)
     a,b = endpoints(d)
     @assert abs(a)==Inf || abs(b)==Inf
 
     if abs(b)==Inf
-        Ray(a,angle(b),one(typeof(a)),true)
+        Ray(a,_rayangle(b),one(typeof(a)),true)
     else #abs(a)==Inf
-        Ray(b,angle(a),one(typeof(a)),false)
+        Ray(b,_rayangle(a),one(typeof(a)),false)
     end
 end
 Ray(d::AbstractInterval) = strictconvert(Ray, d)
