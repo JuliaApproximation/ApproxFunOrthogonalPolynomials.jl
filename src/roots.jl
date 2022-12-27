@@ -41,28 +41,6 @@ function complexroots(f::Fun{C}) where C<:Chebyshev
     end
 end
 
-#function roots(f::Fun)
-#    irts=map(real,filter!(x->abs(x)<=1.+10eps(),filter!#(isreal,complexroots(f.coefficients))))
-#
-#    map!(x->x>1. ? 1. : x,irts)
-#    map!(x->x<-1. ? -1. : x,irts)
-#
-#    if length(irts)==0
-#        Float64[]
-#    else
-#        fromcanonical(f,irts)
-#    end
-#end
-
-function roots(f::Fun)
-    f2=Fun(f,domain(f)) # default is to convert to Chebyshev/Fourier
-    if space(f2)==space(f)
-        error("roots not implemented for "*string(typeof(f)))
-    else
-        roots(f2)
-    end
-end
-
 function roots(f::Fun{<:Chebyshev})
     g = Fun(space(f), float.(coefficients(f)))
     gg = setcanonicaldomain(g)
