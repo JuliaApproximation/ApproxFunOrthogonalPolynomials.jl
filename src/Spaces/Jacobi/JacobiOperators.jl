@@ -1,6 +1,6 @@
 ## Derivative
 
-function Derivative(J::Jacobi,k::Number)
+@inline function _Derivative(J::Jacobi, k::Number)
     assert_integer(k)
     k==1 ? ConcreteDerivative(J,1) :
         DerivativeWrapper(
@@ -8,7 +8,12 @@ function Derivative(J::Jacobi,k::Number)
                 Derivative(Jacobi(J.b+1,J.a+1,J.domain),k-1),ConcreteDerivative(J,1)),
         J, k)
 end
-
+@static if VERSION >= v"1.8"
+    Base.@constprop :aggressive Derivative(J::Jacobi, k::Number) =
+        _Derivative(J, k)
+else
+    Derivative(J::Jacobi, k::Number) = _Derivative(J, k)
+end
 
 
 rangespace(D::ConcreteDerivative{J}) where {J<:Jacobi}=Jacobi(D.space.b+D.order,D.space.a+D.order,domain(D))
