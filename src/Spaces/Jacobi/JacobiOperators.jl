@@ -1,5 +1,7 @@
 ## Derivative
 
+# specialize Derivative so that this is type-inferred even without constant propagation
+Derivative(J::Jacobi) = ConcreteDerivative(J,1)
 @inline function _Derivative(J::Jacobi, k::Number)
     assert_integer(k)
     k==1 ? ConcreteDerivative(J,1) :

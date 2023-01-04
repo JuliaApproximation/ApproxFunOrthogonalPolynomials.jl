@@ -110,10 +110,10 @@ using StaticArrays: SVector
     end
 
     @testset "Derivative" begin
-        D = if VERSION >= v"1.8"
-            @inferred Derivative(Jacobi(0.,1.,Segment(1.,0.)))
-        else
-            Derivative(Jacobi(0.,1.,Segment(1.,0.)))
+        D = @inferred Derivative(Jacobi(0.,1.,Segment(1.,0.)))
+        if VERSION >= v"1.8"
+            D2 = @inferred (() -> Derivative(Jacobi(0.,1.,Segment(1.,0.)), 1))()
+            @test D2 == D
         end
         @time testbandedoperator(D)
         # only one band should be populated
