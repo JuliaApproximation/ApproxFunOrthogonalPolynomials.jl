@@ -253,8 +253,8 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
     end
 
     @testset "Normalized space" begin
-        for f in Any[x -> 3x^3 + 5x^2 + 2, x->x, identity]
-            for dt in Any[(), (0..1,)]
+        for f in (x -> 3x^3 + 5x^2 + 2, x->x, identity)
+            for dt in ((), (0..1,))
                 S = Chebyshev(dt...)
                 NS = NormalizedPolynomialSpace(S)
 
@@ -273,8 +273,16 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
             s1 = NormalizedChebyshev(-1..1)
             s2 = NormalizedChebyshev()
             @test s1 == s2
-            D1 = Derivative(s1)
-            D2 = Derivative(s2)
+            D1 = if VERSION >= v"1.8"
+                @inferred Derivative(s1)
+            else
+                Derivative(s1)
+            end
+            D2 = if VERSION >= v"1.8"
+                @inferred Derivative(s2)
+            else
+                Derivative(s2)
+            end
             f = x -> 3x^2 + 5x
             f1 = Fun(f, s1)
             f2 = Fun(f, s2)
@@ -296,7 +304,7 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
     end
 
     @testset "Operator exponentiation" begin
-        for M in Any[Multiplication(Fun(), Chebyshev()), Multiplication(Fun())]
+        for M in (Multiplication(Fun(), Chebyshev()), Multiplication(Fun()))
             N = @inferred (M -> M^0)(M)
             @test N * Fun() == Fun()
             N = @inferred (M -> M^1)(M)
