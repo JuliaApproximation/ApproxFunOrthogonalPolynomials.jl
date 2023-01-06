@@ -13,9 +13,9 @@ struct Jacobi{D<:Domain,R,T} <: PolynomialSpace{D,R}
 end
 Jacobi(b::T,a::T,d::Domain) where {T} =
     Jacobi{typeof(d),promote_type(T,real(prectype(d)))}(b, a, d)
-Legendre(domain) = Jacobi(0,0,domain)
+Legendre(domain) = Jacobi(static(0),static(0),domain)
 Legendre() = Legendre(ChebyshevInterval())
-Jacobi(b,a,d::Domain) = Jacobi(promote(b,a)...,d)
+Jacobi(b,a,d::Domain) = Jacobi(promote(dynamic(b), dynamic(a))...,d)
 Jacobi(b,a,d) = Jacobi(b,a,Domain(d))
 Jacobi(b,a) = Jacobi(b,a,ChebyshevInterval())
 Jacobi(A::Ultraspherical) = Jacobi(order(A)-0.5,order(A)-0.5,domain(A))
@@ -24,7 +24,7 @@ Jacobi(A::Chebyshev) = Jacobi(-0.5,-0.5,domain(A))
 NormalizedJacobi(s...) = NormalizedPolynomialSpace(Jacobi(s...))
 NormalizedLegendre(d...) = NormalizedPolynomialSpace(Legendre(d...))
 
-normalization(::Type{T}, sp::Jacobi, k::Int) where T = FastTransforms.Anαβ(k, sp.a, sp.b)
+normalization(::Type{T}, sp::Jacobi, k::Int) where T = FastTransforms.Anαβ(k, dynamic(sp.a), dynamic(sp.b))
 
 function Ultraspherical(J::Jacobi)
     if J.a == J.b
@@ -48,12 +48,13 @@ spacescompatible(a::Jacobi,b::Jacobi) = a.a ≈ b.a && a.b ≈ b.b && domainscom
 
 isapproxinteger_addhalf(a) = isapproxinteger(a+0.5)
 isapproxinteger_addhalf(::Integer) = false
+isapproxinteger_addhalf(@nospecialize ::StaticInt) = false
 function canonicalspace(S::Jacobi)
     if isapproxinteger_addhalf(S.a) && isapproxinteger_addhalf(S.b)
         Chebyshev(domain(S))
     else
         # return space with parameters in (-1,0.]
-        Jacobi(mod(S.b,-1),mod(S.a,-1),domain(S))
+        Jacobi(mod(dynamic(S.b),-1),mod(dynamic(S.a),-1),domain(S))
     end
 end
 
@@ -120,8 +121,8 @@ jacobip(r::AbstractRange,α,β,x::Number) = jacobip(promote_type(typeof(α),type
 
 jacobip(::Type{T},n::Integer,α,β,v) where {T} = jacobip(T,n:n,α,β,v)[1]
 jacobip(n::Integer,α,β,v) = jacobip(n:n,α,β,v)[1]
-jacobip(::Type{T},n,S::Jacobi,v) where {T} = jacobip(T,n,S.a,S.b,v)
-jacobip(n,S::Jacobi,v) = jacobip(n,S.a,S.b,v)
+jacobip(::Type{T},n,S::Jacobi,v) where {T} = jacobip(T,n,dynamic(S.a),dynamic(S.b),v)
+jacobip(n,S::Jacobi,v) = jacobip(n,dynamic(S.a),dynamic(S.b),v)
 
 
 

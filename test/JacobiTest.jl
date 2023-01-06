@@ -50,15 +50,23 @@ using StaticArrays: SVector
         @testset for d in [-1..1, 0..1]
             f = Fun(x->x^2, Chebyshev(d))
             C = space(f)
-            for J1 = Any[Jacobi(-0.5, -0.5, d), Legendre(d),
-                            Jacobi(0.5, 0.5, d), Jacobi(2.5, 1.5, d)]
-                for J in [J1, NormalizedPolynomialSpace(J1)]
+            for J1 in (Jacobi(-0.5, -0.5, d), Legendre(d),
+                            Jacobi(0.5, 0.5, d), Jacobi(2.5, 1.5, d))
+                for J in (J1, NormalizedPolynomialSpace(J1))
                     g = Fun(f, J)
                     if !any(isnan, coefficients(g))
                         @test Conversion(C, J) * f ≈ g
                     end
                 end
             end
+            CLL = @inferred Conversion(Legendre(), Legendre())
+            @test convert(Number, CLL) == 1
+            CNLNL = @inferred Conversion(NormalizedLegendre(), NormalizedLegendre())
+            @test convert(Number, CNLNL) == 1
+            CCL = @inferred Conversion(Chebyshev(), Legendre())
+            @test CCL * Fun(Chebyshev()) ≈ Fun(Legendre())
+            CLC = @inferred Conversion(Legendre(), Chebyshev())
+            @test CLC * Fun(Legendre()) ≈ Fun(Chebyshev())
         end
 
         @testset "conversion between spaces" begin
