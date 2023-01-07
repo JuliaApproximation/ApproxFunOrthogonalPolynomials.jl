@@ -240,6 +240,11 @@ using Static
         f=Fun(exp,Jacobi(0.590,0.213))
 
         @test (g*f)(.1) ≈ cos(.1)*exp(.1)
+
+        @testset "Mutliplication in a normalized space" begin
+            M = @inferred Multiplication(Fun(Legendre()), NormalizedLegendre())
+            @test M * Fun(NormalizedLegendre()) ≈ Fun(x->x^2, NormalizedLegendre())
+        end
     end
 
     @testset "Jacobi integrate and sum" begin
