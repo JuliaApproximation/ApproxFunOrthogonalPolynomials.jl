@@ -457,15 +457,14 @@ hasconversion(a::NormalizedPolynomialSpace,b::PolynomialSpace) = hasconversion(a
 hasconversion(a::NormalizedPolynomialSpace,b::NormalizedPolynomialSpace) = hasconversion(a.space,b)
 
 
-function Multiplication(f::Fun{U},sp::NormalizedPolynomialSpace) where U <: PolynomialSpace
-    fsp = space(f)
-    unnorm_sp = sp.space
+function Multiplication(f::Fun{<:PolynomialSpace}, sp::NormalizedPolynomialSpace)
+    unnorm_sp = canonicalspace(sp)
     O = Conversion(unnorm_sp,sp) *
             Multiplication(f,unnorm_sp) * Conversion(sp, unnorm_sp)
-    MultiplicationWrapper(f, O)
+    MultiplicationWrapper(f, O, sp)
 end
 
-function Multiplication(f::Fun{U},sp::PolynomialSpace) where U <: NormalizedPolynomialSpace
+function Multiplication(f::Fun{ <: NormalizedPolynomialSpace}, sp::PolynomialSpace)
     Multiplication(Conversion(space(f), canonicalspace(f))*f, sp)
 end
 
