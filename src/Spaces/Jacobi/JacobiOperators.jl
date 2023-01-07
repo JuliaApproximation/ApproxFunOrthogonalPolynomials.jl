@@ -224,7 +224,7 @@ function Conversion(A::Jacobi,B::PolynomialSpace)
 end
 
 isequalminhalf(x) = x == -0.5
-isequalminhalf(::Integer) = false
+isequalminhalf(@nospecialize ::Integer) = false
 isequalminhalf(@nospecialize ::StaticInt) = false
 
 function Conversion(A::Jacobi,B::Chebyshev)
