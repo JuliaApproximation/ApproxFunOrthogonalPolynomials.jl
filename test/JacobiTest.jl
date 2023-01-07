@@ -70,21 +70,23 @@ using Static
             we don't use the floating point orders directly in tests
             See https://github.com/SciML/Static.jl/issues/97
             =#
+            L = Jacobi(static(0), static(0))
             @testset "Jacobi" begin
-                CLL = @inferred Conversion(Legendre(), Legendre())
+                CLL = @inferred Conversion(L, L)
                 @test convert(Number, CLL) == 1
-                CNLNL = @inferred Conversion(NormalizedLegendre(), NormalizedLegendre())
+                NL = NormalizedPolynomialSpace(L)
+                CNLNL = @inferred Conversion(NL, NL)
                 @test convert(Number, CNLNL) == 1
-                CLNL = @inferred Conversion(Legendre(), NormalizedLegendre())
+                CLNL = @inferred Conversion(L, NL)
                 @test CLNL * Fun(Legendre()) ≈ Fun(NormalizedLegendre())
-                CNLL = @inferred Conversion(NormalizedLegendre(), Legendre())
+                CNLL = @inferred Conversion(NL, L)
                 @test CNLL * Fun(NormalizedLegendre()) ≈ Fun(Legendre())
             end
 
             @testset "Chebyshev" begin
-                CCL = @inferred Conversion(Chebyshev(), Legendre())
+                CCL = @inferred Conversion(Chebyshev(), L)
                 @test CCL * Fun(Chebyshev()) ≈ Fun(Legendre())
-                CLC = @inferred Conversion(Legendre(), Chebyshev())
+                CLC = @inferred Conversion(L, Chebyshev())
                 @test CLC * Fun(Legendre()) ≈ Fun(Chebyshev())
 
                 @inferred Conversion(Chebyshev(), Jacobi(static(-0.5), static(-0.5)))
@@ -106,9 +108,9 @@ using Static
             end
 
             @testset "Ultraspherical" begin
-                CUL = @inferred Conversion(Ultraspherical(static(0.5)), Legendre())
+                CUL = @inferred Conversion(Ultraspherical(static(0.5)), L)
                 @test CUL * Fun(Ultraspherical(0.5)) ≈ Fun(Legendre())
-                CLU = @inferred Conversion(Legendre(), Ultraspherical(static(0.5)))
+                CLU = @inferred Conversion(L, Ultraspherical(static(0.5)))
                 @test CLU * Fun(Legendre()) ≈ Fun(Ultraspherical(0.5))
 
                 @inferred Conversion(Ultraspherical(static(0.5)), Jacobi(static(1),static(1)))
@@ -242,7 +244,8 @@ using Static
         @test (g*f)(.1) ≈ cos(.1)*exp(.1)
 
         @testset "Mutliplication in a normalized space" begin
-            M = @inferred Multiplication(Fun(Legendre()), NormalizedLegendre())
+            L = Jacobi(static(0), static(0))
+            M = @inferred Multiplication(Fun(L), NormalizedPolynomialSpace(L))
             @test M * Fun(NormalizedLegendre()) ≈ Fun(x->x^2, NormalizedLegendre())
         end
     end

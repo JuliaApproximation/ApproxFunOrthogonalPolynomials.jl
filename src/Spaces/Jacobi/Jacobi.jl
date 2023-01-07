@@ -13,7 +13,7 @@ struct Jacobi{D<:Domain,R,T} <: PolynomialSpace{D,R}
 end
 Jacobi(b::T,a::T,d::Domain) where {T} =
     Jacobi{typeof(d),promote_type(T,real(prectype(d)))}(b, a, d)
-Legendre(domain) = Jacobi(static(0),static(0),domain)
+Legendre(domain) = Jacobi(0,0,domain)
 Legendre() = Legendre(ChebyshevInterval())
 Jacobi(b,a,d::Domain) = Jacobi(promote(dynamic(b), dynamic(a))...,d)
 Jacobi(b,a,d) = Jacobi(b,a,Domain(d))
