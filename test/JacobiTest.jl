@@ -9,6 +9,7 @@ using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace,
                     testfunctional
 using ApproxFunOrthogonalPolynomials: jacobip
 using StaticArrays: SVector
+using Static
 
 @verbose @testset "Jacobi" begin
     @testset "Basic" begin
