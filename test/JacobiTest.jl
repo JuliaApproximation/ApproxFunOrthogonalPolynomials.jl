@@ -9,6 +9,7 @@ using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace,
                     testfunctional
 using ApproxFunOrthogonalPolynomials: jacobip
 using StaticArrays: SVector
+using Static
 
 @verbose @testset "Jacobi" begin
     @testset "Basic" begin
@@ -50,14 +51,72 @@ using StaticArrays: SVector
         @testset for d in [-1..1, 0..1]
             f = Fun(x->x^2, Chebyshev(d))
             C = space(f)
-            for J1 = Any[Jacobi(-0.5, -0.5, d), Legendre(d),
-                            Jacobi(0.5, 0.5, d), Jacobi(2.5, 1.5, d)]
-                for J in [J1, NormalizedPolynomialSpace(J1)]
+            for J1 in (Jacobi(-0.5, -0.5, d), Legendre(d),
+                            Jacobi(0.5, 0.5, d), Jacobi(2.5, 1.5, d))
+                for J in (J1, NormalizedPolynomialSpace(J1))
                     g = Fun(f, J)
                     if !any(isnan, coefficients(g))
                         @test Conversion(C, J) * f ≈ g
                     end
                 end
+            end
+        end
+
+        @testset "inference tests" begin
+            #= Note all cases are inferred as of now,
+            but as the situation eveolves in the future, more @inferred tests
+            may be added
+            There are also issues with static float promotion, because of which
+            we don't use the floating point orders directly in tests
+            See https://github.com/SciML/Static.jl/issues/97
+            =#
+            @testset "Jacobi" begin
+                CLL = @inferred Conversion(Legendre(), Legendre())
+                @test convert(Number, CLL) == 1
+                CNLNL = @inferred Conversion(NormalizedLegendre(), NormalizedLegendre())
+                @test convert(Number, CNLNL) == 1
+                CLNL = @inferred Conversion(Legendre(), NormalizedLegendre())
+                @test CLNL * Fun(Legendre()) ≈ Fun(NormalizedLegendre())
+                CNLL = @inferred Conversion(NormalizedLegendre(), Legendre())
+                @test CNLL * Fun(NormalizedLegendre()) ≈ Fun(Legendre())
+            end
+
+            @testset "Chebyshev" begin
+                CCL = @inferred Conversion(Chebyshev(), Legendre())
+                @test CCL * Fun(Chebyshev()) ≈ Fun(Legendre())
+                CLC = @inferred Conversion(Legendre(), Chebyshev())
+                @test CLC * Fun(Legendre()) ≈ Fun(Chebyshev())
+
+                @inferred Conversion(Chebyshev(), Jacobi(static(-0.5), static(-0.5)))
+                CCJmhalf = Conversion(Chebyshev(), Jacobi(-0.5, -0.5))
+                @test CCJmhalf * Fun(Chebyshev()) ≈ Fun(Jacobi(-0.5,-0.5))
+                @inferred Conversion(Jacobi(static(-0.5),static(-0.5)), Chebyshev())
+                CJmhalfC = Conversion(Jacobi(-0.5,-0.5), Chebyshev())
+                @test CJmhalfC * Fun(Jacobi(-0.5,-0.5)) ≈ Fun(Chebyshev())
+
+                @inferred Conversion(Chebyshev(), Jacobi(static(0.5), static(0.5)))
+                CCJmhalf = Conversion(Chebyshev(), Jacobi(0.5, 0.5))
+                @test CCJmhalf * Fun(Chebyshev()) ≈ Fun(Jacobi(0.5,0.5))
+
+                CCJ1 = Conversion(Chebyshev(), Jacobi(1,1))
+                @test CCJ1 * Fun(Chebyshev()) ≈ Fun(Jacobi(1,1))
+
+                CCJmix = Conversion(Chebyshev(), Jacobi(0.5,1.5))
+                @test CCJmix * Fun(Chebyshev()) ≈ Fun(Jacobi(0.5,1.5))
+            end
+
+            @testset "Ultraspherical" begin
+                CUL = @inferred Conversion(Ultraspherical(static(0.5)), Legendre())
+                @test CUL * Fun(Ultraspherical(0.5)) ≈ Fun(Legendre())
+                CLU = @inferred Conversion(Legendre(), Ultraspherical(static(0.5)))
+                @test CLU * Fun(Legendre()) ≈ Fun(Ultraspherical(0.5))
+
+                @inferred Conversion(Ultraspherical(static(0.5)), Jacobi(static(1),static(1)))
+                CU0J1 = Conversion(Ultraspherical(0.5), Jacobi(1,1))
+                @test CU0J1 * Fun(Ultraspherical(0.5)) ≈ Fun(Jacobi(1,1))
+                @inferred Conversion(Jacobi(static(1),static(1)), Ultraspherical(static(2.5)))
+                CJ1U2 = Conversion(Jacobi(1,1), Ultraspherical(2.5))
+                @test CJ1U2 * Fun(Jacobi(1,1)) ≈ Fun(Ultraspherical(2.5))
             end
         end
 

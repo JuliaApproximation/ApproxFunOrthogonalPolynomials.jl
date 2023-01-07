@@ -1,7 +1,8 @@
 module ApproxFunOrthogonalPolynomials
 using Base, LinearAlgebra, Reexport, BandedMatrices, BlockBandedMatrices,
             BlockArrays, FillArrays, FastTransforms, IntervalSets,
-            DomainSets, Statistics, SpecialFunctions, FastGaussQuadrature
+            DomainSets, Statistics, SpecialFunctions, FastGaussQuadrature,
+            Static
 
 @reexport using ApproxFunBase
 

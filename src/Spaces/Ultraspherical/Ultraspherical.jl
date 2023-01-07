@@ -1,4 +1,3 @@
-
 export Ultraspherical, NormalizedUltraspherical
 
 #Ultraspherical Spaces
@@ -106,17 +105,17 @@ ones(S::Ultraspherical) = ones(Float64, S)
 
 ## Fast evaluation
 
-function Base.first(f::Fun{Ultraspherical{Int,D,R}}) where {D,R}
+function Base.first(f::Fun{<:Ultraspherical{Int}})
     n = length(f.coefficients)
     n == 0 && return zero(cfstype(f))
     n == 1 && return first(f.coefficients)
     foldr(-,coefficients(f,Chebyshev))
 end
 
-Base.last(f::Fun{Ultraspherical{Int,D,R}}) where {D,R} = reduce(+,coefficients(f,Chebyshev))
+Base.last(f::Fun{<:Ultraspherical{Int}}) = reduce(+,coefficients(f,Chebyshev))
 
-Base.first(f::Fun{Ultraspherical{O,D,R}}) where {O,D,R} = f(leftendpoint(domain(f)))
-Base.last(f::Fun{Ultraspherical{O,D,R}}) where {O,D,R} = f(rightendpoint(domain(f)))
+Base.first(f::Fun{<:Ultraspherical}) = f(leftendpoint(domain(f)))
+Base.last(f::Fun{<:Ultraspherical}) = f(rightendpoint(domain(f)))
 
 function Fun(::typeof(identity), s::Ultraspherical)
     d = domain(s)

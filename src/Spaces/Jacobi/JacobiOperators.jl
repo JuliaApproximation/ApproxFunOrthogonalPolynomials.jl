@@ -18,10 +18,10 @@ else
 end
 
 
-rangespace(D::ConcreteDerivative{J}) where {J<:Jacobi}=Jacobi(D.space.b+D.order,D.space.a+D.order,domain(D))
-bandwidths(D::ConcreteDerivative{J}) where {J<:Jacobi}=-D.order,D.order
+rangespace(D::ConcreteDerivative{<:Jacobi}) = Jacobi(D.space.b+D.order,D.space.a+D.order,domain(D))
+bandwidths(D::ConcreteDerivative{<:Jacobi}) = -D.order,D.order
 
-getindex(T::ConcreteDerivative{J},k::Integer,j::Integer) where {J<:Jacobi} =
+getindex(T::ConcreteDerivative{<:Jacobi}, k::Integer, j::Integer) =
     j==k+1 ? eltype(T)((k+1+T.space.a+T.space.b)/complexlength(domain(T))) : zero(eltype(T))
 
 
@@ -57,10 +57,10 @@ function Integral(J::Jacobi,k::Number)
 end
 
 
-rangespace(D::ConcreteIntegral{J}) where {J<:Jacobi}=Jacobi(D.space.b-D.order,D.space.a-D.order,domain(D))
-bandwidths(D::ConcreteIntegral{J}) where {J<:Jacobi}=D.order,0
+rangespace(D::ConcreteIntegral{<:Jacobi}) = Jacobi(D.space.b-D.order,D.space.a-D.order,domain(D))
+bandwidths(D::ConcreteIntegral{<:Jacobi}) = D.order,0
 
-function getindex(T::ConcreteIntegral{J},k::Integer,j::Integer) where J<:Jacobi
+function getindex(T::ConcreteIntegral{<:Jacobi}, k::Integer, j::Integer)
     @assert T.order==1
     if k≥2 && j==k-1
         complexlength(domain(T))./(k+T.space.a+T.space.b-2)
@@ -80,7 +80,7 @@ function Volterra(S::Jacobi, order::Integer)
 end
 
 rangespace(V::ConcreteVolterra{J}) where {J<:Jacobi}=Jacobi(-1.0,0.0,domain(V))
-bandwidths(V::ConcreteVolterra{J}) where {J<:Jacobi}=1,0
+bandwidths(::ConcreteVolterra{<:Jacobi}) = 1,0
 
 function getindex(V::ConcreteVolterra{J},k::Integer,j::Integer) where J<:Jacobi
     d=domain(V)
@@ -141,32 +141,36 @@ function Conversion(L::Jacobi,M::Jacobi)
 
     if isapproxinteger(L.a-M.a) && isapproxinteger(L.b-M.b)
         dm=domain(M)
-        D=typeof(dm)
         if isapprox(M.a,L.a) && isapprox(M.b,L.b)
             ConversionWrapper(Operator(I,L))
-        elseif (isapprox(M.b,L.b+1) && isapprox(M.a,L.a)) || (isapprox(M.b,L.b) && isapprox(M.a,L.a+1))
+        elseif (isapprox(M.b,L.b+static(1)) && isapprox(M.a,L.a)) ||
+            (isapprox(M.b,L.b) && isapprox(M.a,L.a+static(1)))
             ConcreteConversion(L,M)
-        elseif M.b > L.b+1
-            ConversionWrapper(TimesOperator(Conversion(Jacobi(M.b-1,M.a,dm),M),Conversion(L,Jacobi(M.b-1,M.a,dm))))
+        elseif M.b > L.b+static(1)
+            ConversionWrapper(
+                TimesOperator(
+                    Conversion(Jacobi(M.b-static(1),M.a,dm),M),
+                    Conversion(L,Jacobi(M.b-static(1),M.a,dm))))
         else  #if M.a >= L.a+1
-            ConversionWrapper(TimesOperator(Conversion(Jacobi(M.b,M.a-1,dm),M),Conversion(L,Jacobi(M.b,M.a-1,dm))))
+            ConversionWrapper(
+                TimesOperator(
+                    Conversion(Jacobi(M.b,M.a-static(1),dm),M),
+                    Conversion(L,Jacobi(M.b,M.a-static(1),dm))))
         end
-    elseif L.a ≈ L.b ≈ 0. && M.a ≈ M.b ≈ 0.5
+    elseif L.a ≈ L.b ≈ 0 && M.a ≈ M.b ≈ 0.5
         Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
-    elseif L.a ≈ L.b ≈ 0. && M.a ≈ M.b ≈ -0.5
+    elseif L.a ≈ L.b ≈ 0 && M.a ≈ M.b ≈ -0.5
         Conversion(L,Ultraspherical(L),Chebyshev(M),M)
-    elseif L.a ≈ L.b ≈ -0.5 && M.a ≈ M.b ≈ 0.5
-        Conversion(L,Chebyshev(L),Ultraspherical(M),M)
     else # L.a - M.a ≈ L.b - M.b
         error("Implement for $L → $M")
     end
 end
 
-bandwidths(C::ConcreteConversion{J1,J2}) where {J1<:Jacobi,J2<:Jacobi}=(0,1)
+bandwidths(::ConcreteConversion{<:Jacobi,<:Jacobi}) = (0,1)
 
 
 
-function Base.getindex(C::ConcreteConversion{J1,J2,T},k::Integer,j::Integer) where {J1<:Jacobi,J2<:Jacobi,T}
+function Base.getindex(C::ConcreteConversion{<:Jacobi,<:Jacobi,T},k::Integer,j::Integer) where {T}
     L=C.domainspace
     if L.b+1==C.rangespace.b
         if j==k
@@ -220,7 +224,8 @@ function Conversion(A::Jacobi,B::PolynomialSpace)
 end
 
 isequalminhalf(x) = x == -0.5
-isequalminhalf(::Integer) = false
+isequalminhalf(@nospecialize ::Integer) = false
+isequalminhalf(@nospecialize ::StaticInt) = false
 
 function Conversion(A::Jacobi,B::Chebyshev)
     if isequalminhalf(A.a) && isequalminhalf(A.b)
@@ -300,15 +305,15 @@ end
 
 
 
-bandwidths(C::ConcreteConversion{US,J}) where {US<:Chebyshev,J<:Jacobi} = 0,0
-bandwidths(C::ConcreteConversion{J,US}) where {US<:Chebyshev,J<:Jacobi} = 0,0
+bandwidths(::ConcreteConversion{<:Chebyshev,<:Jacobi}) = 0,0
+bandwidths(::ConcreteConversion{<:Jacobi,<:Chebyshev}) = 0,0
 
 
-bandwidths(C::ConcreteConversion{US,J}) where {US<:Ultraspherical,J<:Jacobi} = 0,0
-bandwidths(C::ConcreteConversion{J,US}) where {US<:Ultraspherical,J<:Jacobi} = 0,0
+bandwidths(::ConcreteConversion{<:Ultraspherical,<:Jacobi}) = 0,0
+bandwidths(::ConcreteConversion{<:Jacobi,<:Ultraspherical}) = 0,0
 
 #TODO: Figure out how to unify these definitions
-function getindex(C::ConcreteConversion{CC,J,T},k::Integer,j::Integer) where {J<:Jacobi,CC<:Chebyshev,T}
+function getindex(::ConcreteConversion{<:Chebyshev,<:Jacobi,T}, k::Integer, j::Integer) where {T}
     if j==k
         one(T)/jacobip(T,k-1,-one(T)/2,-one(T)/2,one(T))
     else
@@ -316,7 +321,7 @@ function getindex(C::ConcreteConversion{CC,J,T},k::Integer,j::Integer) where {J<
     end
 end
 
-function BandedMatrix(S::SubOperator{T,ConcreteConversion{CC,J,T},Tuple{UnitRange{Int},UnitRange{Int}}}) where {J<:Jacobi,CC<:Chebyshev,T}
+function BandedMatrix(S::SubOperator{T,ConcreteConversion{CC,J,T},NTuple{2,UnitRange{Int}}}) where {J<:Jacobi,CC<:Chebyshev,T}
     ret=BandedMatrix(Zeros, S)
     kr,jr = parentindices(S)
     k=(kr ∩ jr)
@@ -328,7 +333,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteConversion{CC,J,T},Tuple{UnitRang
 end
 
 
-function getindex(C::ConcreteConversion{J,CC,T},k::Integer,j::Integer) where {J<:Jacobi,CC<:Chebyshev,T}
+function getindex(::ConcreteConversion{<:Jacobi,<:Chebyshev,T}, k::Integer, j::Integer) where {T}
     if j==k
         jacobip(T,k-1,-one(T)/2,-one(T)/2,one(T))
     else
@@ -336,7 +341,7 @@ function getindex(C::ConcreteConversion{J,CC,T},k::Integer,j::Integer) where {J<
     end
 end
 
-function BandedMatrix(S::SubOperator{T,ConcreteConversion{J,CC,T},Tuple{UnitRange{Int},UnitRange{Int}}}) where {J<:Jacobi,CC<:Chebyshev,T}
+function BandedMatrix(S::SubOperator{T,ConcreteConversion{J,CC,T},NTuple{2,UnitRange{Int}}}) where {J<:Jacobi,CC<:Chebyshev,T}
     ret=BandedMatrix(Zeros, S)
     kr,jr = parentindices(S)
     k=(kr ∩ jr)
@@ -348,7 +353,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteConversion{J,CC,T},Tuple{UnitRang
 end
 
 
-function getindex(C::ConcreteConversion{US,J,T},k::Integer,j::Integer) where {US<:Ultraspherical,J<:Jacobi,T}
+function getindex(C::ConcreteConversion{<:Ultraspherical,<:Jacobi,T}, k::Integer, j::Integer) where {T}
     if j==k
         S=rangespace(C)
         jp=jacobip(T,k-1,S.a,S.b,one(T))
@@ -359,7 +364,7 @@ function getindex(C::ConcreteConversion{US,J,T},k::Integer,j::Integer) where {US
     end
 end
 
-function BandedMatrix(S::SubOperator{T,ConcreteConversion{US,J,T},Tuple{UnitRange{Int},UnitRange{Int}}}) where {US<:Ultraspherical,J<:Jacobi,T}
+function BandedMatrix(S::SubOperator{T,ConcreteConversion{US,J,T},NTuple{2,UnitRange{Int}}}) where {US<:Ultraspherical,J<:Jacobi,T}
     ret=BandedMatrix(Zeros, S)
     kr,jr = parentindices(S)
     k=(kr ∩ jr)
@@ -375,7 +380,7 @@ end
 
 
 
-function getindex(C::ConcreteConversion{J,US,T},k::Integer,j::Integer) where {US<:Ultraspherical,J<:Jacobi,T}
+function getindex(C::ConcreteConversion{<:Jacobi,<:Ultraspherical,T}, k::Integer, j::Integer) where {T}
     if j==k
         S=domainspace(C)
         jp=jacobip(T,k-1,S.a,S.b,one(T))
@@ -386,7 +391,7 @@ function getindex(C::ConcreteConversion{J,US,T},k::Integer,j::Integer) where {US
     end
 end
 
-function BandedMatrix(S::SubOperator{T,ConcreteConversion{J,US,T},Tuple{UnitRange{Int},UnitRange{Int}}}) where {US<:Ultraspherical,J<:Jacobi,T}
+function BandedMatrix(S::SubOperator{T,ConcreteConversion{J,US,T},NTuple{2,UnitRange{Int}}}) where {US<:Ultraspherical,J<:Jacobi,T}
     ret=BandedMatrix(Zeros, S)
     kr,jr = parentindices(S)
     k=(kr ∩ jr)
@@ -403,6 +408,7 @@ end
 
 isapproxminhalf(a) = a ≈ -0.5
 isapproxminhalf(::Integer) = false
+isapproxminhalf(@nospecialize ::StaticInt) = false
 
 function union_rule(A::Jacobi,B::Jacobi)
     if domainscompatible(A,B)
