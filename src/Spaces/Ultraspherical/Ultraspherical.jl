@@ -25,6 +25,7 @@ end
 Ultraspherical(m::Number,d::Domain) = Ultraspherical{typeof(m),typeof(d),real(prectype(d))}(m,d)
 Ultraspherical(m::Number,d) = Ultraspherical(m,Domain(d))
 Ultraspherical(m::Number) = Ultraspherical(m,ChebyshevInterval())
+const NormalizedUltraspherical{T,D<:Domain,R} = NormalizedPolynomialSpace{Ultraspherical{T,D,R},D,R}
 NormalizedUltraspherical(m) = NormalizedPolynomialSpace(Ultraspherical(m))
 NormalizedUltraspherical(m,d) = NormalizedPolynomialSpace(Ultraspherical(m,d))
 

@@ -143,19 +143,19 @@ function Conversion(L::Jacobi,M::Jacobi)
         dm=domain(M)
         if isapprox(M.a,L.a) && isapprox(M.b,L.b)
             ConversionWrapper(Operator(I,L))
-        elseif (isapprox(M.b,L.b+static(1)) && isapprox(M.a,L.a)) ||
-            (isapprox(M.b,L.b) && isapprox(M.a,L.a+static(1)))
+        elseif (isapprox(M.b,L.b+1) && isapprox(M.a,L.a)) ||
+            (isapprox(M.b,L.b) && isapprox(M.a,L.a+1))
             ConcreteConversion(L,M)
-        elseif M.b > L.b+static(1)
+        elseif M.b > L.b+1
             ConversionWrapper(
                 TimesOperator(
-                    Conversion(Jacobi(M.b-static(1),M.a,dm),M),
-                    Conversion(L,Jacobi(M.b-static(1),M.a,dm))))
+                    Conversion(Jacobi(M.b-1,M.a,dm),M),
+                    Conversion(L,Jacobi(M.b-1,M.a,dm))))
         else  #if M.a >= L.a+1
             ConversionWrapper(
                 TimesOperator(
-                    Conversion(Jacobi(M.b,M.a-static(1),dm),M),
-                    Conversion(L,Jacobi(M.b,M.a-static(1),dm))))
+                    Conversion(Jacobi(M.b,M.a-1,dm),M),
+                    Conversion(L,Jacobi(M.b,M.a-1,dm))))
         end
     elseif L.a ≈ L.b ≈ 0 && M.a ≈ M.b ≈ 0.5
         Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
@@ -225,7 +225,6 @@ end
 
 isequalminhalf(x) = x == -0.5
 isequalminhalf(@nospecialize ::Integer) = false
-isequalminhalf(@nospecialize ::StaticInt) = false
 
 function Conversion(A::Jacobi,B::Chebyshev)
     if isequalminhalf(A.a) && isequalminhalf(A.b)
@@ -408,7 +407,6 @@ end
 
 isapproxminhalf(a) = a ≈ -0.5
 isapproxminhalf(::Integer) = false
-isapproxminhalf(@nospecialize ::StaticInt) = false
 
 function union_rule(A::Jacobi,B::Jacobi)
     if domainscompatible(A,B)

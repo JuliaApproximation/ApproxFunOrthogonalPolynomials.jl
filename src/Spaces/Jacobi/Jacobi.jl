@@ -21,6 +21,7 @@ Jacobi(b,a) = Jacobi(b,a,ChebyshevInterval())
 Jacobi(A::Ultraspherical) = Jacobi(order(A)-0.5,order(A)-0.5,domain(A))
 Jacobi(A::Chebyshev) = Jacobi(-0.5,-0.5,domain(A))
 
+const NormalizedJacobi{D<:Domain,R,T} = NormalizedPolynomialSpace{Jacobi{D,R,T},D,R}
 NormalizedJacobi(s...) = NormalizedPolynomialSpace(Jacobi(s...))
 NormalizedLegendre(d...) = NormalizedPolynomialSpace(Legendre(d...))
 
@@ -46,9 +47,8 @@ convert(::Type{Jacobi{D,R1,T1}},J::Jacobi{D,R2,T2}) where {D,R1,R2,T1,T2} =
 
 spacescompatible(a::Jacobi,b::Jacobi) = a.a ≈ b.a && a.b ≈ b.b && domainscompatible(a,b)
 
-isapproxinteger_addhalf(a) = isapproxinteger(a+0.5)
+isapproxinteger_addhalf(a) = !isapproxinteger(a) && isapproxinteger(a+0.5)
 isapproxinteger_addhalf(::Integer) = false
-isapproxinteger_addhalf(@nospecialize ::StaticInt) = false
 function canonicalspace(S::Jacobi)
     if isapproxinteger_addhalf(S.a) && isapproxinteger_addhalf(S.b)
         Chebyshev(domain(S))
