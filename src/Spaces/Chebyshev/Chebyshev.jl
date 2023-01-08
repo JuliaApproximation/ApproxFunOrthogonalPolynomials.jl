@@ -22,6 +22,7 @@ end
 Chebyshev(d::Domain) = Chebyshev{typeof(d),real(prectype(d))}(d)
 Chebyshev() = Chebyshev(ChebyshevInterval())
 Chebyshev(d) = Chebyshev(Domain(d))
+const NormalizedChebyshev{D<:Domain,R} = NormalizedPolynomialSpace{Chebyshev{D, R}, D, R}
 NormalizedChebyshev() = NormalizedPolynomialSpace(Chebyshev())
 NormalizedChebyshev(d) = NormalizedPolynomialSpace(Chebyshev(d))
 

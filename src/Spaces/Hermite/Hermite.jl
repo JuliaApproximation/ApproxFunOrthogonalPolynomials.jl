@@ -11,6 +11,7 @@ struct Hermite{T} <: PolynomialSpace{Line{false,Float64},Float64}
 end
 Hermite() = Hermite(1.0)
 
+const NormalizedHermite{T} = NormalizedPolynomialSpace{Hermite{T},Line{false,Float64},Float64}
 NormalizedHermite() = NormalizedPolynomialSpace(Hermite())
 NormalizedHermite(L) = NormalizedPolynomialSpace(Hermite(L))
 

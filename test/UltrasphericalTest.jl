@@ -43,6 +43,7 @@ using LinearAlgebra
     end
 
     @testset "Normalized space" begin
+        @test NormalizedUltraspherical(1) isa NormalizedUltraspherical
         for f in (x -> 3x^3 + 5x^2 + 2, x->x, identity)
             for dt in ((), (0..1,)),
                     S in (Ultraspherical(1, dt...),

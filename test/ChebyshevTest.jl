@@ -253,6 +253,7 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
     end
 
     @testset "Normalized space" begin
+        @test NormalizedChebyshev() isa NormalizedChebyshev
         for f in (x -> 3x^3 + 5x^2 + 2, x->x, identity)
             for dt in ((), (0..1,))
                 S = Chebyshev(dt...)

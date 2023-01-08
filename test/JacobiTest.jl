@@ -447,6 +447,7 @@ using Static
     end
 
     @testset "Normalized space" begin
+        @test NormalizedJacobi(1,1) isa NormalizedJacobi
         for f in Any[x -> 3x^3 + 5x^2 + 2, x->x, identity]
             for dt in Any[(), (0..1,)],
                     S in Any[Jacobi(1,1,dt...),

@@ -31,6 +31,7 @@ end
 Laguerre(α) = Laguerre(α,Ray())
 Laguerre() = Laguerre(0)
 
+const NormalizedLaguerre{T<:Real,D<:Ray} = NormalizedPolynomialSpace{Laguerre{T,D},D,T}
 NormalizedLaguerre(α) = NormalizedPolynomialSpace(Laguerre(α))
 NormalizedLaguerre() = NormalizedLaguerre(0)
 
