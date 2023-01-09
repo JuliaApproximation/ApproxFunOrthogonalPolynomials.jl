@@ -545,4 +545,14 @@ using Static
         x = @inferred ApproxFunBase.conversion_rule(Jacobi(1,1), Jacobi(2,2))
         @test x == Jacobi(1,1)
     end
+
+    @testset "Tensor space conversions" begin
+        @test ApproxFunBase.hasconversion(Chebyshev()*Legendre(), Chebyshev()*Legendre())
+        @test ApproxFunBase.hasconversion(Chebyshev()*Legendre(), Chebyshev()*NormalizedLegendre())
+        @test ApproxFunBase.hasconversion(Chebyshev()*Legendre(), NormalizedChebyshev()*Legendre())
+        @test ApproxFunBase.hasconversion(Chebyshev()*NormalizedLegendre(), Chebyshev()*Legendre())
+        @test ApproxFunBase.hasconversion(NormalizedChebyshev()*Legendre(), Chebyshev()*Legendre())
+        @test ApproxFunBase.hasconversion(NormalizedChebyshev()*NormalizedLegendre(), Chebyshev()*Legendre())
+        @test ApproxFunBase.hasconversion(Chebyshev()*Legendre(), NormalizedChebyshev()*NormalizedLegendre())
+    end
 end
