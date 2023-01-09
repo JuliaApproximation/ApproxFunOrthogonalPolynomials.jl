@@ -456,6 +456,25 @@ hasconversion(a::PolynomialSpace,b::NormalizedPolynomialSpace) = hasconversion(a
 hasconversion(a::NormalizedPolynomialSpace,b::PolynomialSpace) = hasconversion(a.space,b)
 hasconversion(a::NormalizedPolynomialSpace,b::NormalizedPolynomialSpace) = hasconversion(a.space,b)
 
+# Tensor products of normalized and unnormalized spaces may have banded conversions defined
+# A banded conversion exists in special cases, where both conversion operators are diagonal
+_stripnorm(N::NormalizedPolynomialSpace) = canonicalspace(N)
+_stripnorm(x::PolynomialSpace) = x
+function _hasconversion_tensor(A, B)
+    A1, A2 = A
+    B1, B2 = B
+
+    _stripnorm(A1) == _stripnorm(B1) && _stripnorm(A2) == _stripnorm(B2)
+end
+const MaybeNormalized{S<:PolynomialSpace} = Union{S, NormalizedPolynomialSpace{S}}
+const MaybeNormalizedTensorSpace{P1,P2} = TensorSpace{<:Tuple{MaybeNormalized{P1},MaybeNormalized{P2}}}
+
+function hasconversion(A::MaybeNormalizedTensorSpace{<:P1, <:P2},
+        B::MaybeNormalizedTensorSpace{<:P1, <:P2}) where {P1<:PolynomialSpace,P2<:PolynomialSpace}
+
+    _hasconversion_tensor(factors(A), factors(B))
+end
+
 
 function Multiplication(f::Fun{<:PolynomialSpace}, sp::NormalizedPolynomialSpace)
     unnorm_sp = canonicalspace(sp)
