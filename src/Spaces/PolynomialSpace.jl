@@ -412,14 +412,8 @@ function Fun(::typeof(identity), S::NormalizedPolynomialSpace)
     Fun(S, coeffs)
 end
 
-function _conversion_maxspace_rule(a::NormalizedPolynomialSpace{S}, b::S) where S<:PolynomialSpace
-    domainscompatible(domain(a), domain(b)) ? b : NoSpace()
-end
 function conversion_rule(a::NormalizedPolynomialSpace{S}, b::S) where S<:PolynomialSpace
-    _conversion_maxspace_rule(a, b)
-end
-function maxspace_rule(a::NormalizedPolynomialSpace{S}, b::S) where S<:PolynomialSpace
-    _conversion_maxspace_rule(a, b)
+    domainscompatible(domain(a), domain(b)) ? a : NoSpace()
 end
 
 bandwidths(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S}) where {S,D,R} = (0, 0)
