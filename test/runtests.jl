@@ -4,7 +4,8 @@ using Test
 using Aqua
 
 @testset "Project quality" begin
-    Aqua.test_all(ApproxFunOrthogonalPolynomials, ambiguities=false)
+    Aqua.test_all(ApproxFunOrthogonalPolynomials, ambiguities=false,
+        stale_deps=(; ignore=[:ApproxFunBaseTest]))
 end
 
 @testset "Domain" begin
