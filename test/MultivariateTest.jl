@@ -25,9 +25,8 @@ using Base: oneto
                             (3,1)
                             (1,4)
                             (2,3)]
-            k = 0
-            for i in it
-                k = k + 1
+
+            for (k,i) in enumerate(it)
                 if k>length(expected_order)
                     break
                 end
@@ -58,15 +57,12 @@ using Base: oneto
                             (2,3,1)
                             (3,2,1)
                             (4,1,1)]
-            # convert tuples to arrays for n>2 dimensions
-            expected_order = [[v...] for v ∈ expected_order]
-            k = 0
-            for i in it
-                k = k + 1
+
+            for (k, i) in enumerate(it)
                 if k>length(expected_order)
                     break
                 end
-                @test i == expected_order[k]
+                @test Tuple(i) == expected_order[k]
             end
         end
     end
