@@ -423,4 +423,10 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
             end
         end
     end
+
+    @testset "inference in SumSpace" begin
+        s = Chebyshev() + Chebyshev(0..1)
+        blk = @inferred ApproxFunBase.block(s, 2)
+        @test Int(blk) == 1
+    end
 end
