@@ -550,4 +550,16 @@ using Base: oneto
         @test g[1](x, y) ≈ 2x*y^3
         @test g[2](x, y) ≈ x^2*3y^2
     end
+
+    @testset "inference in TensorSpace" begin
+        s = @inferred TensorSpace((Chebyshev(0..1), Chebyshev(0.0..2.0)))
+        d = @inferred domain(s)
+        @test d == (0..1) × (0.0..2.0)
+        f = Fun((x,y)->x^2*y^3, s)
+        @test f(0.1, 0.2) ≈ 0.1^2 * 0.2^3
+
+        s2 = @inferred TensorSpace((Chebyshev(0..1), Chebyshev(0.0..2.0), Chebyshev(0..2)))
+        d2 = @inferred domain(s2)
+        @test d2 == (0..1) × (0.0..2.0) × (0..2)
+    end
 end
