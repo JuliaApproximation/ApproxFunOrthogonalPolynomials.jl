@@ -444,7 +444,7 @@ using Base: oneto
 
     @testset "ProductFun" begin
         u0   = ProductFun((x,y)->cos(x)+sin(y) +exp(-50x.^2-40(y-0.1)^2)+.5exp(-30(x+0.5)^2-40(y+0.2)^2))
-
+        @test typeof(domain(u0)) == ApproxFunBase.domaintype(space(u0))
 
         @test values(u0)-values(u0|>LowRankFun)|>norm < 1000eps()
         @test chebyshevtransform(values(u0))-coefficients(u0)|>norm < 100eps()
