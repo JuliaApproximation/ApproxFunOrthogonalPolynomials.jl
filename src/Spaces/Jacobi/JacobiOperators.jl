@@ -20,6 +20,7 @@ end
 
 rangespace(D::ConcreteDerivative{<:Jacobi}) = Jacobi(D.space.b+D.order,D.space.a+D.order,domain(D))
 bandwidths(D::ConcreteDerivative{<:Jacobi}) = -D.order,D.order
+isdiag(D::ConcreteDerivative{<:Jacobi}) = false
 
 getindex(T::ConcreteDerivative{<:Jacobi}, k::Integer, j::Integer) =
     j==k+1 ? eltype(T)((k+1+T.space.a+T.space.b)/complexlength(domain(T))) : zero(eltype(T))
