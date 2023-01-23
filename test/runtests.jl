@@ -1,3 +1,5 @@
+module ApproxFunOrthogonalPolynomials_Runtests
+
 using ApproxFunOrthogonalPolynomials
 using LinearAlgebra
 using Test
@@ -35,3 +37,5 @@ include("SpeedPDETest.jl")
 include("SpeedOperatorTest.jl")
 include("showtest.jl")
 include("miscAFBase.jl")
+
+end # module
