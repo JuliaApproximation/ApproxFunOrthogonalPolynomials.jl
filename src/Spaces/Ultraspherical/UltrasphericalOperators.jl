@@ -232,6 +232,9 @@ bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) =
 Base.stride(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{Int}}) = 2
 Base.stride(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = 2
 
+isdiag(::ConcreteConversion{<:Chebyshev,<:Ultraspherical}) = false
+isdiag(::ConcreteConversion{<:Ultraspherical,<:Chebyshev}) = false
+isdiag(::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = false
 
 ## coefficients
 

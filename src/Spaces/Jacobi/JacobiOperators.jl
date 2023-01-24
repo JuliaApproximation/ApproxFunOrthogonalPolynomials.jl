@@ -44,6 +44,7 @@ Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::Number,o::Integer) = Concre
 
 function Integral(J::Jacobi,k::Number)
     assert_integer(k)
+    @assert k > 0 "order of integral must be > 0"
     if k > 1
         Q=Integral(J,1)
         IntegralWrapper(TimesOperator(Integral(rangespace(Q),k-1),Q),J,k)
@@ -60,6 +61,7 @@ end
 
 rangespace(D::ConcreteIntegral{<:Jacobi}) = Jacobi(D.space.b-D.order,D.space.a-D.order,domain(D))
 bandwidths(D::ConcreteIntegral{<:Jacobi}) = D.order,0
+isdiag(D::ConcreteIntegral{<:Jacobi}) = false
 
 function getindex(T::ConcreteIntegral{<:Jacobi}, k::Integer, j::Integer)
     @assert T.order==1
