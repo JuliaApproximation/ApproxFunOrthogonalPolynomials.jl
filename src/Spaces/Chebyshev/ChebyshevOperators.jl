@@ -226,6 +226,8 @@ rangespace(D::ConcreteDerivative{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment
 bandwidths(D::ConcreteDerivative{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment,RR} = -D.order,D.order
 Base.stride(D::ConcreteDerivative{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment,RR} = D.order
 
+isdiag(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}) = false
+
 function getindex(D::ConcreteDerivative{Chebyshev{DD,RR},K,T},k::Integer,j::Integer) where {DD<:IntervalOrSegment,RR,K,T}
     m=D.order
     d=domain(D)

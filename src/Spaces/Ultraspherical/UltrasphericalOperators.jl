@@ -77,6 +77,8 @@ bandwidths(D::ConcreteDerivative{Ultraspherical{LT,DD,RR}}) where {LT,DD<:Interv
 bandwidths(D::ConcreteIntegral{Ultraspherical{LT,DD,RR}}) where {LT,DD<:IntervalOrSegment,RR} = D.order,-D.order
 Base.stride(D::ConcreteDerivative{Ultraspherical{LT,DD,RR}}) where {LT,DD<:IntervalOrSegment,RR} = D.order
 
+isdiag(D::ConcreteDerivative{<:Ultraspherical{<:Any,<:IntervalOrSegment}}) = false
+isdiag(D::ConcreteIntegral{<:Ultraspherical{<:Any,<:IntervalOrSegment}}) = false
 
 function getindex(D::ConcreteDerivative{Ultraspherical{TT,DD,RR},K,T},
                k::Integer,j::Integer) where {TT,DD<:IntervalOrSegment,RR,K,T}
@@ -230,6 +232,9 @@ bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) =
 Base.stride(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{Int}}) = 2
 Base.stride(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = 2
 
+isdiag(::ConcreteConversion{<:Chebyshev,<:Ultraspherical}) = false
+isdiag(::ConcreteConversion{<:Ultraspherical,<:Chebyshev}) = false
+isdiag(::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = false
 
 ## coefficients
 

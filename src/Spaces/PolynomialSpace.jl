@@ -456,6 +456,12 @@ hasconversion(a::PolynomialSpace,b::NormalizedPolynomialSpace) = hasconversion(a
 hasconversion(a::NormalizedPolynomialSpace,b::PolynomialSpace) = hasconversion(a.space,b)
 hasconversion(a::NormalizedPolynomialSpace,b::NormalizedPolynomialSpace) = hasconversion(a.space,b)
 
+function isdiag(D::DerivativeWrapper{<:Operator, <:NormalizedPolynomialSpace})
+    sp = D.space
+    csp = _stripnorm(sp)
+    isdiag(Derivative(csp, D.order))
+end
+
 # Tensor products of normalized and unnormalized spaces may have banded conversions defined
 # A banded conversion exists in special cases, where both conversion operators are diagonal
 _stripnorm(N::NormalizedPolynomialSpace) = canonicalspace(N)

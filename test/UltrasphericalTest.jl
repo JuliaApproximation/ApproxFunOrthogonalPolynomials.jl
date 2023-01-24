@@ -179,5 +179,17 @@ using LinearAlgebra
         A = @inferred Integral(d)
         x = Derivative() * A * Fun(d)
         @test x(0.2) ≈ 0.2
+
+        @testset for sp in (Ultraspherical(1), Ultraspherical(2), Ultraspherical(0.5))
+            Ij = Integral(sp, 1)
+            @test !isdiag(Ij)
+            f = Fun(sp)
+            g = Ij * f
+            g = Fun(g, sp)
+            g = g - coefficients(g)[1]
+            gexp = Fun(x->x^2/2, sp)
+            gexp = gexp - coefficients(gexp)[1]
+            @test g ≈ gexp
+        end
     end
 end

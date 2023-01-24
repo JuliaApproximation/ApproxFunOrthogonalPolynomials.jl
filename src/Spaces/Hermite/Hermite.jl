@@ -45,6 +45,8 @@ rangespace(D::ConcreteDerivative{H}) where {H<:Hermite} = domainspace(D)
 getindex(D::ConcreteDerivative{H},k::Integer,j::Integer) where {H<:Hermite} =
         j==k+D.order ? one(eltype(D))*2^D.order*pochhammer(k,D.order) : zero(eltype(D))
 
+isdiag(D::ConcreteDerivative{<:Hermite}) = false
+
 function hermitep(r::AbstractRange,x::Number)
     n = r[end] + 1
 
