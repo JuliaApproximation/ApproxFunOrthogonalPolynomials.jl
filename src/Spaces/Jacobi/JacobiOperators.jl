@@ -60,7 +60,7 @@ end
 
 
 rangespace(D::ConcreteIntegral{<:Jacobi}) = Jacobi(D.space.b-D.order,D.space.a-D.order,domain(D))
-bandwidths(D::ConcreteIntegral{<:Jacobi}) = D.order,0
+bandwidths(D::ConcreteIntegral{<:Jacobi}) = D.order,-D.order
 isdiag(D::ConcreteIntegral{<:Jacobi}) = false
 
 function getindex(T::ConcreteIntegral{<:Jacobi}, k::Integer, j::Integer)

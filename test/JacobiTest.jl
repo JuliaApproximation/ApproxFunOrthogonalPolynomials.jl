@@ -180,6 +180,9 @@ using Static
         # only one band should be populated
         @test bandwidths(D, 1) == -bandwidths(D, 2)
 
+        @test !isdiag(Derivative(Legendre()))
+        @test !isdiag(Derivative(NormalizedLegendre()))
+
         @testset for d in [-1..1, 0..1]
             f = Fun(x->x^2, Chebyshev(d))
             C = space(f)
@@ -532,6 +535,20 @@ using Static
                     @test Number(D3p * f) ≈ f'''(ep(d))
                 end
             end
+        end
+    end
+
+    @testset "Integral" begin
+        @testset for sp in (Legendre(), Jacobi(1,1))
+            Ij = Integral(sp, 1)
+            @test !isdiag(Ij)
+            f = Fun(sp)
+            g = Ij * f
+            g = Fun(g, sp)
+            g = g - coefficients(g)[1]
+            gexp = Fun(x->x^2/2, sp)
+            gexp = gexp - coefficients(gexp)[1]
+            @test g ≈ gexp
         end
     end
 

@@ -68,6 +68,7 @@ using ApproxFunBaseTest: testbandedoperator
     @testset "Derivative" begin
         D = Derivative(Hermite())
         testbandedoperator(D)
+        @test !isdiag(D)
 
         f = Fun( x-> x + x^2, Hermite())
         g = D * f
