@@ -68,6 +68,7 @@ Base.last(f::Fun{<:Chebyshev}) = reduce(+,coefficients(f))
 
 spacescompatible(a::Chebyshev,b::Chebyshev) = domainscompatible(a,b)
 hasfasttransform(::Chebyshev) = true
+supportsinplacetransform(::Chebyshev{<:Domain{T},T}) where {T<:AbstractFloat} = true
 
 
 ## Transform

@@ -385,6 +385,8 @@ setdomain(NS::NormalizedPolynomialSpace, d::Domain) = NormalizedPolynomialSpace(
 
 NormalizedPolynomialSpace(space::PolynomialSpace{D,R}) where {D,R} = NormalizedPolynomialSpace{typeof(space),D,R}(space)
 
+supportsinplacetransform(N::NormalizedPolynomialSpace) = supportsinplacetransform(N.space)
+
 function Conversion(L::NormalizedPolynomialSpace{S}, M::S) where S<:PolynomialSpace
     if L.space == M
         ConcreteConversion(L, M)

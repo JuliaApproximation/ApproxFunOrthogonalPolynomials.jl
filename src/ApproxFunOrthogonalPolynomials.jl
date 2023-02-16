@@ -42,7 +42,7 @@ import ApproxFunBase: Fun, SubSpace, WeightSpace, NoSpace, HeavisideSpace,
                     block, blockstart, blockstop, blocklengths, isblockbanded,
                     pointscompatible, affine_setdiff, complexroots,
                     ℓ⁰, recα, recβ, recγ, ℵ₀, ∞, RectDomain,
-                    assert_integer
+                    assert_integer, supportsinplacetransform
 
 import DomainSets: Domain, indomain, UnionDomain, FullSpace, Point,
             Interval, ChebyshevInterval, boundary, rightendpoint, leftendpoint,
