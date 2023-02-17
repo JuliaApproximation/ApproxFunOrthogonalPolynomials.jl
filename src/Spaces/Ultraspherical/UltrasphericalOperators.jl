@@ -187,9 +187,9 @@ end
 
 
 function getindex(M::ConcreteConversion{U1,U2,T},
-        k::Integer,j::Integer) where {
-            U1<:Ultraspherical{<:Union{Integer, StaticInt}},
-            U2<:Ultraspherical{<:Union{Integer, StaticInt}},T}
+        k::Integer,j::Integer) where {DD,RR,
+            U1<:Ultraspherical{<:Union{Integer, StaticInt},DD,RR},
+            U2<:Ultraspherical{<:Union{Integer, StaticInt},DD,RR},T}
     #  we can assume that λ==m+1
     λ=order(rangespace(M))
     c=λ-one(T)  # this supports big types
@@ -202,7 +202,10 @@ function getindex(M::ConcreteConversion{U1,U2,T},
     end
 end
 
-function getindex(M::ConcreteConversion{U,U,T}, k::Integer,j::Integer) where {U<:Ultraspherical,T}
+function getindex(M::ConcreteConversion{U1,U2,T},
+        k::Integer,j::Integer) where {DD,RR,
+            U1<:Ultraspherical{<:Any,DD,RR},
+            U2<:Ultraspherical{<:Any,DD,RR},T}
     λ=order(rangespace(M))
     if order(domainspace(M))+1==λ
         c=λ-one(T)  # this supports big types
