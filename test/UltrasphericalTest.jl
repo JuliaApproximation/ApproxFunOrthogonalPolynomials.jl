@@ -3,8 +3,9 @@ using ApproxFunBase
 using Test
 using SpecialFunctions
 using LinearAlgebra
+using Static
 
-@testset "Ultraspherical" begin
+@verbose @testset "Ultraspherical" begin
     @testset "identity fun" begin
         for d in (ChebyshevInterval(), 3..4, Segment(2, 5), Segment(1, 4im)), order in (1, 2, 0.5)
             s = Ultraspherical(order, d)
@@ -40,6 +41,39 @@ using LinearAlgebra
                     Ultraspherical{Int64, ChebyshevInterval{Float64}, Float64}}, Float64},
                     ApproxFunBase.ConversionWrapper{TimesOperator{Float64, Tuple{Int64, Int64}}, Float64}};
         @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(2));
+
+        @inferred Conversion(Ultraspherical(static(1)), Ultraspherical(static(4)))
+        # these cases should be handled by constant-propagation
+        @inferred (() -> Conversion(Ultraspherical(static(1)), Ultraspherical(4)))()
+        @inferred (() -> Conversion(Ultraspherical(1), Ultraspherical(static(4))))()
+
+        for n in (2,5)
+            C1 = Conversion(Chebyshev(), Ultraspherical(n))
+            C2 = Conversion(Chebyshev(), Ultraspherical(static(n)))
+            @test C1[1:4, 1:4] == C2[1:4, 1:4]
+            C1 = Conversion(Ultraspherical(1), Ultraspherical(n))
+            C2 = Conversion(Ultraspherical(static(1)), Ultraspherical(static(n)))
+            @test C1[1:4, 1:4] == C2[1:4, 1:4]
+        end
+
+        f = Fun(x->x^2, Ultraspherical(0.5)) # Legendre
+        CLC = Conversion(Ultraspherical(0.5), Chebyshev())
+        @test !isdiag(CLC)
+        g = CLC * f
+        @test g ≈ Fun(x->x^2, Chebyshev())
+
+        f = Fun(x->x^2, Chebyshev()) # Legendre
+        CCL = Conversion(Chebyshev(), Ultraspherical(0.5))
+        @test !isdiag(CCL)
+        g = CCL * f
+        @test g ≈ Fun(x->x^2, Ultraspherical(0.5))
+
+        f = Fun(x->x^2, Ultraspherical(0.5)) # Legendre
+        CLU = Conversion(Ultraspherical(0.5), Ultraspherical(2.5))
+        @test !isdiag(CLU)
+        g = CLU * f
+        h = Conversion(Jacobi(2,2), Ultraspherical(2.5)) * Fun(x->x^2, Jacobi(2,2))
+        @test g ≈ h
     end
 
     @testset "Normalized space" begin
@@ -109,7 +143,6 @@ using LinearAlgebra
                     test_transform!(A, A2, S)
                 end
             end
-        endend
         end
     end
 
