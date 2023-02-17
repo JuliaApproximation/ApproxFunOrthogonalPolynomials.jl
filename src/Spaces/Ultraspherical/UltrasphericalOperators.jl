@@ -161,8 +161,8 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
     elseif b-a > 1
         d=domain(A)
         US=Ultraspherical(b-static(1),d)
-        ConversionWrapper(TimesOperator(
-            ConcreteConversion(US,B), Conversion(A,US)))
+        v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in b:-1:a+1]
+        ConversionWrapper(TimesOperator(v))
     else
         throw(ArgumentError("Cannot convert from $A to $B"))
     end
