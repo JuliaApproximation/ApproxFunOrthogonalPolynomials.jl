@@ -44,47 +44,39 @@ pointscompatible(A::Chebyshev, B::Ultraspherical) = domain(A) == domain(B)
 
 struct UltrasphericalPlan{CT,FT,IP}
     chebplan::CT
-    cheb2legplan::FT
+    cheb2ultraplan::FT
 
     UltrasphericalPlan{CT,FT}(cp,c2lp,::Val{IP}) where {CT,FT,IP} = new{CT,FT,IP}(cp,c2lp)
 end
 
 struct UltrasphericalIPlan{CT,FT,IP}
     chebiplan::CT
-    leg2chebplan::FT
+    ultra2chebplan::FT
 
     UltrasphericalIPlan{CT,FT}(cp,c2lp,::Val{IP}) where {CT,FT,IP} = new{CT,FT,IP}(cp,c2lp)
 end
 
 function UltrasphericalPlan(λ::Number,vals,inplace = Val(false))
-    if λ == 0.5
-        cp = ApproxFunBase._plan_transform!!(inplace)(Chebyshev(),vals)
-        c2lp = plan_cheb2leg(eltype(vals),length(vals))
-        UltrasphericalPlan{typeof(cp),typeof(c2lp)}(cp,c2lp,inplace)
-    else
-        error("Not implemented")
-    end
+    cp = ApproxFunBase._plan_transform!!(inplace)(Chebyshev(),vals)
+    c2lp = plan_cheb2ultra(vals, λ)
+    UltrasphericalPlan{typeof(cp),typeof(c2lp)}(cp,c2lp,inplace)
 end
 
 function UltrasphericalIPlan(λ::Number,cfs,inplace = Val(false))
-    if λ == 0.5
-        cp = ApproxFunBase._plan_itransform!!(inplace)(Chebyshev(),cfs)
-        c2lp=plan_leg2cheb(eltype(cfs),length(cfs))
-        UltrasphericalIPlan{typeof(cp),typeof(c2lp)}(cp,c2lp,inplace)
-    else
-        error("Not implemented")
-    end
+    cp = ApproxFunBase._plan_itransform!!(inplace)(Chebyshev(),cfs)
+    l2cp = plan_ultra2cheb(cfs, λ)
+    UltrasphericalIPlan{typeof(cp),typeof(l2cp)}(cp,l2cp,inplace)
 end
 
 *(UP::UltrasphericalPlan{<:Any,<:Any,false},v::AbstractVector) =
-    UP.cheb2legplan*(UP.chebplan*v)
+    UP.cheb2ultraplan*(UP.chebplan*v)
 *(UP::UltrasphericalIPlan{<:Any,<:Any,false},v::AbstractVector) =
-    UP.chebiplan*(UP.leg2chebplan*v)
+    UP.chebiplan*(UP.ultra2chebplan*v)
 
 *(UP::UltrasphericalPlan{<:Any,<:Any,true},v::AbstractVector) =
-    lmul!(UP.cheb2legplan, UP.chebplan*v)
+    lmul!(UP.cheb2ultraplan, UP.chebplan*v)
 *(UP::UltrasphericalIPlan{<:Any,<:Any,true},v::AbstractVector) =
-    UP.chebiplan * lmul!(UP.leg2chebplan, v)
+    UP.chebiplan * lmul!(UP.ultra2chebplan, v)
 
 plan_transform(sp::Ultraspherical{Int},vals::AbstractVector) = CanonicalTransformPlan(sp,vals)
 plan_transform!(sp::Ultraspherical{Int},vals::AbstractVector) = CanonicalTransformPlan(sp,vals,Val(true))

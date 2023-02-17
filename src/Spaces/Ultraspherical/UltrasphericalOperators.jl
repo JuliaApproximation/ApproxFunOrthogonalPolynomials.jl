@@ -19,14 +19,14 @@ normalization(::Type{T}, sp::Ultraspherical, k::Int) where T = (λ = order(sp); 
 # these are special cases
 
 
-Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Chebyshev,V<:Ultraspherical} =
+Base.stride(M::ConcreteMultiplication{<:Chebyshev,<:Ultraspherical}) =
     stride(M.f)
-Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Ultraspherical,V<:Chebyshev} =
+Base.stride(M::ConcreteMultiplication{<:Ultraspherical,<:Chebyshev}) =
     stride(M.f)
-Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Ultraspherical,V<:Ultraspherical} =
+Base.stride(M::ConcreteMultiplication{<:Ultraspherical,<:Ultraspherical}) =
     stride(M.f)
 
-@inline function _Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{Int})
+@inline function _Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:Union{Integer,StaticInt}})
     if order(sp) == 1
         cfs = f.coefficients
         MultiplicationWrapper(f,
@@ -40,10 +40,10 @@ Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Ultraspherical,V<:Ultrasph
     end
 end
 @static if VERSION >= v"1.8"
-    Base.@constprop aggressive Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{Int}) =
+    Base.@constprop aggressive Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:Union{Integer,StaticInt}}) =
         _Multiplication(f, sp)
 else
-    Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{Int}) = _Multiplication(f, sp)
+    Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:Union{Integer,StaticInt}}) = _Multiplication(f, sp)
 end
 
 
@@ -70,18 +70,18 @@ function Integral(sp::Ultraspherical{<:Any,<:IntervalOrSegment}, m::Number)
 end
 
 
-rangespace(D::ConcreteDerivative{Ultraspherical{LT,DD,RR}}) where {LT,DD<:IntervalOrSegment,RR} =
+rangespace(D::ConcreteDerivative{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} =
     Ultraspherical(order(domainspace(D))+D.order,domain(D))
 
-bandwidths(D::ConcreteDerivative{Ultraspherical{LT,DD,RR}}) where {LT,DD<:IntervalOrSegment,RR} = -D.order,D.order
-bandwidths(D::ConcreteIntegral{Ultraspherical{LT,DD,RR}}) where {LT,DD<:IntervalOrSegment,RR} = D.order,-D.order
-Base.stride(D::ConcreteDerivative{Ultraspherical{LT,DD,RR}}) where {LT,DD<:IntervalOrSegment,RR} = D.order
+bandwidths(D::ConcreteDerivative{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} = -D.order,D.order
+bandwidths(D::ConcreteIntegral{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} = D.order,-D.order
+Base.stride(D::ConcreteDerivative{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} = D.order
 
 isdiag(D::ConcreteDerivative{<:Ultraspherical{<:Any,<:IntervalOrSegment}}) = false
 isdiag(D::ConcreteIntegral{<:Ultraspherical{<:Any,<:IntervalOrSegment}}) = false
 
-function getindex(D::ConcreteDerivative{Ultraspherical{TT,DD,RR},K,T},
-               k::Integer,j::Integer) where {TT,DD<:IntervalOrSegment,RR,K,T}
+function getindex(D::ConcreteDerivative{<:Ultraspherical{TT,DD},K,T},
+               k::Integer,j::Integer) where {TT,DD<:IntervalOrSegment,K,T}
     m=D.order
     d=domain(D)
     λ=order(domainspace(D))
@@ -96,14 +96,14 @@ end
 
 ## Integral
 
-linesum(f::Fun{Ultraspherical{LT,DD,RR}}) where {LT,DD<:IntervalOrSegment,RR} =
+linesum(f::Fun{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} =
     sum(setcanonicaldomain(f))*arclength(d)/2
 
 
-rangespace(D::ConcreteIntegral{Ultraspherical{LT,DD,RR}}) where {LT,DD<:IntervalOrSegment,RR} =
+rangespace(D::ConcreteIntegral{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} =
     order(domainspace(D)) == 1 ? Chebyshev(domain(D)) : Ultraspherical(order(domainspace(D))-D.order,domain(D))
 
-function getindex(Q::ConcreteIntegral{Ultraspherical{LT,DD,RR}},k::Integer,j::Integer) where {LT,DD<:IntervalOrSegment,RR}
+function getindex(Q::ConcreteIntegral{<:Ultraspherical{LT,DD}},k::Integer,j::Integer) where {LT,DD<:IntervalOrSegment}
     T=eltype(Q)
     m=Q.order
     d=domain(Q)
@@ -160,7 +160,7 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
         ConcreteConversion(A,B)
     elseif b-a > 1
         d=domain(A)
-        US=Ultraspherical(b-1,d)
+        US=Ultraspherical(b-static(1),d)
         ConversionWrapper(TimesOperator(
             ConcreteConversion(US,B), Conversion(A,US)))
     else
@@ -171,8 +171,8 @@ end
 maxspace_rule(A::Ultraspherical,B::Ultraspherical) = order(A) > order(B) ? A : B
 
 
-function getindex(M::ConcreteConversion{C,Ultraspherical{Int,DD,RR},T},
-               k::Integer,j::Integer) where {DD,RR,C<:Chebyshev,T}
+function getindex(M::ConcreteConversion{<:Chebyshev,U,T},
+        k::Integer,j::Integer) where {T, U<:Ultraspherical{<:Union{Integer, StaticInt}}}
    # order must be 1
     if k==j==1
         one(T)
@@ -186,8 +186,10 @@ function getindex(M::ConcreteConversion{C,Ultraspherical{Int,DD,RR},T},
 end
 
 
-function getindex(M::ConcreteConversion{Ultraspherical{Int,DD,RR},Ultraspherical{Int,DD,RR},T},
-                   k::Integer,j::Integer) where {DD,RR,T}
+function getindex(M::ConcreteConversion{U1,U2,T},
+        k::Integer,j::Integer) where {DD,RR,
+            U1<:Ultraspherical{<:Union{Integer, StaticInt},DD,RR},
+            U2<:Ultraspherical{<:Union{Integer, StaticInt},DD,RR},T}
     #  we can assume that λ==m+1
     λ=order(rangespace(M))
     c=λ-one(T)  # this supports big types
@@ -200,8 +202,10 @@ function getindex(M::ConcreteConversion{Ultraspherical{Int,DD,RR},Ultraspherical
     end
 end
 
-function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},Ultraspherical{LT,DD,RR},T},
-                k::Integer,j::Integer) where {LT,DD,RR,T}
+function getindex(M::ConcreteConversion{U1,U2,T},
+        k::Integer,j::Integer) where {DD,RR,
+            U1<:Ultraspherical{<:Any,DD,RR},
+            U2<:Ultraspherical{<:Any,DD,RR},T}
     λ=order(rangespace(M))
     if order(domainspace(M))+1==λ
         c=λ-one(T)  # this supports big types
@@ -218,8 +222,8 @@ function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},Ultraspherical{
 end
 
 
-bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{Int}}) = 0,2  # order == 1
-bandwidths(C::ConcreteConversion{<:Ultraspherical{Int},<:Ultraspherical{Int}}) = 0,2
+bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 0,2  # order == 1
+bandwidths(C::ConcreteConversion{<:Ultraspherical{<:Union{Integer,StaticInt}},<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 0,2
 
 bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical}) =
     0,order(rangespace(C))==1 ? 2 : ℵ₀
@@ -229,7 +233,7 @@ bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Chebyshev}) =
 bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) =
     0,order(domainspace(C))+1==order(rangespace(C)) ? 2 : ℵ₀
 
-Base.stride(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{Int}}) = 2
+Base.stride(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 2
 Base.stride(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = 2
 
 isdiag(::ConcreteConversion{<:Chebyshev,<:Ultraspherical}) = false
@@ -239,7 +243,7 @@ isdiag(::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = false
 ## coefficients
 
 # return the space that has banded Conversion to the other
-function conversion_rule(a::Chebyshev,b::Ultraspherical{Int})
+function conversion_rule(a::Chebyshev,b::Ultraspherical{<:Union{Integer,StaticInt}})
     if domainscompatible(a,b)
         a
     else
@@ -247,7 +251,12 @@ function conversion_rule(a::Chebyshev,b::Ultraspherical{Int})
     end
 end
 
+conversion_rule(a::Ultraspherical{<:StaticInt}, b::Ultraspherical{<:StaticInt}) =
+    _conversion_rule(a, b)
 function conversion_rule(a::Ultraspherical{LT},b::Ultraspherical{LT}) where {LT}
+    _conversion_rule(a, b)
+end
+function _conversion_rule(a::Ultraspherical, b::Ultraspherical)
     if domainscompatible(a,b) && isapproxinteger(order(a)-order(b))
         order(a) < order(b) ? a : b
     else
@@ -256,7 +265,7 @@ function conversion_rule(a::Ultraspherical{LT},b::Ultraspherical{LT}) where {LT}
 end
 
 
-function coefficients(g::AbstractVector,sp::Ultraspherical{Int},C::Chebyshev)
+function coefficients(g::AbstractVector,sp::Ultraspherical{<:Union{Integer,StaticInt}},C::Chebyshev)
     domainscompatible(C,sp) || throw(ArgumentError("domains don't match: $(domain(sp)) and $(domain(C))"))
     if order(sp) == 1
         ultraiconversion(g)
@@ -286,8 +295,7 @@ end
 
 ## Non-banded conversions
 
-function getindex(M::ConcreteConversion{C,Ultraspherical{LT,DD,RR},T},
-            k::Integer,j::Integer) where {DD,RR,LT,C<:Chebyshev,T}
+function getindex(M::ConcreteConversion{<:Chebyshev,<:Ultraspherical,T}, k::Integer,j::Integer) where {T}
     λ = order(rangespace(M))
     if λ == 1
         if k==j==1
@@ -317,8 +325,7 @@ function getindex(M::ConcreteConversion{C,Ultraspherical{LT,DD,RR},T},
 end
 
 
-function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},C,T},
-            k::Integer,j::Integer) where {DD,RR,LT,C<:Chebyshev,T}
+function getindex(M::ConcreteConversion{<:Ultraspherical,<:Chebyshev,T}, k::Integer,j::Integer) where {T}
     λ = order(domainspace(M))
     if λ == 1
         # order must be 1

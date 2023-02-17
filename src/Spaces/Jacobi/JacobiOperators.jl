@@ -153,12 +153,12 @@ function Conversion(L::Jacobi,M::Jacobi)
             ConversionWrapper(
                 TimesOperator(
                     ConcreteConversion(Jacobi(M.b-1,M.a,dm),M),
-                    Conversion(L,Jacobi(M.b-1,M.a,dm))))
+                    Conversion(L,Jacobi(M.b-static(1),M.a,dm))))
         else  #if M.a >= L.a+1
             ConversionWrapper(
                 TimesOperator(
                     ConcreteConversion(Jacobi(M.b,M.a-1,dm),M),
-                    Conversion(L,Jacobi(M.b,M.a-1,dm))))
+                    Conversion(L,Jacobi(M.b,M.a-static(1),dm))))
         end
     elseif L.a ≈ L.b ≈ 0 && M.a ≈ M.b ≈ 0.5
         Conversion(L,Ultraspherical(L),Ultraspherical(M),M)

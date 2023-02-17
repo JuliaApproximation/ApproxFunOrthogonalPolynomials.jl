@@ -11,13 +11,13 @@ struct Jacobi{D<:Domain,R,T} <: PolynomialSpace{D,R}
     domain::D
     Jacobi{D,R}(b::T,a::T,d::D) where {D,R,T} = new{D,R,T}(b,a,d)
 end
-Jacobi(b::T,a::T,d::Domain) where {T} =
+Jacobi(b::T,a::T,d::Domain) where {T<:Number} =
     Jacobi{typeof(d),promote_type(T,real(prectype(d)))}(b, a, d)
 Legendre(domain) = Jacobi(0,0,domain)
 Legendre() = Legendre(ChebyshevInterval())
-Jacobi(b,a,d::Domain) = Jacobi(promote(dynamic(b), dynamic(a))...,d)
-Jacobi(b,a,d) = Jacobi(b,a,Domain(d))
-Jacobi(b,a) = Jacobi(b,a,ChebyshevInterval())
+Jacobi(b::Number,a::Number,d::Domain) = Jacobi(promote(dynamic(b), dynamic(a))...,d)
+Jacobi(b::Number,a::Number,d) = Jacobi(b,a,Domain(d))
+Jacobi(b::Number,a::Number) = Jacobi(b,a,ChebyshevInterval())
 Jacobi(A::Ultraspherical) = Jacobi(order(A)-0.5,order(A)-0.5,domain(A))
 Jacobi(A::Chebyshev) = Jacobi(-0.5,-0.5,domain(A))
 
