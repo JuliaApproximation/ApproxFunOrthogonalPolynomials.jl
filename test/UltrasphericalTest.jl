@@ -72,8 +72,7 @@ using Static
         CLU = Conversion(Ultraspherical(0.5), Ultraspherical(2.5))
         @test !isdiag(CLU)
         g = CLU * f
-        h = Conversion(Jacobi(2,2), Ultraspherical(2.5)) * Fun(x->x^2, Jacobi(2,2))
-        @test g ≈ h
+        @test g ≈ Fun(x->x^2, Ultraspherical(2.5))
     end
 
     @testset "Normalized space" begin
@@ -98,13 +97,15 @@ using Static
     end
 
     @testset "inplace transform" begin
-        function ultra2leg(U::Ultraspherical)
-            @assert ApproxFunOrthogonalPolynomials.order(U) == 0.5
-            Legendre(domain(U))
+        ultra2jac(U::Ultraspherical) = Jacobi(U)
+        function ultra2jac(U::NormalizedPolynomialSpace{<:Ultraspherical})
+            NormalizedJacobi(U)
         end
-        function ultra2leg(U::NormalizedPolynomialSpace{<:Ultraspherical})
-            L = ultra2leg(ApproxFunBase.canonicalspace(U))
-            NormalizedPolynomialSpace(L)
+        ultra2jac(S::TensorSpace) = mapreduce(ultra2jac, *, factors(S))
+        function test_with_jac(S::Space, v)
+            J = ultra2jac(S)
+            v .= rand.(eltype(v))
+            @test transform(S, v) ≈ transform(J, v)
         end
         @testset for T in (Float32, Float64), ET in (T, complex(T))
             v = Array{ET}(undef, 10)
@@ -113,32 +114,27 @@ using Static
             M2 = similar(M)
             A = Array{ET}(undef, 10, 10, 10)
             A2 = similar(A)
-            @testset for d in ((), (0..1,)), order in (0.5, 1, 3)
+            @testset for d in ((), (0..1,)), order in (0.5, 0.7, 1.5, 1, 3)
                 U = Ultraspherical(order, d...)
-                Slist = (U, NormalizedPolynomialSpace(U))
+                NU = NormalizedPolynomialSpace(U)
+                Slist = (U, NU)
                 @testset for S in Slist
-                    if order == 0.5
-                        L = ultra2leg(S)
-                        v .= rand.(eltype(v))
-                        @test transform(S, v) ≈ transform(L, v)
+                    if order == 0.5 || S == NU
+                        test_with_jac(S, v)
                     end
                     test_transform!(v, v2, S)
                 end
                 @testset for S1 in Slist, S2 in Slist
                     S = S1 ⊗ S2
-                    if order == 0.5
-                        L = ultra2leg(S1) ⊗ ultra2leg(S2)
-                        M .= rand.(eltype(M))
-                        @test transform(S, M) ≈ transform(L, M)
+                    if order == 0.5 || S == NU^2
+                        test_with_jac(S, M)
                     end
                     test_transform!(M, M2, S)
                 end
                 @testset for S1 in Slist, S2 in Slist, S3 in Slist
                     S = S1 ⊗ S2 ⊗ S3
-                    if order == 0.5
-                        L = ultra2leg(S1) ⊗ ultra2leg(S2) ⊗ ultra2leg(S3)
-                        A .= rand.(eltype(A))
-                        @test transform(S, A) ≈ transform(L, A)
+                    if order == 0.5 || S == NU^3
+                        test_with_jac(S, A)
                     end
                     test_transform!(A, A2, S)
                 end
