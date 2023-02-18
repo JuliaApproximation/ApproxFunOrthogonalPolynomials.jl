@@ -62,6 +62,19 @@ using Static
                     end
                 end
             end
+            @testset "legendre" begin
+                f = Fun(x->x^2, Legendre(d))
+                C = space(f)
+                for J1 in (Jacobi(-0.5, -0.5, d), Legendre(d),
+                                Jacobi(0.5, 0.5, d), Jacobi(1, 1, d))
+                    @testset for J in (J1, NormalizedPolynomialSpace(J1))
+                        g = Fun(f, J)
+                        if !any(isnan, coefficients(g))
+                            @test Conversion(C, J) * f ≈ g
+                        end
+                    end
+                end
+            end
             @testset "Ultraspherical(0.5)" begin
                 f = Fun(x->x^2, Ultraspherical(0.5,d))
                 U = space(f)
