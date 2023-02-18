@@ -149,16 +149,18 @@ function Conversion(L::Jacobi,M::Jacobi)
         elseif (isapprox(M.b,L.b+1) && isapprox(M.a,L.a)) ||
             (isapprox(M.b,L.b) && isapprox(M.a,L.a+1))
             ConcreteConversion(L,M)
-        elseif M.b > L.b+1
-            ConversionWrapper(
-                TimesOperator(
-                    ConcreteConversion(Jacobi(M.b-1,M.a,dm),M),
-                    Conversion(L,Jacobi(M.b-static(1),M.a,dm))))
-        else  #if M.a >= L.a+1
-            ConversionWrapper(
-                TimesOperator(
-                    ConcreteConversion(Jacobi(M.b,M.a-1,dm),M),
-                    Conversion(L,Jacobi(M.b,M.a-static(1),dm))))
+        elseif M.b >= L.b && M.a >= L.a
+            # We split this into steps where a and b are changed by 1:
+            # Define the intermediate space J = Jacobi(M.b, L.a, dm)
+            # Conversion(L, M) == Conversion(J, M) * Conversion(L, J)
+            # Conversion(L, J) = Conversion(Jacobi(L.b, L.a, dm), Jacobi(M.b, L.a, dm))
+            # Conversion(J, M) = Conversion(Jacobi(M.b, L.a, dm), Jacobi(M.b, M.a, dm))
+            CLJ = [ConcreteConversion(Jacobi(b-1,L.a,dm), Jacobi(b, L.a, dm)) for b in M.b:-1:L.b+1]
+            CJM = [ConcreteConversion(Jacobi(M.b,a-1,dm), Jacobi(M.b, a, dm)) for a in M.a:-1:L.a+1]
+            C = [CJM; CLJ]
+            ConversionWrapper(TimesOperator(C))
+        else
+            error("Implement for $L → $M")
         end
     elseif L.a ≈ L.b ≈ 0 && M.a ≈ M.b ≈ 0.5
         Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
