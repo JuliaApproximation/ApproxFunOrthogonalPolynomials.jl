@@ -48,18 +48,51 @@ using Static
         testtransforms(Jacobi(-0.5,-0.5))
         @test norm(Fun(Fun(exp),Jacobi(-.5,-.5))-Fun(exp,Jacobi(-.5,-.5))) < 300eps()
 
-        @testset for d in [-1..1, 0..1]
-            f = Fun(x->x^2, Chebyshev(d))
-            C = space(f)
-            for J1 in (Jacobi(-0.5, -0.5, d), Legendre(d),
-                            Jacobi(0.5, 0.5, d), Jacobi(2.5, 1.5, d))
-                for J in (J1, NormalizedPolynomialSpace(J1))
-                    g = Fun(f, J)
-                    if !any(isnan, coefficients(g))
-                        @test Conversion(C, J) * f ≈ g
+        @testset for d in (-1..1, 0..1, ChebyshevInterval())
+            @testset "Chebyshev" begin
+                f = Fun(x->x^2, Chebyshev(d))
+                C = space(f)
+                for J1 in (Jacobi(-0.5, -0.5, d), Legendre(d),
+                                Jacobi(0.5, 0.5, d), Jacobi(2.5, 1.5, d))
+                    @testset for J in (J1, NormalizedPolynomialSpace(J1))
+                        g = Fun(f, J)
+                        if !any(isnan, coefficients(g))
+                            @test Conversion(C, J) * f ≈ g
+                        end
                     end
                 end
             end
+            @testset "Ultraspherical(0.5)" begin
+                f = Fun(x->x^2, Ultraspherical(0.5,d))
+                U = space(f)
+                for J1 in (Jacobi(-0.5, -0.5, d), Legendre(d),
+                                Jacobi(0.5, 0.5, d))
+                    @testset for J in (J1, NormalizedPolynomialSpace(J1))
+                        g = Fun(f, J)
+                        if !any(isnan, coefficients(g))
+                            @test Conversion(U, J) * f ≈ g
+                        end
+                    end
+                end
+            end
+            @testset "Ultraspherical(1)" begin
+                f = Fun(x->x^2, Ultraspherical(1,d))
+                U = space(f)
+                for J1 in (Legendre(d), Jacobi(0.5, 0.5, d), Jacobi(1.5, 0.5, d),
+                            Jacobi(0.5, 1.5, d))
+                    @testset for J in (J1,)
+                        g = Fun(f, J)
+                        if !any(isnan, coefficients(g))
+                            @test Conversion(U, J) * f ≈ g
+                        end
+                    end
+                end
+            end
+        end
+
+        @testset for (S1, S2) in ((Legendre(), Jacobi(-0.5, -0.5)), (Jacobi(-0.5, -0.5), Legendre()),
+                (Legendre(), Jacobi(1.5, 1.5)))
+            @test Conversion(S1, S2) * Fun(x->x^4, S1) ≈ Fun(x->x^4, S2)
         end
 
         @testset "inference tests" begin

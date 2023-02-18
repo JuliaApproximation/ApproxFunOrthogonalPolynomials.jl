@@ -142,30 +142,41 @@ function Conversion(L::Jacobi,M::Jacobi)
     domain(L) == domain(M) || domain(L) == reverseorientation(domain(M)) ||
         throw(ArgumentError("Domains must be the same"))
 
+    dm=domain(M)
+    dl=domain(L)
     if isapproxinteger(L.a-M.a) && isapproxinteger(L.b-M.b)
-        dm=domain(M)
         if isapprox(M.a,L.a) && isapprox(M.b,L.b)
             ConversionWrapper(Operator(I,L))
         elseif (isapprox(M.b,L.b+1) && isapprox(M.a,L.a)) ||
             (isapprox(M.b,L.b) && isapprox(M.a,L.a+1))
             ConcreteConversion(L,M)
         elseif M.b >= L.b && M.a >= L.a
-            # We split this into steps where a and b are changed by 1:
-            # Define the intermediate space J = Jacobi(M.b, L.a, dm)
-            # Conversion(L, M) == Conversion(J, M) * Conversion(L, J)
-            # Conversion(L, J) = Conversion(Jacobi(L.b, L.a, dm), Jacobi(M.b, L.a, dm))
-            # Conversion(J, M) = Conversion(Jacobi(M.b, L.a, dm), Jacobi(M.b, M.a, dm))
-            CLJ = [ConcreteConversion(Jacobi(b-1,L.a,dm), Jacobi(b, L.a, dm)) for b in M.b:-1:L.b+1]
-            CJM = [ConcreteConversion(Jacobi(M.b,a-1,dm), Jacobi(M.b, a, dm)) for a in M.a:-1:L.a+1]
-            C = [CJM; CLJ]
-            ConversionWrapper(TimesOperator(C))
+            if L.a == L.b && M.a == M.b
+                Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
+            else
+                # We split this into steps where a and b are changed by 1:
+                # Define the intermediate space J = Jacobi(M.b, L.a, dm)
+                # Conversion(L, M) == Conversion(J, M) * Conversion(L, J)
+                # Conversion(L, J) = Conversion(Jacobi(L.b, L.a, dm), Jacobi(M.b, L.a, dm))
+                # Conversion(J, M) = Conversion(Jacobi(M.b, L.a, dm), Jacobi(M.b, M.a, dm))
+                CLJ = [ConcreteConversion(Jacobi(b-1,L.a,dm), Jacobi(b, L.a, dm)) for b in M.b:-1:L.b+1]
+                CJM = [ConcreteConversion(Jacobi(M.b,a-1,dm), Jacobi(M.b, a, dm)) for a in M.a:-1:L.a+1]
+                C = [CJM; CLJ]
+                ConversionWrapper(TimesOperator(C))
+            end
         else
             error("Implement for $L → $M")
         end
-    elseif L.a ≈ L.b ≈ 0 && M.a ≈ M.b ≈ 0.5
-        Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
-    elseif L.a ≈ L.b ≈ 0 && M.a ≈ M.b ≈ -0.5
-        Conversion(L,Ultraspherical(L),Chebyshev(M),M)
+    elseif isapproxinteger_addhalf(L.a - M.a) && isapproxinteger_addhalf(L.b - M.b)
+        if L.a ≈ L.b ≈ 0 && M.a ≈ M.b ≈ -0.5
+            Conversion(L,Ultraspherical(L),Chebyshev(dm),M)
+        elseif L.a ≈ L.b ≈ -0.5 && M.a ≈ M.b ≈ 0
+            Conversion(L,Chebyshev(dl),Ultraspherical(M),M)
+        elseif L.a == L.b && M.a == M.b && M.a >= L.a && M.b >= L.b
+            Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
+        else
+            error("Implement for $L → $M")
+        end
     else # L.a - M.a ≈ L.b - M.b
         error("Implement for $L → $M")
     end
