@@ -156,13 +156,22 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
     a=order(A); b=order(B)
     if b==a
         ConversionWrapper(Operator(I,A))
-    elseif -1 ≤ b-a ≤ 1 && (a,b) ≠ (2,1)
-        ConcreteConversion(A,B)
-    elseif b-a > 1
-        d=domain(A)
-        US=Ultraspherical(b-static(1),d)
-        v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in b:-1:a+1]
-        ConversionWrapper(TimesOperator(v))
+    elseif isapproxinteger(b-a) || isapproxinteger_addhalf(b-a)
+        if -1 ≤ b-a ≤ 1 && (a,b) ≠ (2,1)
+            ConcreteConversion(A,B)
+        elseif b-a > 1
+            d=domain(A)
+            US=Ultraspherical(b-static(1),d)
+            r = b:-1:a+1
+            v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in r]
+            if !(last(r) ≈ a+1)
+                vlast = ConcreteConversion(A, Ultraspherical(last(r)-1, d))
+                v = [v; vlast]
+            end
+            ConversionWrapper(TimesOperator(v))
+        else
+            throw(ArgumentError("Cannot convert from $A to $B"))
+        end
     else
         throw(ArgumentError("Cannot convert from $A to $B"))
     end
