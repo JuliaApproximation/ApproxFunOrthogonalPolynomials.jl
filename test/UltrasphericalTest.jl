@@ -69,10 +69,12 @@ using Static
         @test g ≈ Fun(x->x^2, Ultraspherical(0.5))
 
         f = Fun(x->x^2, Ultraspherical(0.5)) # Legendre
-        CLU = Conversion(Ultraspherical(0.5), Ultraspherical(2.5))
-        @test !isdiag(CLU)
-        g = CLU * f
-        @test g ≈ Fun(x->x^2, Ultraspherical(2.5))
+        for n in (2.5, 3)
+            CLU = Conversion(Ultraspherical(0.5), Ultraspherical(n))
+            @test !isdiag(CLU)
+            g = CLU * f
+            @test g ≈ Fun(x->x^2, Ultraspherical(n))
+        end
     end
 
     @testset "Normalized space" begin
