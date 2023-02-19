@@ -6,6 +6,9 @@ using LinearAlgebra
 using Static
 
 @verbose @testset "Ultraspherical" begin
+    @testset "promotion" begin
+        @inferred (() -> [Ultraspherical(1), Ultraspherical(2.0)])()
+    end
     @testset "identity fun" begin
         for d in (ChebyshevInterval(), 3..4, Segment(2, 5), Segment(1, 4im)), order in (1, 2, 0.5)
             s = Ultraspherical(order, d)
@@ -25,27 +28,24 @@ using Static
 
         # Conversions from Chebyshev to Ultraspherical should lead to a small union of types
         Tallowed = Union{
-            ApproxFunBase.ConcreteConversion{
-                Chebyshev{ChebyshevInterval{Float64}, Float64},
-                Ultraspherical{Int64, ChebyshevInterval{Float64}, Float64}, Float64},
-            ApproxFunBase.ConversionWrapper{TimesOperator{Float64, Tuple{Int64, Int64}}, Float64}};
+            typeof(Conversion(Chebyshev(), Ultraspherical(1))),
+            typeof(Conversion(Chebyshev(), Ultraspherical(2)))};
         @inferred Tallowed Conversion(Chebyshev(), Ultraspherical(1));
         @inferred Tallowed Conversion(Chebyshev(), Ultraspherical(2));
+        @inferred Conversion(Chebyshev(), Ultraspherical(static(2)));
+        @inferred Conversion(Chebyshev(), Ultraspherical(static(0.5)));
+        @inferred (() -> Conversion(Chebyshev(), Ultraspherical(2)))();
+        @inferred (() -> Conversion(Chebyshev(), Ultraspherical(0.5)))();
+
         # Conversions between Ultraspherical should lead to a small union of types
         Tallowed = Union{
-            ApproxFunBase.ConcreteConversion{
-                Ultraspherical{Int64, ChebyshevInterval{Float64}, Float64},
-                Ultraspherical{Int64, ChebyshevInterval{Float64}, Float64}, Float64},
-            ApproxFunBase.ConversionWrapper{
-                ConstantOperator{Float64,
-                    Ultraspherical{Int64, ChebyshevInterval{Float64}, Float64}}, Float64},
-                    ApproxFunBase.ConversionWrapper{TimesOperator{Float64, Tuple{Int64, Int64}}, Float64}};
+            typeof(Conversion(Ultraspherical(1), Ultraspherical(2))),
+            typeof(Conversion(Ultraspherical(1), Ultraspherical(3)))}
         @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(2));
+        @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(3));
 
         @inferred Conversion(Ultraspherical(static(1)), Ultraspherical(static(4)))
-        # these cases should be handled by constant-propagation
-        @inferred (() -> Conversion(Ultraspherical(static(1)), Ultraspherical(4)))()
-        @inferred (() -> Conversion(Ultraspherical(1), Ultraspherical(static(4))))()
+        @inferred (() -> Conversion(Ultraspherical(1), Ultraspherical(4)))()
 
         for n in (2,5)
             C1 = Conversion(Chebyshev(), Ultraspherical(n))
@@ -62,18 +62,23 @@ using Static
         g = CLC * f
         @test g ≈ Fun(x->x^2, Chebyshev())
 
-        f = Fun(x->x^2, Chebyshev()) # Legendre
-        CCL = Conversion(Chebyshev(), Ultraspherical(0.5))
-        @test !isdiag(CCL)
-        g = CCL * f
-        @test g ≈ Fun(x->x^2, Ultraspherical(0.5))
-
-        f = Fun(x->x^2, Ultraspherical(0.5)) # Legendre
-        for n in (2.5, 3)
-            CLU = Conversion(Ultraspherical(0.5), Ultraspherical(n))
-            @test !isdiag(CLU)
-            g = CLU * f
+        for n in (0.5, 1, 1.5, 2)
+            f = Fun(x->x^2, Chebyshev())
+            CCL = Conversion(Chebyshev(), Ultraspherical(n))
+            @test !isdiag(CCL)
+            g = CCL * f
             @test g ≈ Fun(x->x^2, Ultraspherical(n))
+        end
+
+        ff = x->x^2 +2x^3 + 3x^4
+        for n1 in (0.5, 1)
+            f = Fun(ff, Ultraspherical(n1))
+            for n2 in (2.5, 3)
+                CLU = Conversion(Ultraspherical(n1), Ultraspherical(n2))
+                @test !isdiag(CLU)
+                g = CLU * f
+                @test g ≈ Fun(ff, Ultraspherical(n1))
+            end
         end
     end
 

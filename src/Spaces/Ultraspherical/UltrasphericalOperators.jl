@@ -124,28 +124,32 @@ end
 
 ## Conversion Operator
 
-
-function Conversion(A::Chebyshev,B::Ultraspherical)
-    if order(B) ≤ 1
-        ConcreteConversion(A,B)
-    else
-        d=domain(A)
-        US=Ultraspherical(order(B)-1,d)
-        ConversionWrapper(TimesOperator(
-            ConcreteConversion(US,B), Conversion(A,US)))
-    end
-end
-
-
 isequalhalf(x) = x == 0.5
 isequalhalf(::Integer) = false
 
-function Conversion(A::Ultraspherical,B::Chebyshev)
-    if isequalhalf(order(A))
-        ConcreteConversion(A,B)
-    else
-        error("Not implemented")
+function Conversion(A::Chebyshev, B::Ultraspherical)
+    mB = order(B)
+    d=domain(A)
+    dB = domain(B)
+    d == dB || throw(ArgumentError("domains must be identical"))
+    if isequalhalf(mB) || mB == 1
+        return ConcreteConversion(A,B)
+    elseif (isinteger(mB) || isapproxinteger_addhalf(mB)) && mB > 0
+        r = mB:-1:(isinteger(mB) ? 2 : 1)
+        v = [ConcreteConversion(Ultraspherical(i-1, d), Ultraspherical(i,d)) for i in r]
+        U = domainspace(last(v))
+        CAU = ConcreteConversion(A, U)
+        v2 = Union{eltype(v), typeof(CAU)}[v; CAU]
+        return ConversionWrapper(TimesOperator(v2))
     end
+    throw(ArgumentError("please implement $A → $B"))
+end
+
+function Conversion(A::Ultraspherical,B::Chebyshev)
+    if isequalhalf(order(A)) && domain(A) == domain(B)
+        return ConcreteConversion(A,B)
+    end
+    throw(ArgumentError("please implement $A → $B"))
 end
 
 
@@ -154,27 +158,26 @@ maxspace_rule(A::Ultraspherical,B::Chebyshev) = A
 
 function Conversion(A::Ultraspherical,B::Ultraspherical)
     a=order(A); b=order(B)
+    d=domain(A)
+    dB = domain(B)
+    d == dB || throw(ArgumentError("domains must be identical"))
     if b==a
-        ConversionWrapper(Operator(I,A))
+        return ConversionWrapper(Operator(I,A))
     elseif isapproxinteger(b-a) || isapproxinteger_addhalf(b-a)
         if -1 ≤ b-a ≤ 1 && (a,b) ≠ (2,1)
-            ConcreteConversion(A,B)
+            return ConcreteConversion(A,B)
         elseif b-a > 1
-            d=domain(A)
-            US=Ultraspherical(b-static(1),d)
             r = b:-1:a+1
             v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in r]
             if !(last(r) ≈ a+1)
                 vlast = ConcreteConversion(A, Ultraspherical(last(r)-1, d))
                 v = [v; vlast]
             end
-            ConversionWrapper(TimesOperator(v))
-        else
-            throw(ArgumentError("Cannot convert from $A to $B"))
+            bwsum = (0, (isapproxinteger(b-a) ? 2length(v) : ℵ₀))
+            return ConversionWrapper(TimesOperator(v, bwsum))
         end
-    else
-        throw(ArgumentError("Cannot convert from $A to $B"))
     end
+    throw(ArgumentError("please implement $A → $B"))
 end
 
 maxspace_rule(A::Ultraspherical,B::Ultraspherical) = order(A) > order(B) ? A : B
