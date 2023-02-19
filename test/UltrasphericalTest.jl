@@ -36,6 +36,7 @@ using Static
         @inferred Conversion(Chebyshev(), Ultraspherical(static(0.5)));
         @inferred (() -> Conversion(Chebyshev(), Ultraspherical(2)))();
         @inferred (() -> Conversion(Chebyshev(), Ultraspherical(0.5)))();
+        @inferred (() -> Conversion(Chebyshev(), Ultraspherical(2.5)))();
 
         # Conversions between Ultraspherical should lead to a small union of types
         Tallowed = Union{
@@ -46,6 +47,8 @@ using Static
 
         @inferred Conversion(Ultraspherical(static(1)), Ultraspherical(static(4)))
         @inferred (() -> Conversion(Ultraspherical(1), Ultraspherical(4)))()
+        @inferred (() -> Conversion(Ultraspherical(1.0), Ultraspherical(4.0)))();
+        @inferred (() -> Conversion(Ultraspherical(1.0), Ultraspherical(3.5)))();
 
         for n in (2,5)
             C1 = Conversion(Chebyshev(), Ultraspherical(n))
@@ -115,12 +118,12 @@ using Static
             @test transform(S, v) ≈ transform(J, v)
         end
         @testset for T in (Float32, Float64), ET in (T, complex(T))
-            v = Array{ET}(undef, 10)
-            v2 = similar(v)
-            M = Array{ET}(undef, 10, 10)
-            M2 = similar(M)
-            A = Array{ET}(undef, 10, 10, 10)
-            A2 = similar(A)
+            v = Array{ET}(undef, 10);
+            v2 = similar(v);
+            M = Array{ET}(undef, 10, 10);
+            M2 = similar(M);
+            A = Array{ET}(undef, 10, 10, 10);
+            A2 = similar(A);
             @testset for d in ((), (0..1,)), order in (0.5, 0.7, 1.5, 1, 3)
                 U = Ultraspherical(order, d...)
                 NU = NormalizedPolynomialSpace(U)
