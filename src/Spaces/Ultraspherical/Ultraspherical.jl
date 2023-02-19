@@ -36,6 +36,11 @@ setdomain(S::Ultraspherical,d::Domain) = Ultraspherical(order(S),d)
 
 
 convert(::Type{Ultraspherical{T,D,R}}, S::Ultraspherical{T,D,R}) where {T,D,R} = S
+convert(::Type{Ultraspherical{A,D,R}}, S::Ultraspherical{B,D,R}) where {A,B,D,R} =
+    Ultraspherical{A,D,R}(convert(A, order(S)), domain(S))
+
+promote_rule(::Type{Ultraspherical{A,D,R}}, ::Type{Ultraspherical{B,D,R}}) where {A,B,D,R} =
+    Ultraspherical{promote_type(A,B),D,R}
 
 
 canonicalspace(S::Ultraspherical) = Chebyshev(domain(S))
