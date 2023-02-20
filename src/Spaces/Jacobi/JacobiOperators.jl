@@ -4,11 +4,13 @@
 Derivative(J::Jacobi) = ConcreteDerivative(J,1)
 @inline function _Derivative(J::Jacobi, k::Number)
     assert_integer(k)
-    k==1 ? ConcreteDerivative(J,1) :
-        DerivativeWrapper(
-            TimesOperator(
-                Derivative(Jacobi(J.b+1,J.a+1,J.domain),k-1),ConcreteDerivative(J,1)),
-        J, k)
+    if k==1
+        return ConcreteDerivative(J,1)
+    else
+        d = domain(J)
+        v = [ConcreteDerivative(Jacobi(J.b+i-1, J.a+i-1, d)) for i in k:-1:1]
+        DerivativeWrapper(TimesOperator(v), J, k)
+    end
 end
 @static if VERSION >= v"1.8"
     Base.@constprop :aggressive Derivative(J::Jacobi, k::Number) =

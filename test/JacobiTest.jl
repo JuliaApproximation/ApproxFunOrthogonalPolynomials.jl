@@ -251,6 +251,9 @@ using Static
             @test Derivative(S)^3 * f ≈ Fun(x->6, S)
             @test Derivative(S)^4 * f ≈ zeros(S)
         end
+
+        @test (@inferred (n -> domainspace(Derivative(Jacobi(n,n), 2)))(1)) == Jacobi(1,1)
+        @test (@inferred (n -> rangespace(Derivative(Jacobi(n,n), 2)))(1)) == Jacobi(3,3)
     end
 
     @testset "identity Fun for interval domains" begin
