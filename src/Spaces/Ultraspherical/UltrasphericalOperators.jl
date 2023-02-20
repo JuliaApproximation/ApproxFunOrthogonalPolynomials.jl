@@ -128,10 +128,10 @@ isequalhalf(x) = x == 0.5
 isequalhalf(::Integer) = false
 
 function Conversion(A::Chebyshev, B::Ultraspherical)
+    @assert domain(A) == domain(B)
     mB = order(B)
     d=domain(A)
     dB = domain(B)
-    d == dB || throw(ArgumentError("domains must be identical"))
     if isequalhalf(mB) || mB == 1
         return ConcreteConversion(A,B)
     elseif (isinteger(mB) || isapproxinteger_addhalf(mB)) && mB > 0
@@ -147,6 +147,7 @@ function Conversion(A::Chebyshev, B::Ultraspherical)
 end
 
 function Conversion(A::Ultraspherical,B::Chebyshev)
+    @assert domain(A) == domain(B)
     if isequalhalf(order(A)) && domain(A) == domain(B)
         return ConcreteConversion(A,B)
     end
@@ -158,10 +159,9 @@ maxspace_rule(A::Ultraspherical,B::Chebyshev) = A
 
 
 function Conversion(A::Ultraspherical,B::Ultraspherical)
+    @assert domain(A) == domain(B)
     a=order(A); b=order(B)
     d=domain(A)
-    dB = domain(B)
-    d == dB || throw(ArgumentError("domains must be identical"))
     if b==a
         return ConversionWrapper(Operator(I,A))
     elseif isapproxinteger(b-a) || isapproxinteger_addhalf(b-a)
