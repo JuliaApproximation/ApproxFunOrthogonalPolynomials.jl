@@ -486,17 +486,16 @@ end
 
 function Multiplication(f::Fun{<:PolynomialSpace}, sp::NormalizedPolynomialSpace)
     unnorm_sp = canonicalspace(sp)
-    O = Conversion(unnorm_sp,sp) *
-            Multiplication(f,unnorm_sp) * Conversion(sp, unnorm_sp)
+    O = ConcreteConversion(unnorm_sp,sp) *
+            Multiplication(f,unnorm_sp) * ConcreteConversion(sp, unnorm_sp)
     MultiplicationWrapper(f, O, sp)
 end
 
-function Multiplication(f::Fun{ <: NormalizedPolynomialSpace}, sp::PolynomialSpace)
-    Multiplication(Conversion(space(f), canonicalspace(f))*f, sp)
+function Multiplication(f::Fun{<:NormalizedPolynomialSpace}, sp::PolynomialSpace)
+    Multiplication(ConcreteConversion(space(f), canonicalspace(f))*f, sp)
 end
 
-function Multiplication(f::Fun{U},sp::NormalizedPolynomialSpace) where U <: NormalizedPolynomialSpace
-    csp = canonicalspace(f)
-    fc = Conversion(space(f), csp)*f
+function Multiplication(f::Fun{<:NormalizedPolynomialSpace}, sp::NormalizedPolynomialSpace)
+    fc = ConcreteConversion(space(f), canonicalspace(f))*f
     Multiplication(fc, sp)
 end

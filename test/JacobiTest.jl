@@ -300,6 +300,13 @@ using Static
             M = @inferred Multiplication(Fun(L), NormalizedPolynomialSpace(L))
             @test M * Fun(NormalizedLegendre()) ≈ Fun(x->x^2, NormalizedLegendre())
         end
+
+        M1 = @inferred Multiplication(Fun(Legendre()), NormalizedLegendre())
+        @test M1 * Fun(x->x^4, NormalizedLegendre()) ≈ Fun(x->x^5, NormalizedLegendre())
+        M2 = @inferred Multiplication(Fun(NormalizedLegendre()), Legendre())
+        @test M2 * Fun(x->x^4, Legendre()) ≈ Fun(x->x^5, Legendre())
+        M3 = @inferred Multiplication(Fun(NormalizedLegendre()), NormalizedLegendre())
+        @test M3 * Fun(x->x^4, NormalizedLegendre()) ≈ Fun(x->x^5, NormalizedLegendre())
     end
 
     @testset "Jacobi integrate and sum" begin

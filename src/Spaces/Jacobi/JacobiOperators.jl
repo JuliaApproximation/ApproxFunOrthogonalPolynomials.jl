@@ -180,7 +180,7 @@ function Conversion(L::Jacobi,M::Jacobi)
         end
     end
 
-    throw(ArgumentError("please implement $A → $B"))
+    throw(ArgumentError("please implement $L → $M"))
 end
 
 bandwidths(::ConcreteConversion{<:Jacobi,<:Jacobi}) = (0,1)
