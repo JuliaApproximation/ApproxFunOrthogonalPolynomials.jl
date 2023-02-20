@@ -229,12 +229,14 @@ end
 # Assume m is compatible
 
 function Conversion(A::PolynomialSpace,B::Jacobi)
+    @assert domain(A) == domain(B)
     J = Jacobi(A)
     J == B ? ConcreteConversion(A,B) :
              ConversionWrapper(TimesOperator(Conversion(J,B),Conversion(A,J)))
 end
 
 function Conversion(A::Jacobi,B::PolynomialSpace)
+    @assert domain(A) == domain(B)
     J = Jacobi(B)
     J == A ? ConcreteConversion(A,B) :
              ConversionWrapper(TimesOperator(Conversion(J,B),Conversion(A,J)))
@@ -244,6 +246,7 @@ isequalminhalf(x) = x == -0.5
 isequalminhalf(@nospecialize ::Integer) = false
 
 function Conversion(A::Jacobi,B::Chebyshev)
+    @assert domain(A) == domain(B)
     if isequalminhalf(A.a) && isequalminhalf(A.b)
         ConcreteConversion(A,B)
     elseif A.a == A.b == 0
@@ -261,6 +264,7 @@ function Conversion(A::Jacobi,B::Chebyshev)
 end
 
 function Conversion(A::Chebyshev,B::Jacobi)
+    @assert domain(A) == domain(B)
     if isequalminhalf(B.a) && isequalminhalf(B.b)
         ConcreteConversion(A,B)
     elseif B.a == B.b == 0
@@ -279,6 +283,7 @@ end
 
 
 function Conversion(A::Jacobi,B::Ultraspherical)
+    @assert domain(A) == domain(B)
     if isequalminhalf(A.a) && isequalminhalf(A.b)
         ConversionWrapper(Conversion(Chebyshev(domain(A)),B)*
             ConcreteConversion(A,Chebyshev(domain(A))))
@@ -299,6 +304,7 @@ function Conversion(A::Jacobi,B::Ultraspherical)
 end
 
 function Conversion(A::Ultraspherical,B::Jacobi)
+    @assert domain(A) == domain(B)
     if isequalminhalf(B.a) && isequalminhalf(B.b)
         ConversionWrapper(ConcreteConversion(Chebyshev(domain(A)),B)*
             Conversion(A,Chebyshev(domain(A))))
