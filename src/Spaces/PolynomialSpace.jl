@@ -147,11 +147,21 @@ function jac_gbmm!(α, J, B, β, C, b)
 
     @views for k=-1:b-1
         if 1-Cn ≤ b-k ≤ Cm-1 # if inbands
-            C[band(b-k)] .+= α.*B[band(b-k-1)][2:n-b+k+1].*Jp[1:n-b+k]
+            Cbmk = C[band(b-k)]
+            Bm = B[band(b-k-1)]
+            B0 = B[band(b-k)]
+            Bp = B[band(b-k+1)]
+            for i in 1:n-b+k
+                Cbmk[i] += α * Bm[i+1] * Jp[i]
+            end
             if k ≥ 0
-                C[band(b-k)] .+= α.*B[band(b-k)].*J0[1:n-b+k]
+                for i in 1:n-b+k
+                    Cbmk[i] += α * B0[i] * J0[i]
+                end
                 if k ≥ 1
-                    C[band(b-k)][2:n-b+k] .+= α.*B[band(b-k+1)].*Jm[1:n-1-b+k]
+                    for i in 1:n-1-b+k
+                        Cbmk[i+1] += α * Bp[i] * Jm[i]
+                    end
                 end
             end
         end
@@ -159,20 +169,37 @@ function jac_gbmm!(α, J, B, β, C, b)
 
     @views for k=-1:b-1
         if 1-Cn ≤ k-b ≤ Cm-1 # if inbands
-            C[band(k-b)] .+= α.*B[band(k-b+1)][1:n-b+k].*Jm[b-k:n-1]
+            Ckmb = C[band(k-b)]
+            Bp = B[band(k-b+1)]
+            B0 = B[band(k-b)]
+            Bm = B[band(k-b-1)]
+            for (i, Ji) in enumerate(b-k:n-1)
+                Ckmb[i] += α * Bp[i] * Jm[Ji]
+            end
             if k ≥ 0
-                C[band(k-b)] .+= α.*B[band(k-b)].*J0[b-k+1:n]
+                for (i, Ji) in enumerate(b-k+1:n)
+                    Ckmb[i] += α * B0[i] * J0[Ji]
+                end
                 if k ≥ 1
-                    C[band(k-b)][1:n-b+k-1] .+= α.*B[band(k-b-1)].*Jp[b-k+1:n-1]
+                    for (i, Ji) in enumerate(b-k+1:n-1)
+                        Ckmb[i] += α * Bm[i] * Jp[Ji]
+                    end
                 end
             end
         end
     end
 
     @views begin
-        C[band(0)] .+= α.*B[band(0)].*J0
-        C[band(0)][1:n-1] .+= α.*B[band(-1)].*Jp
-        C[band(0)][2:n] .+= α.*B[band(1)].*Jm
+        C0 = C[band(0)]
+        Bm = B[band(-1)]
+        Bp = B[band(1)]
+        C0 .+= α.*B[band(0)].*J0
+        for i in 1:n-1
+            C0[i] += α * Bm[i] * Jp[i]
+        end
+        for i in 2:n
+            C0[i] += α * Bp[i-1] * Jm[i-1]
+        end
     end
 
     C
