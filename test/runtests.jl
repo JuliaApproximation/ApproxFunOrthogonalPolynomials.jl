@@ -18,7 +18,7 @@ include("testutils.jl")
 
 include("ClenshawTest.jl"); GC.gc()
 include("ChebyshevTest.jl"); GC.gc()
-# include("UltrasphericalTest.jl"); GC.gc()
+include("UltrasphericalTest.jl"); GC.gc()
 include("JacobiTest.jl"); GC.gc()
 include("LaguerreTest.jl"); GC.gc()
 include("HermiteTest.jl"); GC.gc()
