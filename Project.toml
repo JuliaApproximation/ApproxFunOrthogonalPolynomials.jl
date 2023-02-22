@@ -1,6 +1,6 @@
 name = "ApproxFunOrthogonalPolynomials"
 uuid = "b70543e2-c0d9-56b8-a290-0d4d6d4de211"
-version = "0.6.12"
+version = "0.6.13"
 
 [deps]
 ApproxFunBase = "fbd15aa5-315a-5a7d-a8a4-24992e37be05"
@@ -23,7 +23,7 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 ApproxFunBase = "0.7.71"
 ApproxFunBaseTest = "0.1"
 Aqua = "0.5"
-BandedMatrices = "0.16, 0.17"
+BandedMatrices = "0.17.16"
 BlockArrays = "0.14, 0.15, 0.16"
 BlockBandedMatrices = "0.10, 0.11"
 DomainSets = "0.5, 0.6"
