@@ -110,56 +110,56 @@ using Static
         end
     end
 
-    # @testset "inplace transform" begin
-    #     ultra2jac(U::Ultraspherical) = Jacobi(U)
-    #     function ultra2jac(U::NormalizedPolynomialSpace{<:Ultraspherical})
-    #         NormalizedJacobi(U)
-    #     end
-    #     ultra2jac(S::TensorSpace) = mapreduce(ultra2jac, *, factors(S))
-    #     function test_with_jac(S::Space, v)
-    #         J = ultra2jac(S)
-    #         v .= rand.(eltype(v))
-    #         @test transform(S, v) ≈ transform(J, v)
-    #     end
-    #     @testset for T in (Float32, Float64), ET in (T, complex(T))
-    #         v = Array{ET}(undef, 10);
-    #         v2 = similar(v);
-    #         M = Array{ET}(undef, 10, 10);
-    #         M2 = similar(M);
-    #         A = Array{ET}(undef, 10, 10, 10);
-    #         A2 = similar(A);
-    #         @testset for d in ((), (0..1,)), order in (0.5, 0.7, 1.5, 1, 3)
-    #             U = Ultraspherical(order, d...)
-    #             NU = NormalizedPolynomialSpace(U)
-    #             Slist = (U, NU)
-    #             @testset for S in Slist
-    #                 if order == 0.5 || S == NU
-    #                     test_with_jac(S, v)
-    #                 end
-    #                 test_transform!(v, v2, S)
-    #             end
-    #             @testset for S1 in Slist, S2 in Slist
-    #                 S = S1 ⊗ S2
-    #                 if order == 0.5 || S == NU^2
-    #                     test_with_jac(S, M)
-    #                 end
-    #                 test_transform!(M, M2, S)
-    #             end
-    #             @testset for S1 in Slist, S2 in Slist, S3 in Slist
-    #                 S = S1 ⊗ S2 ⊗ S3
-    #                 if order == 0.5 || S == NU^3
-    #                     test_with_jac(S, A)
-    #                 end
-    #                 test_transform!(A, A2, S)
-    #             end
-    #         end
-    #     end
-    # end
+    @testset "inplace transform" begin
+        ultra2jac(U::Ultraspherical) = Jacobi(U)
+        function ultra2jac(U::NormalizedPolynomialSpace{<:Ultraspherical})
+            NormalizedJacobi(U)
+        end
+        ultra2jac(S::TensorSpace) = mapreduce(ultra2jac, *, factors(S))
+        function test_with_jac(S::Space, v)
+            J = ultra2jac(S)
+            v .= rand.(eltype(v))
+            @test transform(S, v) ≈ transform(J, v)
+        end
+        @testset for T in (Float32, Float64), ET in (T, complex(T))
+            v = Array{ET}(undef, 10);
+            v2 = similar(v);
+            M = Array{ET}(undef, 10, 10);
+            M2 = similar(M);
+            A = Array{ET}(undef, 10, 10, 10);
+            A2 = similar(A);
+            @testset for d in ((), (0..1,)), order in (0.5, 0.7, 1.5, 1, 3)
+                U = Ultraspherical(order, d...)
+                NU = NormalizedPolynomialSpace(U)
+                Slist = (U, NU)
+                @testset for S in Slist
+                    if order == 0.5 || S == NU
+                        test_with_jac(S, v)
+                    end
+                    test_transform!(v, v2, S)
+                end
+                @testset for S1 in Slist, S2 in Slist
+                    S = S1 ⊗ S2
+                    if order == 0.5 || S == NU^2
+                        test_with_jac(S, M)
+                    end
+                    test_transform!(M, M2, S)
+                end
+                @testset for S1 in Slist, S2 in Slist, S3 in Slist
+                    S = S1 ⊗ S2 ⊗ S3
+                    if order == 0.5 || S == NU^3
+                        test_with_jac(S, A)
+                    end
+                    test_transform!(A, A2, S)
+                end
+            end
+        end
+    end
 
-    # @testset "casting bug ApproxFun.jl#770" begin
-    #     f = Fun((t,x)->im*exp(t)*sinpi(x), Ultraspherical(2)^2)
-    #     @test f(0.1, 0.2) ≈ im*exp(0.1)*sinpi(0.2)
-    # end
+    @testset "casting bug ApproxFun.jl#770" begin
+        f = Fun((t,x)->im*exp(t)*sinpi(x), Ultraspherical(2)^2)
+        @test f(0.1, 0.2) ≈ im*exp(0.1)*sinpi(0.2)
+    end
 
     # @testset "Evaluation" begin
     #     c = [i^2 for i in 1:4]
