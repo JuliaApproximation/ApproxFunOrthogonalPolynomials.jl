@@ -137,9 +137,9 @@ function _jac_gbmm!(α, J, B, β, C, b, (Cn, Cm), n, ValJ, valBC)
     Jm = _view(ValJ, J, band(-1))
 
     for k in intersect(-1:b-1, b-Cm+1:b-1+Cn)
-        Cbmk = _view(valBC, C, band(b-k))
-        Bm = _view(valBC, B, band(b-k-1))
-        B0 = _view(valBC, B, band(b-k))
+        Cbmk = _view(Val(true), C, band(b-k))
+        Bm = _view(Val(true), B, band(b-k-1))
+        B0 = _view(Val(true), B, band(b-k))
         Bp = _view(valBC, B, band(b-k+1))
         for i in 1:n-b+k
             Cbmk[i] += α * Bm[i+1] * Jp[i]
@@ -157,9 +157,9 @@ function _jac_gbmm!(α, J, B, β, C, b, (Cn, Cm), n, ValJ, valBC)
     end
 
     for k = intersect(-1:b-1, 1-Cn+b:Cm-1+b)
-        Ckmb = _view(valBC, C, band(k-b))
-        Bp = _view(valBC, B, band(k-b+1))
-        B0 = _view(valBC, B, band(k-b))
+        Ckmb = _view(Val(true), C, band(k-b))
+        Bp = _view(Val(true), B, band(k-b+1))
+        B0 = _view(Val(true), B, band(k-b))
         Bm = _view(valBC, B, band(k-b-1))
         for (i, Ji) in enumerate(b-k:n-1)
             Ckmb[i] += α * Bp[i] * Jm[Ji]
@@ -191,7 +191,7 @@ end
 
 # Fast implementation of C[:,:] = α*J*B+β*C where the bandediwth of B is
 # specified by b, not by the parameters in B
-function jac_gbmm!(α, J, B, β, C, b, valJ, valBC = Val(true))
+function jac_gbmm!(α, J, B, β, C, b, valJ, valBC)
     if β ≠ 1
         lmul!(β,C)
     end
@@ -246,13 +246,13 @@ function BandedMatrix(S::SubOperator{T,ConcreteMultiplication{C,PS,T},
     α,β = recα(T,sp,n-1),recβ(T,sp,n-2)
     Bk1 = (-α/β)*Bk2
     @views Bk1[band(0)] .+= a[n-1]/β
-    jac_gbmm!(one(T)/β,J,Bk2,one(T),Bk1,0,valJ)
+    jac_gbmm!(one(T)/β,J,Bk2,one(T),Bk1,0,valJ, Val(true))
     b=1  # we keep track of bandwidths manually to reuse memory
     @views for k=n-2:-1:2
         α,β,γ=recα(T,sp,k),recβ(T,sp,k-1),recγ(T,sp,k+1)
         lmul!(-γ/β,Bk2)
         Bk2[band(0)] .+= a[k]/β
-        jac_gbmm!(1/β,J,Bk1,one(T),Bk2,b,valJ)
+        jac_gbmm!(1/β,J,Bk1,one(T),Bk2,b,valJ,Val(true))
         LinearAlgebra.axpy!(-α/β,Bk1,Bk2)
         Bk2,Bk1=Bk1,Bk2
         b+=1
