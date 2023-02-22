@@ -128,16 +128,14 @@ end
 
 getindex(M::ConcreteMultiplication{C,PS,T},k::Integer,j::Integer) where {PS<:PolynomialSpace,T,C<:PolynomialSpace} = M[k:k,j:j][1,1]
 
-#=
-dataview is copied over from BandedMatrices.jl, which is distributed under the MIT license
-See https://github.com/JuliaLinearAlgebra/BandedMatrices.jl/blob/master/LICENSE
-=#
-# Bugfix available on BandedMatrices v0.17.6+
-# Currently, support for julia v1.6 requires this hacky implementation
-# In the future, when support for v1.6 is dropped, _band may not be necessary
 if view(brand(0,0,0,0), band(0)) isa BandedMatrices.BandedMatrixBand
     dataview(V) = BandedMatrices.dataview(V)
 else
+#=
+dataview is broken on BandedMatrices v0.17.6 and older.
+We copy the function over from BandedMatrices.jl, which is distributed under the MIT license
+See https://github.com/JuliaLinearAlgebra/BandedMatrices.jl/blob/master/LICENSE
+=#
     function dataview(V)
         A = parent(parent(V))
         b = first(parentindices(V)).band.i
@@ -227,11 +225,13 @@ function _jac_gbmm!(α, J, B, β, C, b, (Cn, Cm), n, ValJ, ValBC)
     Bm = _view(Val(true), B, band(-1))
     Bp = _view(Val(true), B, band(1))
     B0 = _view(Val(true), B, band(0))
-    C0 .+= α .* B0 .* J0
     for i in 1:n-1
-        C0[i] += α * Bm[i] * Jp[i]
+        C0[i] += α * (B0[i] * J0[i] + Bm[i] * Jp[i])
         C0[i+1] += α * Bp[i] * Jm[i]
     end
+    C0[n] += α * B0[n] * J0[n]
+
+    return C
 end
 
 # Fast implementation of C[:,:] = α*J*B+β*C where the bandediwth of B is
