@@ -226,8 +226,12 @@ using Static
         # only one band should be populated
         @test bandwidths(D, 1) == -bandwidths(D, 2)
 
-        @test !isdiag(Derivative(Legendre()))
-        @test !isdiag(Derivative(NormalizedLegendre()))
+        @test !isdiag(@inferred Derivative(Legendre()))
+        T1 = typeof(Derivative(Legendre()))
+        T2 = typeof(Derivative(Legendre(), 2))
+        @test !isdiag(@inferred Union{T1,T2} Derivative(Legendre()))
+        @test !isdiag(@inferred Derivative(NormalizedLegendre()))
+        @test !isdiag(@inferred Derivative(NormalizedLegendre(), 2))
 
         @testset for d in [-1..1, 0..1]
             f = Fun(x->x^2, Chebyshev(d))
