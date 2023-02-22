@@ -128,79 +128,123 @@ end
 
 getindex(M::ConcreteMultiplication{C,PS,T},k::Integer,j::Integer) where {PS<:PolynomialSpace,T,C<:PolynomialSpace} = M[k:k,j:j][1,1]
 
+if view(brand(0,0,0,0), band(0)) isa BandedMatrices.BandedMatrixBand
+    dataview(V) = BandedMatrices.dataview(V)
+else
+#=
+dataview is broken on BandedMatrices v0.17.6 and older.
+We copy the function over from BandedMatrices.jl, which is distributed under the MIT license
+See https://github.com/JuliaLinearAlgebra/BandedMatrices.jl/blob/master/LICENSE
+=#
+    function dataview(V)
+        A = parent(parent(V))
+        b = first(parentindices(V)).band.i
+        m,n = size(A)
+        l,u = bandwidths(A)
+        data = BandedMatrices.bandeddata(A)
+        view(data, u - b + 1, max(b,0)+1:min(n,m+b))
+    end
+end
 
+_view(::Any, A, b) = view(A, b)
+_view(::Val{true}, A::BandedMatrix, b) = dataview(view(A, b))
 
+function _get_bands(B, C, bmk, f, ValBC)
+    Cbmk = _view(Val(true), C, band(bmk*f))
+    Bm = _view(Val(true), B, band(flipsign(bmk-1, f)))
+    B0 = _view(Val(true), B, band(flipsign(bmk, f)))
+    Bp = _view(ValBC, B, band(flipsign(bmk+1, f)))
+    Cbmk, Bm, B0, Bp
+end
+
+function _jac_gbmm!(α, J, B, β, C, b, (Cn, Cm), n, ValJ, ValBC)
+    Jp = _view(ValJ, J, band(1))
+    J0 = _view(ValJ, J, band(0))
+    Jm = _view(ValJ, J, band(-1))
+
+    kr = intersect(-1:b-1, b-Cm+1:b-1+Cn)
+
+    # unwrap the loops to forward indexing to the data wherever applicable
+    # this might also help with cache localization
+    k = -1
+    if k in kr
+        Cbmk, Bm, B0, Bp = _get_bands(B, C, b-k, 1, ValBC)
+        for i in 1:n-b+k
+            Cbmk[i] += α * Bm[i+1] * Jp[i]
+        end
+    end
+
+    k = 0
+    if k in kr
+        Cbmk, Bm, B0, Bp = _get_bands(B, C, b-k, 1, Val(true))
+        for i in 1:n-b+k
+            Cbmk[i] += α * (Bm[i+1] * Jp[i] + B0[i] * J0[i])
+        end
+    end
+
+    for k in max(1, first(kr)):last(kr)
+        Cbmk, Bm, B0, Bp = _get_bands(B, C, b-k, 1, Val(true))
+        Cbmk[1] += α * (Bm[2] * Jp[1] + B0[1] * J0[1])
+        for i in 2:n-b+k
+            Cbmk[i] += α * (Bm[i+1] * Jp[i] + B0[i] * J0[i] + Bp[i-1] * Jm[i-1])
+        end
+    end
+
+    kr = intersect(-1:b-1, 1-Cn+b:Cm-1+b)
+
+    k = -1
+    if k in kr
+        Ckmb, Bp, B0, Bm = _get_bands(B, C, b-k, -1, ValBC)
+        for (i, Ji) in enumerate(b-k:n-1)
+            Ckmb[i] += α * Bp[i] * Jm[Ji]
+        end
+    end
+
+    k = 0
+    if k in kr
+        Ckmb, Bp, B0, Bm = _get_bands(B, C, b-k, -1, Val(true))
+        Ckmb[1] += α * Bp[1] * Jm[b-k]
+        for (i, Ji) in enumerate(b-k+1:n-1)
+            Ckmb[i] += α * B0[i] * J0[Ji]
+            Ckmb[i+1] += α * Bp[i+1] * Jm[Ji]
+        end
+        Ckmb[n-(b-k)] += α * B0[n-(b-k)] * J0[n]
+    end
+
+    for k = max(1, first(kr)):last(kr)
+        Ckmb, Bp, B0, Bm = _get_bands(B, C, b-k, -1, Val(true))
+        Ckmb[1] += α * Bp[1] * Jm[b-k]
+        for (i, Ji) in enumerate(b-k+1:n-1)
+            Ckmb[i] += α * (Bm[i] * Jp[Ji] + B0[i] * J0[Ji])
+            Ckmb[i+1] += α * Bp[i+1] * Jm[Ji]
+        end
+        Ckmb[n-(b-k)] += α * B0[n-(b-k)] * J0[n]
+    end
+
+    C0 = _view(Val(true), C, band(0))
+    Bm = _view(Val(true), B, band(-1))
+    Bp = _view(Val(true), B, band(1))
+    B0 = _view(Val(true), B, band(0))
+    for i in 1:n-1
+        C0[i] += α * (B0[i] * J0[i] + Bm[i] * Jp[i])
+        C0[i+1] += α * Bp[i] * Jm[i]
+    end
+    C0[n] += α * B0[n] * J0[n]
+
+    return C
+end
 
 # Fast implementation of C[:,:] = α*J*B+β*C where the bandediwth of B is
 # specified by b, not by the parameters in B
-function jac_gbmm!(α, J, B, β, C, b)
+function jac_gbmm!(α, J, B, β, C, b, valJ, valBC)
     if β ≠ 1
         lmul!(β,C)
     end
 
-    Jp = view(J, band(1))
-    J0 = view(J, band(0))
-    Jm = view(J, band(-1))
     n = size(J,1)
-
     Cn, Cm = size(C)
 
-    @views for k=-1:b-1
-        if 1-Cn ≤ b-k ≤ Cm-1 # if inbands
-            Cbmk = C[band(b-k)]
-            Bm = B[band(b-k-1)]
-            B0 = B[band(b-k)]
-            Bp = B[band(b-k+1)]
-            for i in 1:n-b+k
-                Cbmk[i] += α * Bm[i+1] * Jp[i]
-            end
-            if k ≥ 0
-                for i in 1:n-b+k
-                    Cbmk[i] += α * B0[i] * J0[i]
-                end
-                if k ≥ 1
-                    for i in 1:n-1-b+k
-                        Cbmk[i+1] += α * Bp[i] * Jm[i]
-                    end
-                end
-            end
-        end
-    end
-
-    @views for k=-1:b-1
-        if 1-Cn ≤ k-b ≤ Cm-1 # if inbands
-            Ckmb = C[band(k-b)]
-            Bp = B[band(k-b+1)]
-            B0 = B[band(k-b)]
-            Bm = B[band(k-b-1)]
-            for (i, Ji) in enumerate(b-k:n-1)
-                Ckmb[i] += α * Bp[i] * Jm[Ji]
-            end
-            if k ≥ 0
-                for (i, Ji) in enumerate(b-k+1:n)
-                    Ckmb[i] += α * B0[i] * J0[Ji]
-                end
-                if k ≥ 1
-                    for (i, Ji) in enumerate(b-k+1:n-1)
-                        Ckmb[i] += α * Bm[i] * Jp[Ji]
-                    end
-                end
-            end
-        end
-    end
-
-    @views begin
-        C0 = C[band(0)]
-        Bm = B[band(-1)]
-        Bp = B[band(1)]
-        C0 .+= α.*B[band(0)].*J0
-        for i in 1:n-1
-            C0[i] += α * Bm[i] * Jp[i]
-        end
-        for i in 2:n
-            C0[i] += α * Bp[i-1] * Jm[i-1]
-        end
-    end
+    _jac_gbmm!(α, J, B, β, C, b, (Cn, Cm), n, valJ, valBC)
 
     C
 end
@@ -220,54 +264,55 @@ function BandedMatrix(S::SubOperator{T,ConcreteMultiplication{C,PS,T},
         ret = BandedMatrix(Zeros, S)
         shft=kr[1]-jr[1]
         ret[band(shft)] .= a[1]
-        return ret::BandedMatrix{T}
+        return ret
     elseif n==2
         # we have U_x = [1 α-x; 0 β]
         # for e_1^⊤ U_x\a == a[1]*I-(α-J)*a[2]/β == (a[1]-α*a[2]/β)*I + J*a[2]/β
         # implying
         α,β=recα(T,sp,1),recβ(T,sp,1)
-        ret=Operator{T}(Recurrence(M.space))[kr,jr]::BandedMatrix{T}
+        ret=Operator{T}(Recurrence(M.space))[kr,jr]
         lmul!(a[2]/β,ret)
         shft=kr[1]-jr[1]
-        ret[band(shft)] .+= a[1]-α*a[2]/β
-        return ret::BandedMatrix{T}
+        @views ret[band(shft)] .+= a[1]-α*a[2]/β
+        return ret
     end
 
     jkr=max(1,min(jr[1],kr[1])-(n-1)÷2):max(jr[end],kr[end])+(n-1)÷2
 
     #Multiplication is transpose
     J=Operator{T}(Recurrence(M.space))[jkr,jkr]
+    valJ = all(>=(1), bandwidths(J)) ? Val(true) : Val(false)
 
     B=n-1  # final bandwidth
 
     # Clenshaw for operators
-    Bk2 = BandedMatrix(Zeros{T}(size(J,1),size(J,2)), (B,B))
-    Bk2[band(0)] .= a[n]/recβ(T,sp,n-1)
+    Bk2 = BandedMatrix(Zeros{T}(size(J)), (B,B))
+    dataview(view(Bk2, band(0))) .= a[n]/recβ(T,sp,n-1)
     α,β = recα(T,sp,n-1),recβ(T,sp,n-2)
     Bk1 = (-α/β)*Bk2
-    view(Bk1, band(0)) .= (a[n-1]/β) .+ view(Bk1, band(0))
-    jac_gbmm!(one(T)/β,J,Bk2,one(T),Bk1,0)
+    dataview(view(Bk1, band(0))) .+= a[n-1]/β
+    jac_gbmm!(one(T)/β,J,Bk2,one(T),Bk1,0,valJ, Val(true))
     b=1  # we keep track of bandwidths manually to reuse memory
     for k=n-2:-1:2
         α,β,γ=recα(T,sp,k),recβ(T,sp,k-1),recγ(T,sp,k+1)
         lmul!(-γ/β,Bk2)
-        view(Bk2, band(0)) .= (a[k]/β) .+ view(Bk2, band(0))
-        jac_gbmm!(1/β,J,Bk1,one(T),Bk2,b)
+        dataview(view(Bk2, band(0))) .+= a[k]/β
+        jac_gbmm!(1/β,J,Bk1,one(T),Bk2,b,valJ,Val(true))
         LinearAlgebra.axpy!(-α/β,Bk1,Bk2)
         Bk2,Bk1=Bk1,Bk2
         b+=1
     end
     α,γ=recα(T,sp,1),recγ(T,sp,2)
     lmul!(-γ,Bk2)
-    view(Bk2, band(0)) .= a[1] .+ view(Bk2, band(0))
-    jac_gbmm!(one(T),J,Bk1,one(T),Bk2,b)
+    dataview(view(Bk2, band(0))) .+= a[1]
+    jac_gbmm!(one(T),J,Bk1,one(T),Bk2,b,valJ,Val(false))
     LinearAlgebra.axpy!(-α,Bk1,Bk2)
 
     # relationship between jkr and kr, jr
     kr2,jr2=kr.-jkr[1].+1,jr.-jkr[1].+1
 
     # TODO: reuse memory of Bk2, though profile suggests it's not too important
-    BandedMatrix(view(Bk2,kr2,jr2))::BandedMatrix{T}
+    BandedMatrix(view(Bk2,kr2,jr2))
 end
 
 
