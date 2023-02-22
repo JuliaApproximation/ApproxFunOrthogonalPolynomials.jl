@@ -128,8 +128,21 @@ end
 
 getindex(M::ConcreteMultiplication{C,PS,T},k::Integer,j::Integer) where {PS<:PolynomialSpace,T,C<:PolynomialSpace} = M[k:k,j:j][1,1]
 
+#=
+dataview is copied over from BandedMatrices.jl, which is distributed under the MIT license
+See https://github.com/JuliaLinearAlgebra/BandedMatrices.jl/blob/master/LICENSE
+=#
+function dataview(V)
+    A = parent(parent(V))
+    b = band(V)
+    m,n = size(A)
+    l,u = bandwidths(A)
+    data = BandedMatrices.bandeddata(A)
+    view(data, u - b + 1, max(b,0)+1:min(n,m+b))
+end
+
 _view(::Any, A, b) = view(A, b)
-_view(::Val{true}, A::BandedMatrix, b) = BandedMatrices.dataview(view(A, b))
+_view(::Val{true}, A::BandedMatrix, b) = dataview(view(A, b))
 
 function _jac_gbmm!(α, J, B, β, C, b, (Cn, Cm), n, ValJ, valBC)
     Jp = _view(ValJ, J, band(1))
