@@ -132,66 +132,95 @@ getindex(M::ConcreteMultiplication{C,PS,T},k::Integer,j::Integer) where {PS<:Pol
 dataview is copied over from BandedMatrices.jl, which is distributed under the MIT license
 See https://github.com/JuliaLinearAlgebra/BandedMatrices.jl/blob/master/LICENSE
 =#
-if VERSION >= v"1.8"
-    _band(V) = band(V)
+# Bugfix available on BandedMatrices v0.17.6+
+# Currently, support for julia v1.6 requires this hacky implementation
+# In the future, when support for v1.6 is dropped, _band may not be necessary
+if view(brand(0,0,0,0), band(0)) isa BandedMatrices.BandedMatrixBand
+    dataview(V) = BandedMatrices.dataview(V)
 else
-    _band(V) = first(parentindices(V)).band.i
-end
-function dataview(V)
-    A = parent(parent(V))
-    b = _band(V)
-    m,n = size(A)
-    l,u = bandwidths(A)
-    data = BandedMatrices.bandeddata(A)
-    view(data, u - b + 1, max(b,0)+1:min(n,m+b))
+    function dataview(V)
+        A = parent(parent(V))
+        b = first(parentindices(V)).band.i
+        m,n = size(A)
+        l,u = bandwidths(A)
+        data = BandedMatrices.bandeddata(A)
+        view(data, u - b + 1, max(b,0)+1:min(n,m+b))
+    end
 end
 
 _view(::Any, A, b) = view(A, b)
 _view(::Val{true}, A::BandedMatrix, b) = dataview(view(A, b))
 
-function _jac_gbmm!(α, J, B, β, C, b, (Cn, Cm), n, ValJ, valBC)
+function _get_bands(B, C, bmk, f, ValBC)
+    Cbmk = _view(Val(true), C, band(bmk*f))
+    Bm = _view(Val(true), B, band(flipsign(bmk-1, f)))
+    B0 = _view(Val(true), B, band(flipsign(bmk, f)))
+    Bp = _view(ValBC, B, band(flipsign(bmk+1, f)))
+    Cbmk, Bm, B0, Bp
+end
+
+function _jac_gbmm!(α, J, B, β, C, b, (Cn, Cm), n, ValJ, ValBC)
     Jp = _view(ValJ, J, band(1))
     J0 = _view(ValJ, J, band(0))
     Jm = _view(ValJ, J, band(-1))
 
-    for k in intersect(-1:b-1, b-Cm+1:b-1+Cn)
-        Cbmk = _view(Val(true), C, band(b-k))
-        Bm = _view(Val(true), B, band(b-k-1))
-        B0 = _view(Val(true), B, band(b-k))
-        Bp = _view(valBC, B, band(b-k+1))
+    kr = intersect(-1:b-1, b-Cm+1:b-1+Cn)
+
+    # unwrap the loops to forward indexing to the data wherever applicable
+    # this might also help with cache localization
+    k = -1
+    if k in kr
+        Cbmk, Bm, B0, Bp = _get_bands(B, C, b-k, 1, ValBC)
         for i in 1:n-b+k
             Cbmk[i] += α * Bm[i+1] * Jp[i]
         end
-        if k ≥ 0
-            for i in 1:n-b+k
-                Cbmk[i] += α * B0[i] * J0[i]
-            end
-            if k ≥ 1
-                for i in 1:n-1-b+k
-                    Cbmk[i+1] += α * Bp[i] * Jm[i]
-                end
-            end
+    end
+
+    k = 0
+    if k in kr
+        Cbmk, Bm, B0, Bp = _get_bands(B, C, b-k, 1, Val(true))
+        for i in 1:n-b+k
+            Cbmk[i] += α * (Bm[i+1] * Jp[i] + B0[i] * J0[i])
         end
     end
 
-    for k = intersect(-1:b-1, 1-Cn+b:Cm-1+b)
-        Ckmb = _view(Val(true), C, band(k-b))
-        Bp = _view(Val(true), B, band(k-b+1))
-        B0 = _view(Val(true), B, band(k-b))
-        Bm = _view(valBC, B, band(k-b-1))
+    for k in max(1, first(kr)):last(kr)
+        Cbmk, Bm, B0, Bp = _get_bands(B, C, b-k, 1, Val(true))
+        Cbmk[1] += α * (Bm[2] * Jp[1] + B0[1] * J0[1])
+        for i in 2:n-b+k
+            Cbmk[i] += α * (Bm[i+1] * Jp[i] + B0[i] * J0[i] + Bp[i-1] * Jm[i-1])
+        end
+    end
+
+    kr = intersect(-1:b-1, 1-Cn+b:Cm-1+b)
+
+    k = -1
+    if k in kr
+        Ckmb, Bp, B0, Bm = _get_bands(B, C, b-k, -1, ValBC)
         for (i, Ji) in enumerate(b-k:n-1)
             Ckmb[i] += α * Bp[i] * Jm[Ji]
         end
-        if k ≥ 0
-            for (i, Ji) in enumerate(b-k+1:n)
-                Ckmb[i] += α * B0[i] * J0[Ji]
-            end
-            if k ≥ 1
-                for (i, Ji) in enumerate(b-k+1:n-1)
-                    Ckmb[i] += α * Bm[i] * Jp[Ji]
-                end
-            end
+    end
+
+    k = 0
+    if k in kr
+        Ckmb, Bp, B0, Bm = _get_bands(B, C, b-k, -1, Val(true))
+        Ckmb[1] += α * Bp[1] * Jm[b-k]
+        for (i, Ji) in enumerate(b-k+1:n-1)
+            Ckmb[i] += α * B0[i] * J0[Ji]
+            Ckmb[i+1] += α * Bp[i+1] * Jm[Ji]
         end
+        Ckmb[n-(b-k)] += α * B0[n-(b-k)] * J0[n]
+    end
+
+    for k = max(1, first(kr)):last(kr)
+        Ckmb, Bp, B0, Bm = _get_bands(B, C, b-k, -1, Val(true))
+        Ckmb[1] += α * Bp[1] * Jm[b-k]
+        for (i, Ji) in enumerate(b-k+1:n-1)
+            Ckmb[i] += α * (Bm[i] * Jp[Ji] + B0[i] * J0[Ji])
+            Ckmb[i+1] += α * Bp[i+1] * Jm[Ji]
+        end
+        Ckmb[n-(b-k)] += α * B0[n-(b-k)] * J0[n]
     end
 
     C0 = _view(Val(true), C, band(0))
@@ -201,9 +230,7 @@ function _jac_gbmm!(α, J, B, β, C, b, (Cn, Cm), n, ValJ, valBC)
     C0 .+= α .* B0 .* J0
     for i in 1:n-1
         C0[i] += α * Bm[i] * Jp[i]
-    end
-    for i in 2:n
-        C0[i] += α * Bp[i-1] * Jm[i-1]
+        C0[i+1] += α * Bp[i] * Jm[i]
     end
 end
 
