@@ -132,9 +132,14 @@ getindex(M::ConcreteMultiplication{C,PS,T},k::Integer,j::Integer) where {PS<:Pol
 dataview is copied over from BandedMatrices.jl, which is distributed under the MIT license
 See https://github.com/JuliaLinearAlgebra/BandedMatrices.jl/blob/master/LICENSE
 =#
+if VERSION >= v"1.8"
+    _band(V) = band(V)
+else
+    _band(V) = first(parentindices(V)).band.i
+end
 function dataview(V)
     A = parent(parent(V))
-    b = band(V)
+    b = _band(V)
     m,n = size(A)
     l,u = bandwidths(A)
     data = BandedMatrices.bandeddata(A)
@@ -255,16 +260,16 @@ function BandedMatrix(S::SubOperator{T,ConcreteMultiplication{C,PS,T},
 
     # Clenshaw for operators
     Bk2 = BandedMatrix(Zeros{T}(size(J)), (B,B))
-    @views Bk2[band(0)] .= a[n]/recβ(T,sp,n-1)
+    dataview(view(Bk2, band(0))) .= a[n]/recβ(T,sp,n-1)
     α,β = recα(T,sp,n-1),recβ(T,sp,n-2)
     Bk1 = (-α/β)*Bk2
-    @views Bk1[band(0)] .+= a[n-1]/β
+    dataview(view(Bk1, band(0))) .+= a[n-1]/β
     jac_gbmm!(one(T)/β,J,Bk2,one(T),Bk1,0,valJ, Val(true))
     b=1  # we keep track of bandwidths manually to reuse memory
-    @views for k=n-2:-1:2
+    for k=n-2:-1:2
         α,β,γ=recα(T,sp,k),recβ(T,sp,k-1),recγ(T,sp,k+1)
         lmul!(-γ/β,Bk2)
-        Bk2[band(0)] .+= a[k]/β
+        dataview(view(Bk2, band(0))) .+= a[k]/β
         jac_gbmm!(1/β,J,Bk1,one(T),Bk2,b,valJ,Val(true))
         LinearAlgebra.axpy!(-α/β,Bk1,Bk2)
         Bk2,Bk1=Bk1,Bk2
@@ -272,7 +277,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteMultiplication{C,PS,T},
     end
     α,γ=recα(T,sp,1),recγ(T,sp,2)
     lmul!(-γ,Bk2)
-    @views Bk2[band(0)] .+= a[1]
+    dataview(view(Bk2, band(0))) .+= a[1]
     jac_gbmm!(one(T),J,Bk1,one(T),Bk2,b,valJ,Val(false))
     LinearAlgebra.axpy!(-α,Bk1,Bk2)
 
