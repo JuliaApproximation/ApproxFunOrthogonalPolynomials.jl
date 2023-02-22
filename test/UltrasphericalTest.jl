@@ -207,32 +207,32 @@ using Static
     # end
 
     @testset "Multiplication" begin
-       M = Multiplication(Fun(), Ultraspherical(0.5))
-       f = Fun(Ultraspherical(0.5))
-       f2 = Fun(x->x^2, Ultraspherical(0.5))
-       @test M * f ≈ f2
+        M = Multiplication(Fun(), Ultraspherical(0.5))
+        f = Fun(Ultraspherical(0.5))
+        f2 = Fun(x->x^2, Ultraspherical(0.5))
+        @test M * f ≈ f2
     end
 
-    # @testset "Integral" begin
-    #     d = 0..1
-    #     A = @inferred Integral(0..1)
-    #     x = Derivative() * A * Fun(d)
-    #     @test x(0.2) ≈ 0.2
-    #     d = 0.0..1.0
-    #     A = @inferred Integral(d)
-    #     x = Derivative() * A * Fun(d)
-    #     @test x(0.2) ≈ 0.2
+    @testset "Integral" begin
+        d = 0..1
+        A = @inferred Integral(0..1)
+        x = Derivative() * A * Fun(d)
+        @test x(0.2) ≈ 0.2
+        d = 0.0..1.0
+        A = @inferred Integral(d)
+        x = Derivative() * A * Fun(d)
+        @test x(0.2) ≈ 0.2
 
-    #     @testset for sp in (Ultraspherical(1), Ultraspherical(2), Ultraspherical(0.5))
-    #         Ij = Integral(sp, 1)
-    #         @test !isdiag(Ij)
-    #         f = Fun(sp)
-    #         g = Ij * f
-    #         g = Fun(g, sp)
-    #         g = g - coefficients(g)[1]
-    #         gexp = Fun(x->x^2/2, sp)
-    #         gexp = gexp - coefficients(gexp)[1]
-    #         @test g ≈ gexp
-    #     end
-    # end
+        @testset for sp in (Ultraspherical(1), Ultraspherical(2), Ultraspherical(0.5))
+            Ij = Integral(sp, 1)
+            @test !isdiag(Ij)
+            f = Fun(sp)
+            g = Ij * f
+            g = Fun(g, sp)
+            g = g - coefficients(g)[1]
+            gexp = Fun(x->x^2/2, sp)
+            gexp = gexp - coefficients(gexp)[1]
+            @test g ≈ gexp
+        end
+    end
 end
