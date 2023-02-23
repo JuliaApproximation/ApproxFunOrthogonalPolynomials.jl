@@ -179,13 +179,13 @@ using Static
                     E2 = @inferred ev(sp, ep(d), 0)
                     @test Number(E2 * f) ≈ f(ep(d))
 
-                    # D = @inferred ev(sp, ep, 1)
-                    # @test D[2:4] ≈ D[1:4][2:end]
-                    # @test D[1:2:5] ≈ D[1:5][1:2:5]
-                    # @test D[2:2:6] ≈ D[1:6][2:2:6]
-                    # @test Number(D * f) ≈ f'(ep(d))
-                    # Dp = @inferred ev(sp, ep(d), 1)
-                    # @test Number(Dp * f) ≈ f'(ep(d))
+                    D = @inferred ev(sp, ep, 1)
+                    @test D[2:4] ≈ D[1:4][2:end]
+                    @test D[1:2:5] ≈ D[1:5][1:2:5]
+                    @test D[2:2:6] ≈ D[1:6][2:2:6]
+                    @test Number(D * f) ≈ f'(ep(d))
+                    Dp = @inferred ev(sp, ep(d), 1)
+                    @test Number(Dp * f) ≈ f'(ep(d))
 
                     # D2 = @inferred ev(sp, ep, 2)
                     # @test D2[2:4] ≈ D2[1:4][2:end]
