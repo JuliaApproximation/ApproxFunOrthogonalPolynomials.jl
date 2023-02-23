@@ -571,3 +571,11 @@ function Multiplication(f::Fun{<:NormalizedPolynomialSpace}, sp::NormalizedPolyn
     fc = ConcreteConversion(space(f), canonicalspace(f))*f
     Multiplication(fc, sp)
 end
+
+function Derivative(sp::NormalizedPolynomialSpace, k::Number)
+    assert_integer(k)
+    csp=canonicalspace(sp)
+    D = Derivative(csp,k)
+    C = ConcreteConversion(sp,csp)
+    DerivativeWrapper(TimesOperator(D, C), sp, k)
+end
