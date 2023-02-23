@@ -141,7 +141,7 @@ function Conversion(A::Chebyshev, B::Ultraspherical)
         CAU = ConcreteConversion(A, U)
         v2 = Union{eltype(v), typeof(CAU)}[v; CAU]
         bwsum = (0, (isapproxinteger(mB) ? 2length(v2) : ℵ₀))
-        return ConversionWrapper(TimesOperator(v2, bwsum, (ℵ₀,ℵ₀), bwsum))
+        return ConversionWrapper(TimesOperator(v2, bwsum, (ℵ₀,ℵ₀), bwsum), A, B)
     end
     throw(ArgumentError("please implement $A → $B"))
 end
@@ -175,7 +175,7 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
                 v = [v; vlast]
             end
             bwsum = (0, (isapproxinteger(b-a) ? 2length(v) : ℵ₀))
-            return ConversionWrapper(TimesOperator(v, bwsum, (ℵ₀,ℵ₀), bwsum))
+            return ConversionWrapper(TimesOperator(v, bwsum, (ℵ₀,ℵ₀), bwsum), A, B)
         end
     end
     throw(ArgumentError("please implement $A → $B"))
