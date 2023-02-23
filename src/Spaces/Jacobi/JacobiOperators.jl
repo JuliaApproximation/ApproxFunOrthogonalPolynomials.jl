@@ -9,7 +9,7 @@ Derivative(J::Jacobi) = ConcreteDerivative(J,1)
     else
         d = domain(J)
         v = [ConcreteDerivative(Jacobi(J.b+i-1, J.a+i-1, d)) for i in k:-1:1]
-        DerivativeWrapper(TimesOperator(v), J, k)
+        DerivativeWrapper(TimesOperator(v), k, J)
     end
 end
 @static if VERSION >= v"1.8"
@@ -49,14 +49,14 @@ function Integral(J::Jacobi,k::Number)
     @assert k > 0 "order of integral must be > 0"
     if k > 1
         Q=Integral(J,1)
-        IntegralWrapper(TimesOperator(Integral(rangespace(Q),k-1),Q),J,k)
+        IntegralWrapper(TimesOperator(Integral(rangespace(Q),k-1),Q),k,J)
     elseif J.a > 0 && J.b > 0   # we have a simple definition
         ConcreteIntegral(J,1)
     else   # convert and then integrate
         sp=Jacobi(J.b+1,J.a+1,domain(J))
         C=Conversion(J,sp)
         Q=Integral(sp,1)
-        IntegralWrapper(TimesOperator(Q,C),J,1)
+        IntegralWrapper(TimesOperator(Q,C),1,J)
     end
 end
 
