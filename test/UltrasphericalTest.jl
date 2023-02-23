@@ -168,7 +168,7 @@ using Static
                     sp in (_sp, NormalizedPolynomialSpace(_sp))
                 d = domain(sp)
                 f = Fun(sp, c)
-                for ep in (leftendpoint, rightendpoint),
+                @testset for ep in (leftendpoint, rightendpoint),
                         ev in (ApproxFunBase.ConcreteEvaluation, Evaluation)
                     E = @inferred ev(sp, ep, 0)
                     @test E[2:4] ≈ E[1:4][2:end]
@@ -194,13 +194,13 @@ using Static
                     D2p = @inferred ev(sp, ep(d), 2)
                     @test Number(D2p * f) ≈ f''(ep(d))
 
-                    # D3 = @inferred ev(sp, ep, 3)
-                    # @test D3[2:4] ≈ D3[1:4][2:end]
-                    # @test D3[1:2:5] ≈ D3[1:5][1:2:5]
-                    # @test D3[2:2:6] ≈ D3[1:6][2:2:6]
-                    # @test Number(D3 * f) ≈ f'''(ep(d))
-                    # D3p = @inferred ev(sp, ep(d), 3)
-                    # @test Number(D3p * f) ≈ f'''(ep(d))
+                    D3 = @inferred ev(sp, ep, 3)
+                    @test D3[2:4] ≈ D3[1:4][2:end]
+                    @test D3[1:2:5] ≈ D3[1:5][1:2:5]
+                    @test D3[2:2:6] ≈ D3[1:6][2:2:6]
+                    @test Number(D3 * f) ≈ f'''(ep(d))
+                    D3p = @inferred ev(sp, ep(d), 3)
+                    @test Number(D3p * f) ≈ f'''(ep(d))
                 end
             end
         end
