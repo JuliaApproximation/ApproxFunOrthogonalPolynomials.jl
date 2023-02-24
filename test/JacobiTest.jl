@@ -258,6 +258,9 @@ using Static
 
         @test (@inferred (n -> domainspace(Derivative(Jacobi(n,n), 2)))(1)) == Jacobi(1,1)
         @test (@inferred (n -> rangespace(Derivative(Jacobi(n,n), 2)))(1)) == Jacobi(3,3)
+
+        D = Derivative(NormalizedLegendre(), 2)
+        @test (@inferred rangespace(D)) == Jacobi(2,2)
     end
 
     @testset "identity Fun for interval domains" begin
@@ -306,6 +309,7 @@ using Static
         end
 
         M1 = @inferred Multiplication(Fun(Legendre()), NormalizedLegendre())
+        @test (@inferred rangespace(M1)) == NormalizedLegendre()
         @test M1 * Fun(x->x^4, NormalizedLegendre()) ≈ Fun(x->x^5, NormalizedLegendre())
         M2 = @inferred Multiplication(Fun(NormalizedLegendre()), Legendre())
         @test M2 * Fun(x->x^4, Legendre()) ≈ Fun(x->x^5, Legendre())

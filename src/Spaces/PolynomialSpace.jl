@@ -574,3 +574,6 @@ end
 
 ApproxFunBase.hasconcreteconversion_canonical(
     @nospecialize(::NormalizedPolynomialSpace), @nospecialize(_)) = true
+
+rangespace(M::MultiplicationWrapper{<:PolynomialSpace,
+        <:NormalizedPolynomialSpace}) = domainspace(M)
