@@ -572,6 +572,14 @@ function Multiplication(f::Fun{<:NormalizedPolynomialSpace}, sp::NormalizedPolyn
     Multiplication(fc, sp)
 end
 
+function Derivative(sp::NormalizedPolynomialSpace, k::Number)
+    assert_integer(k)
+    csp=canonicalspace(sp)
+    D = Derivative(csp,k)
+    C = ConcreteConversion(sp,csp)
+    DerivativeWrapper(TimesOperator(D, C), k, sp, rangespace(D))
+end
+
 ApproxFunBase.hasconcreteconversion_canonical(
     @nospecialize(::NormalizedPolynomialSpace), @nospecialize(_)) = true
 
