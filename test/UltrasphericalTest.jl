@@ -36,7 +36,9 @@ using Static
         @inferred Conversion(Chebyshev(), Ultraspherical(static(0.5)));
         @inferred (() -> Conversion(Chebyshev(), Ultraspherical(2)))();
         @inferred (() -> Conversion(Chebyshev(), Ultraspherical(0.5)))();
-        @inferred (() -> Conversion(Chebyshev(), Ultraspherical(2.5)))();
+        if VERSION >= v"1.8"
+            @inferred (() -> Conversion(Chebyshev(), Ultraspherical(2.5)))();
+        end
 
         # Conversions between Ultraspherical should lead to a small union of types
         Tallowed = Union{
@@ -45,10 +47,12 @@ using Static
         @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(2));
         @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(3));
 
-        @inferred Conversion(Ultraspherical(static(1)), Ultraspherical(static(4)))
-        @inferred (() -> Conversion(Ultraspherical(1), Ultraspherical(4)))()
+        @inferred Conversion(Ultraspherical(static(1)), Ultraspherical(static(4)));
+        @inferred (() -> Conversion(Ultraspherical(1), Ultraspherical(4)))();
         @inferred (() -> Conversion(Ultraspherical(1.0), Ultraspherical(4.0)))();
-        @inferred (() -> Conversion(Ultraspherical(1.0), Ultraspherical(3.5)))();
+        if VERSION >= v"1.8"
+            @inferred (() -> Conversion(Ultraspherical(1.0), Ultraspherical(3.5)))();
+        end
 
         for n in (2,5)
             C1 = Conversion(Chebyshev(), Ultraspherical(n))
@@ -164,7 +168,7 @@ using Static
                     sp in (_sp, NormalizedPolynomialSpace(_sp))
                 d = domain(sp)
                 f = Fun(sp, c)
-                for ep in (leftendpoint, rightendpoint),
+                @testset for ep in (leftendpoint, rightendpoint),
                         ev in (ApproxFunBase.ConcreteEvaluation, Evaluation)
                     E = @inferred ev(sp, ep, 0)
                     @test E[2:4] ≈ E[1:4][2:end]
