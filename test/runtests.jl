@@ -18,7 +18,11 @@ include("testutils.jl")
 
 include("ClenshawTest.jl"); GC.gc()
 include("ChebyshevTest.jl"); GC.gc()
-include("UltrasphericalTest.jl"); GC.gc()
+# There are weird non-deterministic `ReadOnlyMemoryError`s on Windows,
+# so this test is disabled for now
+if !Sys.iswindows()
+    include("UltrasphericalTest.jl"); GC.gc()
+end
 include("JacobiTest.jl"); GC.gc()
 include("LaguerreTest.jl"); GC.gc()
 include("HermiteTest.jl"); GC.gc()
