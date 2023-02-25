@@ -531,8 +531,8 @@ hasconversion(a::NormalizedPolynomialSpace,b::PolynomialSpace) = hasconversion(a
 hasconversion(a::NormalizedPolynomialSpace,b::NormalizedPolynomialSpace) = hasconversion(a.space,b)
 
 function isdiag(D::DerivativeWrapper{<:Operator, <:NormalizedPolynomialSpace})
-    sp = D.space
-    csp = _stripnorm(sp)
+    sp = domainspace(D)
+    csp = canonicalspace(sp)
     isdiag(Derivative(csp, D.order))
 end
 
@@ -577,5 +577,11 @@ function Derivative(sp::NormalizedPolynomialSpace, k::Number)
     csp=canonicalspace(sp)
     D = Derivative(csp,k)
     C = ConcreteConversion(sp,csp)
-    DerivativeWrapper(TimesOperator(D, C), sp, k)
+    DerivativeWrapper(TimesOperator(D, C), k, sp, rangespace(D))
 end
+
+ApproxFunBase.hasconcreteconversion_canonical(
+    @nospecialize(::NormalizedPolynomialSpace), @nospecialize(_)) = true
+
+rangespace(M::MultiplicationWrapper{<:PolynomialSpace,
+        <:NormalizedPolynomialSpace}) = domainspace(M)
