@@ -96,6 +96,8 @@ convert_absvector(v::AbstractVector) = v
 convert_vector_or_svector(v::AbstractVector) = convert(Vector, v)
 convert_vector_or_svector(t::Tuple) = SVector(t)
 
+const TupleOrVector{T} = Union{Tuple{T,Vararg{T}},AbstractVector{<:T}}
+
 include("bary.jl")
 
 
