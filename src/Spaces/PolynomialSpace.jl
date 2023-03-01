@@ -250,7 +250,7 @@ function jac_gbmm!(α, J, B, β, C, b, valJ, valBC)
 end
 
 function BandedMatrix(S::SubOperator{T,ConcreteMultiplication{C,PS,T},
-                                     Tuple{UnitRange{Int},UnitRange{Int}}}) where {PS<:PolynomialSpace,T,C<:PolynomialSpace}
+                                     NTuple{2,UnitRange{Int}}}) where {PS<:PolynomialSpace,T,C<:PolynomialSpace}
     M=parent(S)
     kr,jr=parentindices(S)
     f=M.f

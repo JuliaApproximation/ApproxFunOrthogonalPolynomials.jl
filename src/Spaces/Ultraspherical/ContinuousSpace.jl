@@ -287,7 +287,7 @@ end
 
 
 function BlockBandedMatrix(S::SubOperator{T,<:ConcreteDirichlet{<:TensorChebyshevDirichlet},
-                                Tuple{UnitRange{Int},UnitRange{Int}}}) where {T}
+                                NTuple{2,UnitRange{Int}}}) where {T}
     P=parent(S)
     ret=BlockBandedMatrix(Zeros, S)
     kr,jr=parentindices(S)
