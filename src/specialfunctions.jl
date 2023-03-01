@@ -101,6 +101,7 @@ function jumplocations(f::Fun)
 end
 
 # Return the locations of jump discontinuities
+_maybeview(dc::AbstractVector, inds...) = view(dc, inds)
 function jumplocations(f::Fun{S}) where{S<:Union{PiecewiseSpace,ContinuousSpace}}
     d = domain(f)
 
@@ -111,13 +112,15 @@ function jumplocations(f::Fun{S}) where{S<:Union{PiecewiseSpace,ContinuousSpace}
     dtol=10eps(eltype(d))
     ftol=10eps(cfstype(f))
 
-    dc = components(d)
-    fc = components(f)
+    dc = convert_vector_or_svector(components(d))
+    fc = convert_vector_or_svector(components(f))
 
-    isjump = isapprox.(leftendpoint.(dc[2:end]), rightendpoint.(dc[1:end-1]), rtol=dtol) .&
-           .!isapprox.(first.(fc[2:end]), last.(fc[1:end-1]), rtol=ftol)
+    isjump = isapprox.(leftendpoint.(@view dc[2:end]),
+                    rightendpoint.(@view dc[1:end-1]), rtol=dtol) .&
+           .!isapprox.(first.(@view fc[2:end]),
+                    last.(@view fc[1:end-1]), rtol=ftol)
 
-    locs = rightendpoint.(dc[1:end-1])
+    locs = rightendpoint.(@view dc[1:end-1])
     locs[isjump]
 end
 
