@@ -87,6 +87,9 @@ bary(v::AbstractVector{Float64},d::IntervalOrSegmentDomain,x::Float64) = bary(v,
 
 strictconvert(T::Type, x) = convert(T, x)::T
 
+convert_vector(v::AbstractVector) = convert(Vector, v)
+convert_vector(t::Tuple) = [t...]
+
 include("bary.jl")
 
 
