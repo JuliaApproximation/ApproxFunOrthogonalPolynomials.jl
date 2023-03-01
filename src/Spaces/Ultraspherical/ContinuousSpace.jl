@@ -429,7 +429,7 @@ function union_rule(A::ContinuousSpace{<:Real}, B::ContinuousSpace{<:Real})
 end
 
 function integrate(f::Fun{<:ContinuousSpace})
-    cs = [cumsum(x) for x in components(f))]
+    cs = [cumsum(x) for x in components(f)]
     for k=1:length(cs)-1
         cs[k+1] += last(cs[k])
     end
