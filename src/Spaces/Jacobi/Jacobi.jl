@@ -13,11 +13,8 @@ struct Jacobi{D<:Domain,R,T} <: PolynomialSpace{D,R}
 end
 Jacobi(b::T,a::T,d::Domain) where {T<:Number} =
     Jacobi{typeof(d),promote_type(T,real(prectype(d)))}(b, a, d)
-Legendre(domain) = Jacobi(0,0,domain)
-Legendre() = Legendre(ChebyshevInterval())
-Jacobi(b::Number,a::Number,d::Domain) = Jacobi(promote(dynamic(b), dynamic(a))...,d)
-Jacobi(b::Number,a::Number,d) = Jacobi(b,a,Domain(d))
-Jacobi(b::Number,a::Number) = Jacobi(b,a,ChebyshevInterval())
+Legendre(domain = ChebyshevInterval()) = Jacobi(0,0,Domain(domain)::Domain)
+Jacobi(b::Number,a::Number,d=ChebyshevInterval()) = Jacobi(promote(b, a)..., Domain(d)::Domain)
 Jacobi(A::Ultraspherical) = Jacobi(order(A)-0.5,order(A)-0.5,domain(A))
 Jacobi(A::Chebyshev) = Jacobi(-0.5,-0.5,domain(A))
 
@@ -25,7 +22,7 @@ const NormalizedJacobi{D<:Domain,R,T} = NormalizedPolynomialSpace{Jacobi{D,R,T},
 NormalizedJacobi(s...) = NormalizedPolynomialSpace(Jacobi(s...))
 NormalizedLegendre(d...) = NormalizedPolynomialSpace(Legendre(d...))
 
-normalization(::Type{T}, sp::Jacobi, k::Int) where T = FastTransforms.Anαβ(k, dynamic(sp.a), dynamic(sp.b))
+normalization(::Type{T}, sp::Jacobi, k::Int) where T = FastTransforms.Anαβ(k, sp.a, sp.b)
 
 function Ultraspherical(J::Jacobi)
     if J.a == J.b
@@ -54,7 +51,7 @@ function canonicalspace(S::Jacobi)
         Chebyshev(domain(S))
     else
         # return space with parameters in (-1,0.]
-        Jacobi(mod(dynamic(S.b),-1),mod(dynamic(S.a),-1),domain(S))
+        Jacobi(mod(S.b,-1),mod(S.a,-1),domain(S))
     end
 end
 
@@ -121,8 +118,8 @@ jacobip(r::AbstractRange,α,β,x::Number) = jacobip(promote_type(typeof(α),type
 
 jacobip(::Type{T},n::Integer,α,β,v) where {T} = jacobip(T,n:n,α,β,v)[1]
 jacobip(n::Integer,α,β,v) = jacobip(n:n,α,β,v)[1]
-jacobip(::Type{T},n,S::Jacobi,v) where {T} = jacobip(T,n,dynamic(S.a),dynamic(S.b),v)
-jacobip(n,S::Jacobi,v) = jacobip(n,dynamic(S.a),dynamic(S.b),v)
+jacobip(::Type{T},n,S::Jacobi,v) where {T} = jacobip(T,n,S.a,S.b,v)
+jacobip(n,S::Jacobi,v) = jacobip(n,S.a,S.b,v)
 
 
 
