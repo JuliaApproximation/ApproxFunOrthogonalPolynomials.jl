@@ -11,7 +11,7 @@
 #####
 
 function BandedMatrix(S::SubOperator{T,ConcreteConversion{Chebyshev{DD,RR},Ultraspherical{Int,DD,RR},T},
-                              Tuple{UnitRange{Int},UnitRange{Int}}}) where {T,DD,RR}
+                              NTuple{2,UnitRange{Int}}}) where {T,DD,RR}
     # we can assume order is 1
     ret = BandedMatrix{eltype(S)}(undef, size(S), bandwidths(S))
     kr,jr = parentindices(S)
@@ -32,7 +32,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteConversion{Chebyshev{DD,RR},Ultra
 end
 
 function BandedMatrix(V::SubOperator{T,ConcreteConversion{Ultraspherical{LT,DD,RR},Ultraspherical{LT,DD,RR},T},
-                                                                  Tuple{UnitRange{Int},UnitRange{Int}}}) where {T,LT,DD,RR}
+                                                                  NTuple{2,UnitRange{Int}}}) where {T,LT,DD,RR}
 
     n,m = size(V)
     V_l, V_u = bandwidths(V)
@@ -66,7 +66,7 @@ end
 
 
 function BandedMatrix(S::SubOperator{T,ConcreteDerivative{Chebyshev{DD,RR},K,T},
-                                                     Tuple{UnitRange{Int},UnitRange{Int}}}) where {T,K,DD,RR}
+                                                     NTuple{2,UnitRange{Int}}}) where {T,K,DD,RR}
 
     n,m = size(S)
     ret = BandedMatrix{eltype(S)}(undef, (n,m), bandwidths(S))
@@ -92,7 +92,7 @@ end
 
 
 function BandedMatrix(S::SubOperator{T,ConcreteDerivative{Ultraspherical{LT,DD,RR},K,T},
-                                                  Tuple{UnitRange{Int},UnitRange{Int}}}) where {T,K,DD,RR,LT}
+                                                  NTuple{2,UnitRange{Int}}}) where {T,K,DD,RR,LT}
     n,m = size(S)
     ret = BandedMatrix{eltype(S)}(undef, (n,m), bandwidths(S))
     kr,jr = parentindices(S)
