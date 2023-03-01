@@ -94,7 +94,7 @@ function *(P::TransformPlan{T,<:ContinuousSpace,false},vals::AbstractVector{T}) 
     end
 end
 
-components(S::ContinuousSpace) = map(ChebyshevDirichlet{1,1}, components(domain(S)))
+components(S::ContinuousSpace) = [ChebyshevDirichlet{1,1}(s) for s in components(domain(S))]
 canonicalspace(S::ContinuousSpace) = PiecewiseSpace(components(S))
 convert(::Type{PiecewiseSpace}, S::ContinuousSpace) = canonicalspace(S)
 
@@ -429,7 +429,7 @@ function union_rule(A::ContinuousSpace{<:Real}, B::ContinuousSpace{<:Real})
 end
 
 function integrate(f::Fun{<:ContinuousSpace})
-    cs = cumsum.(components(f))
+    cs = [cumsum(x) for x in components(f)]
     for k=1:length(cs)-1
         cs[k+1] += last(cs[k])
     end
