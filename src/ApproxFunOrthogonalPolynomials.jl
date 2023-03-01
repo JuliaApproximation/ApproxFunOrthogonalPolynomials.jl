@@ -90,6 +90,8 @@ strictconvert(T::Type, x) = convert(T, x)::T
 convert_vector(v::AbstractVector) = convert(Vector, v)
 convert_vector(t::Tuple) = [t...]
 
+const TupleOrVector{T} = Union{Tuple{T,Vararg{T}},AbstractVector{<:T}}
+
 include("bary.jl")
 
 
