@@ -12,9 +12,12 @@ Space(d::PiecewiseSegment) = ContinuousSpace(d)
 
 isperiodic(C::ContinuousSpace) = isperiodic(domain(C))
 
+const PiecewiseSpaceReal{CD} = PiecewiseSpace{CD,<:Any,<:Real}
+const PiecewiseSpaceRealChebyDirichlet11 =
+        PiecewiseSpaceReal{<:TupleOrVector{ChebyshevDirichlet{1,1}}}
+
 spacescompatible(a::ContinuousSpace,b::ContinuousSpace) = domainscompatible(a,b)
-conversion_rule(a::ContinuousSpace,
-                b::PiecewiseSpace{<:Tuple{Vararg{ChebyshevDirichlet{1,1}}},<:Any,<:Real}) = a
+conversion_rule(a::ContinuousSpace, b::PiecewiseSpaceRealChebyDirichlet11) = a
 
 plan_transform(sp::ContinuousSpace,vals::AbstractVector) =
     TransformPlan{eltype(vals),typeof(sp),false,Nothing}(sp,nothing)
@@ -131,8 +134,6 @@ coefficients(cfsin::AbstractVector,A::ContinuousSpace,B::ContinuousSpace) =
 
 
 # We implemnt conversion between continuous space and PiecewiseSpace with Chebyshev dirichlet
-const PiecewiseSpaceReal{CD} = PiecewiseSpace{CD,<:Any,<:Real}
-const PiecewiseSpaceRealChebyDirichlet11 = PiecewiseSpaceReal{<:Tuple{Vararg{ChebyshevDirichlet{1,1}}}}
 
 function Conversion(ps::PiecewiseSpaceRealChebyDirichlet11, cs::ContinuousSpace)
     @assert ps == canonicalspace(cs)
