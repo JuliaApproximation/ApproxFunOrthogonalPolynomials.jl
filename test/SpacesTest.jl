@@ -129,8 +129,10 @@ using ApproxFunBaseTest: testbandedoperator, testraggedbelowoperator,
 
         @test Fun(exp,d)(.1) ≈ exp(.1)
 
-        f = abs(Fun(sin,-5..5))
-        @inferred components(space(f))
+        if VERSION >= v"1.8"
+            f = abs(Fun(sin,-5..5))
+            @inferred components(space(f))
+        end
     end
 
     @testset "Jacobi recurrence bug" begin
