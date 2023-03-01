@@ -90,6 +90,12 @@ strictconvert(T::Type, x) = convert(T, x)::T
 convert_vector(v::AbstractVector) = convert(Vector, v)
 convert_vector(t::Tuple) = [t...]
 
+convert_absvector(t::Tuple) = SVector(t)
+convert_absvector(v::AbstractVector) = v
+
+convert_vector_or_svector(v::AbstractVector) = convert(Vector, v)
+convert_vector_or_svector(t::Tuple) = SVector(t)
+
 include("bary.jl")
 
 
