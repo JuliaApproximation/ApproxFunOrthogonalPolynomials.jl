@@ -1,5 +1,7 @@
 export ContinuousSpace
 
+Space(d::PiecewiseSegment) = ContinuousSpace(d)
+
 const PiecewiseSpaceReal{CD} = PiecewiseSpace{CD,<:Any,<:Real}
 const PiecewiseSpaceRealChebyDirichlet11 =
         PiecewiseSpaceReal{<:TupleOrVector{ChebyshevDirichlet{1,1}}}
