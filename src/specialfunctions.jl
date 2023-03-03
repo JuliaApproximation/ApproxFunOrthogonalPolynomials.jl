@@ -101,7 +101,6 @@ function jumplocations(f::Fun)
 end
 
 # Return the locations of jump discontinuities
-_maybeview(dc::AbstractVector, inds...) = view(dc, inds)
 function jumplocations(f::Fun{S}) where{S<:Union{PiecewiseSpace,ContinuousSpace}}
     d = domain(f)
 
