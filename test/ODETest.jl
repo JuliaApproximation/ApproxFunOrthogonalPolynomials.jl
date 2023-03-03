@@ -137,7 +137,7 @@ using ApproxFunBaseTest: testraggedbelowoperator, testbandedoperator
         D=Derivative(sp)
         A=[B;D^2-x]
 
-        ApproxFunBase.testraggedbelowoperator(A)
+        testraggedbelowoperator(A)
         QR=qr(A)
 
         @time u=QR\[[airyai(-2.),0.0],zeros(4),0.0]
