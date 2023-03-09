@@ -246,13 +246,15 @@ using Static
             @test Derivative(3) * (Integral(3) * f) ≈ f
         end
 
-        @inferred Integral(Chebyshev(), 3)
-        @inferred (() -> Integral(Ultraspherical(1), 3))()
-        @inferred (() -> Integral(Ultraspherical(3), 1))()
-        # without constant propagation, this should be a small union
-        TA = typeof(Integral(Ultraspherical(3), 1))
-        TB = typeof(Integral(Ultraspherical(1), 3))
-        @inferred Union{TA, TB} Integral(Ultraspherical(3), 1)
-        @inferred Union{TA, TB} Integral(Ultraspherical(1), 3)
+        if VERSION >= v"1.8"
+            @inferred Integral(Chebyshev(), 3)
+            @inferred (() -> Integral(Ultraspherical(1), 3))()
+            @inferred (() -> Integral(Ultraspherical(3), 1))()
+            # without constant propagation, this should be a small union
+            TA = typeof(Integral(Ultraspherical(3), 1))
+            TB = typeof(Integral(Ultraspherical(1), 3))
+            @inferred Union{TA, TB} Integral(Ultraspherical(3), 1)
+            @inferred Union{TA, TB} Integral(Ultraspherical(1), 3)
+        end
     end
 end
