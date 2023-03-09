@@ -614,6 +614,18 @@ using Static
             gexp = gexp - coefficients(gexp)[1]
             @test g ≈ gexp
         end
+
+        @testset for n in 3:6, d in ((), (0..1,)),
+                sp in (Legendre(d...), Jacobi(1,1, d...), Jacobi(1,3, d...),
+                        Jacobi(0,0.5, d...), Jacobi(0.5,0.5, d...), Jacobi(0.5, 1.5, d...))
+            f = Fun(sp, Float64[zeros(n); 2])
+            @test Integral(1) * (Derivative(1) * f) ≈ f
+            @test Integral(2) * (Derivative(2) * f) ≈ f
+            @test Integral(3) * (Derivative(3) * f) ≈ f
+            @test Derivative(1) * (Integral(1) * f) ≈ f
+            @test Derivative(2) * (Integral(2) * f) ≈ f
+            @test Derivative(3) * (Integral(3) * f) ≈ f
+        end
     end
 
     @testset "type inference" begin
