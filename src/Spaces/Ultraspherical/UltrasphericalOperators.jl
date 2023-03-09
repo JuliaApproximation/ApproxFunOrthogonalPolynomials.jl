@@ -65,7 +65,9 @@ function Integral(sp::Ultraspherical{<:Any,<:IntervalOrSegment}, m::Number)
         ConcreteIntegral(sp,m)
     else # Convert up
         nsp = Ultraspherical(m,domain(sp))
-        IntegralWrapper(ConcreteIntegral(nsp,m)*Conversion(sp,nsp),m)
+        Integralop = ConcreteIntegral(nsp,m)
+        C = Conversion(sp,nsp)
+        IntegralWrapper(Integralop * C, m, sp, rangespace(Integralop))
     end
 end
 
@@ -307,8 +309,11 @@ end
 
 # TODO: include in getindex to speed up
 function Integral(sp::Chebyshev{DD},m::Integer) where {DD<:IntervalOrSegment}
-    IntegralWrapper(TimesOperator([Integral(Ultraspherical(m,domain(sp)),m),
-                                   Conversion(sp,Ultraspherical(m,domain(sp)))]),m)
+    usp = Ultraspherical(m,domain(sp))
+    I = Integral(usp,m)
+    C = Conversion(sp,usp)
+    T = TimesOperator(I, C)
+    IntegralWrapper(T, m, sp, sp)
 end
 
 
