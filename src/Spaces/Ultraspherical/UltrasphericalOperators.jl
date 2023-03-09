@@ -65,7 +65,9 @@ function Integral(sp::Ultraspherical{<:Any,<:IntervalOrSegment}, m::Number)
         ConcreteIntegral(sp,m)
     else # Convert up
         nsp = Ultraspherical(m,domain(sp))
-        IntegralWrapper(ConcreteIntegral(nsp,m)*Conversion(sp,nsp),m)
+        Integralop = ConcreteIntegral(nsp,m)
+        C = Conversion(sp,nsp)
+        IntegralWrapper(Integralop * C, m, sp, rangespace(Integralop))
     end
 end
 
@@ -100,8 +102,10 @@ linesum(f::Fun{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} =
     sum(setcanonicaldomain(f))*arclength(d)/2
 
 
-rangespace(D::ConcreteIntegral{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} =
-    order(domainspace(D)) == 1 ? Chebyshev(domain(D)) : Ultraspherical(order(domainspace(D))-D.order,domain(D))
+function rangespace(D::ConcreteIntegral{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment}
+    k = order(domainspace(D))-D.order
+    k == 0 ? Chebyshev(domain(D)) : Ultraspherical(k, domain(D))
+end
 
 function getindex(Q::ConcreteIntegral{<:Ultraspherical{LT,DD}},k::Integer,j::Integer) where {LT,DD<:IntervalOrSegment}
     T=eltype(Q)
@@ -112,7 +116,12 @@ function getindex(Q::ConcreteIntegral{<:Ultraspherical{LT,DD}},k::Integer,j::Int
 
     if λ == 1 && k==j+1
         C = complexlength(d)/2
-        strictconvert(T,C./(k-1))
+        strictconvert(T, C/(k-1))
+    elseif λ == m && k == j + m
+        C = complexlength(d)/2
+        U1toC = C/(k-1)
+        UmtoU1 = pochhammer(one(T)*λ,-(m-1))*(complexlength(d)/4)^(m-1)
+        strictconvert(T, U1toC * UmtoU1)
     elseif λ > 1 && k==j+m
         strictconvert(T,pochhammer(one(T)*λ,-m)*(complexlength(d)/4)^m)
     else
@@ -300,8 +309,11 @@ end
 
 # TODO: include in getindex to speed up
 function Integral(sp::Chebyshev{DD},m::Integer) where {DD<:IntervalOrSegment}
-    IntegralWrapper(TimesOperator([Integral(Ultraspherical(m,domain(sp)),m),
-                                   Conversion(sp,Ultraspherical(m,domain(sp)))]),m)
+    usp = Ultraspherical(m,domain(sp))
+    I = Integral(usp,m)
+    C = Conversion(sp,usp)
+    T = TimesOperator(I, C)
+    IntegralWrapper(T, m, sp, sp)
 end
 
 

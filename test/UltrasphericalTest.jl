@@ -234,5 +234,27 @@ using Static
             gexp = gexp - coefficients(gexp)[1]
             @test g ≈ gexp
         end
+
+        @testset for n in 3:6, d in ((), (0..1,)),
+                sp in (Chebyshev(d...), Ultraspherical(1, d...), Ultraspherical(0.5, d...))
+            f = Fun(sp, Float64[zeros(n); 2])
+            @test Integral(1) * (Derivative(1) * f) ≈ f
+            @test Integral(2) * (Derivative(2) * f) ≈ f
+            @test Integral(3) * (Derivative(3) * f) ≈ f
+            @test Derivative(1) * (Integral(1) * f) ≈ f
+            @test Derivative(2) * (Integral(2) * f) ≈ f
+            @test Derivative(3) * (Integral(3) * f) ≈ f
+        end
+
+        if VERSION >= v"1.8"
+            @inferred Integral(Chebyshev(), 3)
+            @inferred (() -> Integral(Ultraspherical(1), 3))()
+            @inferred (() -> Integral(Ultraspherical(3), 1))()
+            # without constant propagation, this should be a small union
+            TA = typeof(Integral(Ultraspherical(3), 1))
+            TB = typeof(Integral(Ultraspherical(1), 3))
+            @inferred Union{TA, TB} Integral(Ultraspherical(3), 1)
+            @inferred Union{TA, TB} Integral(Ultraspherical(1), 3)
+        end
     end
 end
