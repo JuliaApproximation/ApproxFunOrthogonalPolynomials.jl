@@ -235,7 +235,8 @@ using Static
             @test g ≈ gexp
         end
 
-        @testset for n in 3:6, sp in (Chebyshev(), Chebyshev(0..1))
+        @testset for n in 3:6, d in ((), (0..1,)),
+                sp in (Chebyshev(d...), Ultraspherical(1, d...), Ultraspherical(0.5, d...))
             f = Fun(sp, Float64[zeros(n); 2])
             @test Integral(1) * (Derivative(1) * f) ≈ f
             @test Integral(2) * (Derivative(2) * f) ≈ f
