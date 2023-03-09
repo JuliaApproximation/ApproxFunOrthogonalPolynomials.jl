@@ -234,5 +234,15 @@ using Static
             gexp = gexp - coefficients(gexp)[1]
             @test g ≈ gexp
         end
+
+        @testset for n in 3:6, sp in (Chebyshev(), Chebyshev(0..1))
+            f = Fun(sp, Float64[zeros(n); 2])
+            @test Integral(1) * (Derivative(1) * f) ≈ f
+            @test Integral(2) * (Derivative(2) * f) ≈ f
+            @test Integral(3) * (Derivative(3) * f) ≈ f
+            @test Derivative(1) * (Integral(1) * f) ≈ f
+            @test Derivative(2) * (Integral(2) * f) ≈ f
+            @test Derivative(3) * (Integral(3) * f) ≈ f
+        end
     end
 end
