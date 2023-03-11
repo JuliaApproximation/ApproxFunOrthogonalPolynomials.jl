@@ -85,6 +85,27 @@ points(d::IntervalOrSegmentDomain{T},n::Integer) where {T} =
     _maybefromcanonical(d, chebyshevpoints(float(real(eltype(T))), n))  # eltype to handle point
 _maybefromcanonical(d, pts) = fromcanonical.(Ref(d), pts)
 _maybefromcanonical(::ChebyshevInterval, pts::FastTransforms.ChebyshevGrid) = pts
+function _maybefromcanonical(d::IntervalOrSegment{<:Union{Number, SVector}}, pts::FastTransforms.ChebyshevGrid)
+    shift = mean(d)
+    scale = complexlength(d) / 2
+    ShiftedChebyshevGrid(pts, shift, scale)
+end
+
+struct ShiftedChebyshevGrid{T, S, C<:FastTransforms.ChebyshevGrid} <: AbstractVector{T}
+    grid :: C
+    shift :: S
+    scale :: S
+end
+function ShiftedChebyshevGrid(grid::G, shift::S, scale::S) where {G,S}
+    T = typeof(zero(eltype(G)) * zero(S))
+    ShiftedChebyshevGrid{T,S,G}(grid, shift, scale)
+end
+Base.size(S::ShiftedChebyshevGrid) = size(S.grid)
+Base.@propagate_inbounds Base.getindex(S::ShiftedChebyshevGrid, i::Int) = S.shift + S.grid[i] * S.scale
+function Base.showarg(io::IO, S::ShiftedChebyshevGrid, toplevel::Bool)
+    print(io, "ShiftedChebyshevGrid{", eltype(S), "}")
+end
+
 bary(v::AbstractVector{Float64},d::IntervalOrSegmentDomain,x::Float64) = bary(v,tocanonical(d,x))
 
 strictconvert(T::Type, x) = convert(T, x)::T
