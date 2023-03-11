@@ -39,6 +39,12 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
         @test y == 2Fun()
     end
 
+    @testset "points" begin
+        p = points(Chebyshev(-1..1), 4)
+        @test points(Chebyshev(), 4) ≈ p
+        @test contains(summary(p), "ShiftedChebyshevGrid{Float64}")
+    end
+
     @testset "inference in Space(::Interval)" begin
         S = @inferred Space(0..1)
         f = Fun(S)
