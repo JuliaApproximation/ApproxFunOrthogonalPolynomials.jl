@@ -217,10 +217,18 @@ function rootsunit_coeffs(c::Vector{T}, htol::Float64,clplan::ClenshawPlan{S,T})
         # Find the roots of the polynomial on each piece and then concatenate. Recurse if necessary.
 
         # Evaluate the polynomial at Chebyshev grids on both intervals:
-        #(clenshaw! overwrites points, which only makes sence if c is real)
+        #(clenshaw! overwrites points, which only makes sense if c is real)
 
-        v1 = isa(c,Vector{Float64}) ? clenshaw!( c, points(-1..splitPoint,n),clplan) : clenshaw( c, points(-1..splitPoint,n),clplan)
-        v2 = isa(c,Vector{Float64}) ? clenshaw!( c, points(splitPoint..1 ,n),clplan) : clenshaw( c, points(splitPoint..1 ,n),clplan)
+        v1 = if isa(c, Vector{Float64})
+            clenshaw!(c, convert(Vector, points(-1..splitPoint,n)), clplan)
+        else
+            clenshaw(c, points(-1..splitPoint,n),clplan)
+        end
+        v2 = if isa(c, Vector{Float64})
+            clenshaw!(c, convert(Vector, points(splitPoint..1 ,n)), clplan)
+        else
+            clenshaw(c, points(splitPoint..1 ,n),clplan)
+        end
 
         # Recurse (and map roots back to original interval):
         p = plan_chebyshevtransform( v1 )
