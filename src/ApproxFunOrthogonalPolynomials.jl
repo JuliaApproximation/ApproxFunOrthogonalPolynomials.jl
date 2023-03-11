@@ -82,7 +82,9 @@ using StaticArrays: SVector
 import LinearAlgebra: isdiag
 
 points(d::IntervalOrSegmentDomain{T},n::Integer) where {T} =
-    fromcanonical.(Ref(d), chebyshevpoints(float(real(eltype(T))), n))  # eltype to handle point
+    _maybefromcanonical(d, chebyshevpoints(float(real(eltype(T))), n))  # eltype to handle point
+_maybefromcanonical(d, pts) = fromcanonical.(Ref(d), pts)
+_maybefromcanonical(::ChebyshevInterval, pts::FastTransforms.ChebyshevGrid) = pts
 bary(v::AbstractVector{Float64},d::IntervalOrSegmentDomain,x::Float64) = bary(v,tocanonical(d,x))
 
 strictconvert(T::Type, x) = convert(T, x)::T
