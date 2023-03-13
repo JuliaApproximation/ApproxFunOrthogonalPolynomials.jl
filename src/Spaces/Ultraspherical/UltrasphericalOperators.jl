@@ -247,13 +247,19 @@ end
 bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 0,2  # order == 1
 bandwidths(C::ConcreteConversion{<:Ultraspherical{<:Union{Integer,StaticInt}},<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 0,2
 
-bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical}) =
-    0,order(rangespace(C))==1 ? 2 : ℵ₀
-bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Chebyshev}) =
-    0,order(domainspace(C))==1 ? 2 : ℵ₀
+function bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical})
+    orderone = order(rangespace(C)) == 1
+    orderone ? (0,2) : (0,ℵ₀)
+end
+function bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Chebyshev})
+    orderone = order(domainspace(C)) == 1
+    orderone ? (0,2) : (0,ℵ₀)
+end
 
-bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) =
-    0,order(domainspace(C))+1==order(rangespace(C)) ? 2 : ℵ₀
+function bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical})
+    offbyone = order(domainspace(C))+1 == order(rangespace(C))
+    offbyone ? (0,2) : (0,ℵ₀)
+end
 
 Base.stride(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 2
 Base.stride(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = 2
