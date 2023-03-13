@@ -9,7 +9,7 @@ struct Jacobi{D<:Domain,R,T} <: PolynomialSpace{D,R}
     b::T
     a::T
     domain::D
-    Jacobi{D,R}(b::T,a::T,d::D) where {D,R,T} = new{D,R,T}(b,a,d)
+    Jacobi{D,R}(b::T,a::T,d::D) where {D,R,T<:Number} = new{D,R,T}(b,a,d)
 end
 Jacobi(b::T,a::T,d::Domain) where {T<:Number} =
     Jacobi{typeof(d),promote_type(T,real(prectype(d)))}(b, a, d)
