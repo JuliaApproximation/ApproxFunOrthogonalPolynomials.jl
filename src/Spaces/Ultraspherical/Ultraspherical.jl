@@ -128,7 +128,7 @@ end
 
 
 spacescompatible(a::Ultraspherical,b::Ultraspherical) =
-    order(a) == order(b) && domainscompatible(a,b)
+    compare_orders(order(a), order(b)) && domainscompatible(a,b)
 hasfasttransform(::Ultraspherical) = true
 
 
