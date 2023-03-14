@@ -153,9 +153,9 @@ function Conversion(L::Jacobi,M::Jacobi)
         elseif (isapprox(L.b+1,M.b) && isapprox(L.a,M.a)) ||
                 (isapprox(L.b,M.b) && isapprox(L.a+1,M.a))
             return ConcreteConversion(L,M)
-        elseif L.a ≈ L.b ≈ -0.5 && M.a ≈ M.b
+        elseif L.a ≈ L.b && isapproxminhalf(L.a) && M.a ≈ M.b
             return Conversion(L,Chebyshev(dl),Ultraspherical(M),M)
-        elseif L.a ≈ L.b && M.a ≈ M.b ≈ -0.5
+        elseif L.a ≈ L.b && M.a ≈ M.b && isapproxminhalf(M.a)
             return Conversion(L,Ultraspherical(L),Chebyshev(dm),M)
         elseif L.a ≈ L.b && M.a ≈ M.b
             return Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
@@ -171,9 +171,9 @@ function Conversion(L::Jacobi,M::Jacobi)
             return ConversionWrapper(TimesOperator(C))
         end
     elseif isapproxinteger_addhalf(L.a - M.a) && isapproxinteger_addhalf(L.b - M.b)
-        if L.a ≈ L.b && M.a ≈ M.b ≈ -0.5
+        if L.a ≈ L.b && M.a ≈ M.b && isapproxminhalf(M.a)
             return Conversion(L,Ultraspherical(L),Chebyshev(dm),M)
-        elseif L.a ≈ L.b ≈ -0.5 && M.a ≈ M.b && M.a >= L.a
+        elseif L.a ≈ L.b && isapproxminhalf(L.a) && M.a ≈ M.b && M.a >= L.a
             return Conversion(L,Chebyshev(dl),Ultraspherical(M),M)
         elseif L.a ≈ L.b && M.a ≈ M.b && M.a >= L.a
             return Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
