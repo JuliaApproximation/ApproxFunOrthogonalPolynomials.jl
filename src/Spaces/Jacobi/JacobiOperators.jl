@@ -235,8 +235,7 @@ function Conversion(A::Jacobi,B::PolynomialSpace)
              ConversionWrapper(TimesOperator(Conversion(J,B),Conversion(A,J)))
 end
 
-isequalminhalf(x) = x == -0.5
-isequalminhalf(@nospecialize ::Integer) = false
+isequalminhalf(x) = x == half(Odd(-1))
 
 function Conversion(A::Jacobi,B::Chebyshev)
     @assert domain(A) == domain(B)
@@ -421,8 +420,7 @@ function BandedMatrix(S::SubOperator{T,ConcreteConversion{J,US,T},NTuple{2,UnitR
 end
 
 
-isapproxminhalf(a) = a ≈ -0.5
-isapproxminhalf(::Integer) = false
+isapproxminhalf(a) = a ≈ half(Odd(-1))
 
 function union_rule(A::Jacobi,B::Jacobi)
     if domainscompatible(A,B)
