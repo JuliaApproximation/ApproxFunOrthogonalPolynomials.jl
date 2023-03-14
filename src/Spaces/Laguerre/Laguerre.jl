@@ -35,7 +35,7 @@ const NormalizedLaguerre{T<:Real,D<:Ray} = NormalizedPolynomialSpace{Laguerre{T,
 NormalizedLaguerre(α) = NormalizedPolynomialSpace(Laguerre(α))
 NormalizedLaguerre() = NormalizedLaguerre(0)
 
-spacescompatible(A::Laguerre,B::Laguerre) = A.α ≈ B.α && B.domain == A.domain
+spacescompatible(A::Laguerre,B::Laguerre) = compare_orders(A.α, B.α) && B.domain == A.domain
 
 canonicaldomain(::Laguerre) = Ray()
 domain(d::Laguerre) = d.domain
