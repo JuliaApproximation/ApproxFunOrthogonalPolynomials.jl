@@ -42,6 +42,15 @@ using Static
             @test ncoefficients(g) == 1
             @test coefficients(g)[1] == f(x)
         end
+
+        @testset "spacescompatible" begin
+            x = 1.0
+            y = 1.0 + eps(1.0)
+            Jx = Jacobi(x,x)
+            Jy = Jacobi(y,y)
+            @test ApproxFunBase.spacescompatible(Jx, Jy)
+            @test ApproxFunBase.spacescompatible(Ultraspherical(Jx), Ultraspherical(Jy))
+        end
     end
 
     @testset "Conversion" begin

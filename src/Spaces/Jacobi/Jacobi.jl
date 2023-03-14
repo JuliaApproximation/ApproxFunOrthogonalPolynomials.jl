@@ -41,8 +41,8 @@ Base.promote_rule(::Type{Jacobi{D,R1,T1}},::Type{Jacobi{D,R2,T2}}) where {D,R1,R
 convert(::Type{Jacobi{D,R1,T1}},J::Jacobi{D,R2,T2}) where {D,R1,R2,T1,T2} =
     Jacobi{D,R1}(T1(J.b)::T1, T1(J.a)::T1, J.domain)::Jacobi{D,R1,T1}
 
-
-spacescompatible(a::Jacobi,b::Jacobi) = a.a ≈ b.a && a.b ≈ b.b && domainscompatible(a,b)
+compare_orders((Aa, Ba)::NTuple{2,Number}, (Ab, Bb)::NTuple{2,Number}) = compare_orders(Aa, Ba) && compare_orders(Ab, Bb)
+spacescompatible(a::Jacobi, b::Jacobi) = compare_orders((a.a, b.a), (a.b, b.b)) && domainscompatible(a,b)
 
 isapproxinteger_addhalf(a) = !isapproxinteger(a) && isapproxinteger(a+0.5)
 isapproxinteger_addhalf(::Integer) = false
