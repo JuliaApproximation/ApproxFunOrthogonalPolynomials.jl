@@ -181,7 +181,7 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
             v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in r]
             if !(last(r) ≈ a+1)
                 vlast = ConcreteConversion(A, Ultraspherical(last(r)-1, d))
-                push!(v, vlast)
+                v = [v; vlast]
             end
             bwsum = isapproxinteger(b-a) ? (0, 2length(v)) : (0,ℵ₀)
             return ConversionWrapper(TimesOperator(v, bwsum, (ℵ₀,ℵ₀), bwsum), A, B)
