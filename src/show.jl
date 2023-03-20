@@ -50,7 +50,7 @@ _showsorders(C::Jacobi) = !(C.b == 0 && C.a == 0)
 
 function show(io::IO, S::Union{Chebyshev, Ultraspherical, Jacobi})
     _spacename(io, S)
-    !(domain(S) isa ChebyshevInterval) && _showsorders(S) && print(io, ", ")
+    !(domain(S) isa ChebyshevInterval) && _showsorders(S) && print(io, ",")
     _maybeshowdomain(io, domain(S))
     print(io,")")
 end
