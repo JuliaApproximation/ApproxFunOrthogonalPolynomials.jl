@@ -25,29 +25,34 @@ function show(io::IO,d::Ray)
 end
 
 ## Spaces
+_maybetoint(x::Union{Integer, StaticInt}) = Int(x)
+_maybetoint(x) = x
 
-function show(io::IO, S::Chebyshev)
-    print(io, "Chebyshev(")
-    show(io,domain(S))
-    print(io,")")
+_spacename(io, ::Chebyshev) = print(io, "Chebyshev(")
+_spacename(io, S::Ultraspherical) = print(io,"Ultraspherical(", _maybetoint(order(S)))
+function _spacename(io, S::Jacobi)
+    if S.a == S.b == 0
+        print(io,"Legendre(")
+    else
+        print(io,"Jacobi(", _maybetoint(S.b), ",", _maybetoint(S.a))
+    end
 end
 
-function show(io::IO, S::Ultraspherical)
-    print(io,"Ultraspherical(", order(S), ",")
-    show(io,domain(S))
-    print(io,")")
+function _maybeshowdomain(io, d)
+    if !(d isa ChebyshevInterval)
+        show(io, d)
+    end
 end
 
-function show(io::IO,S::Jacobi)
-    S.a == S.b == 0 ? print(io,"Legendre(") : print(io,"Jacobi(", S.b, ",", S.a,",")
-    show(io,domain(S))
+_showsorders(C::Chebyshev) = false
+_showsorders(C::Ultraspherical) = true
+_showsorders(C::Jacobi) = !(C.b == 0 && C.a == 0)
+
+function show(io::IO, S::Union{Chebyshev, Ultraspherical, Jacobi})
+    _spacename(io, S)
+    !(domain(S) isa ChebyshevInterval) && _showsorders(S) && print(io, ",")
+    _maybeshowdomain(io, domain(S))
     print(io,")")
 end
-
-show(io::IO, S::Chebyshev{<:ChebyshevInterval}) = print(io, "Chebyshev()")
-show(io::IO, S::Ultraspherical{<:Any,<:ChebyshevInterval}) =
-    print(io, "Ultraspherical(", order(S), ")")
-show(io::IO, S::Jacobi{<:ChebyshevInterval}) =
-    S.a == S.b == 0 ? print(io,"Legendre()") : print(io,"Jacobi(", S.b, ",", S.a,")")
 
 show(io::IO, S::NormalizedPolynomialSpace) = (print(io, "Normalized"); show(io, S.space))
