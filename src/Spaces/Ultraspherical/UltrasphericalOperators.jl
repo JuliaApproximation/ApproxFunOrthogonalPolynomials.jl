@@ -314,7 +314,8 @@ end
 
 
 # TODO: include in getindex to speed up
-function Integral(sp::Chebyshev{DD},m::Integer) where {DD<:IntervalOrSegment}
+function Integral(sp::Chebyshev{DD}, m::Number) where {DD<:IntervalOrSegment}
+    assert_integer(m)
     usp = Ultraspherical(m,domain(sp))
     I = Integral(usp,m)
     C = Conversion(sp,usp)
