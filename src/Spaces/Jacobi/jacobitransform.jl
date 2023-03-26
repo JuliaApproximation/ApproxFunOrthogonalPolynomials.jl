@@ -36,33 +36,3 @@ icjt(P, cfs, ::Val{false}) = P * cfs
 function *(P::JacobiITransformPlan, cfs::AbstractVector)
     P.ichebplan * icjt(P.icjtplan, cfs, Val(inplace(P)))
 end
-
-function _changepolybasis(v::StridedVector{T}, C::Chebyshev{<:ChebyshevInterval}, J::Jacobi{<:ChebyshevInterval}) where {T<:AbstractFloat}
-    if J.a == 0 && J.b == 0
-        cheb2leg(v)
-    else
-        cheb2jac(v, strictconvert(T,J.a), strictconvert(T,J.b))
-    end
-end
-function _changepolybasis(v::StridedVector{T}, J::Jacobi{<:ChebyshevInterval}, C::Chebyshev{<:ChebyshevInterval}) where {T<:AbstractFloat}
-    if J.a == 0 && J.b == 0
-        leg2cheb(v)
-    else
-        jac2cheb(v, strictconvert(T,J.a), strictconvert(T,J.b))
-    end
-end
-function _changepolybasis(v::StridedVector{T}, U::Ultraspherical{<:Any,<:ChebyshevInterval}, J::Jacobi{<:ChebyshevInterval}) where {T<:AbstractFloat}
-    ultra2jac(v, strictconvert(T,order(U)), strictconvert(T,J.a), strictconvert(T,J.b))
-end
-function _changepolybasis(v::StridedVector{T}, J::Jacobi{<:ChebyshevInterval}, U::Ultraspherical{<:Any,<:ChebyshevInterval}) where {T<:AbstractFloat}
-    jac2ultra(v, strictconvert(T,J.a), strictconvert(T,J.b), strictconvert(T,order(U)))
-end
-function _changepolybasis(v::StridedVector{T}, J1::Jacobi{<:ChebyshevInterval}, J2::Jacobi{<:ChebyshevInterval}) where {T<:AbstractFloat}
-    jac2jac(v, strictconvert(T,J1.a), strictconvert(T,J1.b), strictconvert(T,J2.a), strictconvert(T,J2.b))
-end
-_changepolybasis(v, a, b) = defaultcoefficients(v, a, b)
-
-function coefficients(f::AbstractVector{T},
-        a::Union{Chebyshev,Ultraspherical,Jacobi}, b::Union{Chebyshev,Ultraspherical,Jacobi}) where T
-    _changepolybasis(f, a, b)
-end
