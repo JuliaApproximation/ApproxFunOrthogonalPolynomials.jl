@@ -37,27 +37,32 @@ function *(P::JacobiITransformPlan, cfs::AbstractVector)
     P.ichebplan * icjt(P.icjtplan, cfs, Val(inplace(P)))
 end
 
-
-function coefficients(f::AbstractVector{T}, a::Jacobi, b::Chebyshev) where T
-    if domainscompatible(a, b) && !(isapproxinteger_addhalf(a.a) && isapproxinteger_addhalf(a.b))
-        jac2cheb(f, strictconvert(T,a.a), strictconvert(T,a.b))
+function _changepolybasis(v::StridedVector{T}, C::Chebyshev{<:ChebyshevInterval}, J::Jacobi{<:ChebyshevInterval}) where {T<:AbstractFloat}
+    if J.a == 0 && J.b == 0
+        cheb2leg(v)
     else
-        defaultcoefficients(f,a,b)
+        cheb2jac(v, strictconvert(T,J.a), strictconvert(T,J.b))
     end
 end
-function coefficients(f::AbstractVector{T}, a::Chebyshev, b::Jacobi) where T
-    isempty(f) && return f
-    if domainscompatible(a, b) && !(isapproxinteger_addhalf(b.a) && isapproxinteger_addhalf(b.b))
-        cheb2jac(f, strictconvert(T,b.a), strictconvert(T,b.b))
+function _changepolybasis(v::StridedVector{T}, J::Jacobi{<:ChebyshevInterval}, C::Chebyshev{<:ChebyshevInterval}) where {T<:AbstractFloat}
+    if J.a == 0 && J.b == 0
+        leg2cheb(v)
     else
-        defaultcoefficients(f,a,b)
+        jac2cheb(v, strictconvert(T,J.a), strictconvert(T,J.b))
     end
 end
+function _changepolybasis(v::StridedVector{T}, U::Ultraspherical{<:Any,<:ChebyshevInterval}, J::Jacobi{<:ChebyshevInterval}) where {T<:AbstractFloat}
+    ultra2jac(v, strictconvert(T,order(U)), strictconvert(T,J.a), strictconvert(T,J.b))
+end
+function _changepolybasis(v::StridedVector{T}, J::Jacobi{<:ChebyshevInterval}, U::Ultraspherical{<:Any,<:ChebyshevInterval}) where {T<:AbstractFloat}
+    jac2ultra(v, strictconvert(T,J.a), strictconvert(T,J.b), strictconvert(T,order(U)))
+end
+function _changepolybasis(v::StridedVector{T}, J1::Jacobi{<:ChebyshevInterval}, J2::Jacobi{<:ChebyshevInterval}) where {T<:AbstractFloat}
+    jac2jac(v, strictconvert(T,J1.a), strictconvert(T,J1.b), strictconvert(T,J2.a), strictconvert(T,J2.b))
+end
+_changepolybasis(v, a, b) = defaultcoefficients(v, a, b)
 
-function coefficients(f::AbstractVector,a::Jacobi,b::Jacobi)
-    if domainscompatible(a, b) && !(isapproxinteger(a.a-b.a) && isapproxinteger(a.b-b.b))
-        jac2jac(f,a.a,a.b,b.a,b.b)
-    else
-        defaultcoefficients(f,a,b)
-    end
+function coefficients(f::AbstractVector{T},
+        a::Union{Chebyshev,Ultraspherical,Jacobi}, b::Union{Chebyshev,Ultraspherical,Jacobi}) where T
+    _changepolybasis(f, a, b)
 end

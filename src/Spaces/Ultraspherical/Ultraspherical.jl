@@ -131,6 +131,31 @@ spacescompatible(a::Ultraspherical,b::Ultraspherical) =
     compare_orders(order(a), order(b)) && domainscompatible(a,b)
 hasfasttransform(::Ultraspherical) = true
 
+function _changepolybasis(v::StridedVector{T},
+        C::Chebyshev{<:ChebyshevInterval}, U::Ultraspherical{<:Any,<:ChebyshevInterval}) where {T<:AbstractFloat}
+    cheb2ultra(v, strictconvert(T, order(U)))
+end
+function _changepolybasis(v::StridedVector{T},
+        U::Ultraspherical{<:Any,<:ChebyshevInterval}, C::Chebyshev{<:ChebyshevInterval}) where {T<:AbstractFloat}
+    ultra2cheb(v, strictconvert(T, order(U)))
+end
+function _changepolybasis(v::StridedVector{T},
+        U1::Ultraspherical{<:Any,<:ChebyshevInterval}, U2::Ultraspherical{<:Any,<:ChebyshevInterval}) where {T<:AbstractFloat}
+
+    order(U1) == order(U2) && return v
+    if abs(order(U1) - order(U2)) < 1
+        # FastTransforms v0.15 limitation,
+        # see https://github.com/JuliaApproximation/FastTransforms.jl/issues/200
+        ultra2ultra(v, strictconvert(T, order(U1)), strictconvert(T, order(U2)))
+    else
+        defaultcoefficients(v, U1, U2)
+    end
+end
+
+function coefficients(f::AbstractVector{T},
+        a::Union{Chebyshev,Ultraspherical}, b::Union{Chebyshev,Ultraspherical}) where T
+    _changepolybasis(f, a, b)
+end
 
 
 include("UltrasphericalOperators.jl")

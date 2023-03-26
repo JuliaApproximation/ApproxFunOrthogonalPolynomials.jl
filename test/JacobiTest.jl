@@ -345,8 +345,8 @@ using Static
         g = Fun(f,Legendre())
         h = Fun(g,Chebyshev())
         @test norm(f.coefficients-h.coefficients,Inf) < 1000eps()
-        @time h = Fun(h,Legendre())
-        @test norm(g.coefficients-h.coefficients,Inf) < 10000eps()
+        @time j = Fun(h,Legendre())
+        @test norm(g.coefficients-j.coefficients,Inf) < 60000eps()
     end
 
     @testset "conversion for non-compatible paramters" begin

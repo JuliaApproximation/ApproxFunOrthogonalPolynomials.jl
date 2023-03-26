@@ -254,5 +254,4 @@ end
 reverseorientation(f::Fun{<:Chebyshev}) =
     Fun(Chebyshev(reverseorientation(domain(f))),alternatesign!(copy(f.coefficients)))
 
-
 include("ChebyshevOperators.jl")

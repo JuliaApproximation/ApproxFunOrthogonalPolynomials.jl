@@ -378,7 +378,7 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
                     sp in Any[_sp, NormalizedPolynomialSpace(_sp)]
                 d = domain(sp)
                 f = Fun(sp, c)
-                for ep in [leftendpoint, rightendpoint],
+                @testset for ep in [leftendpoint, rightendpoint],
                         ev in [ApproxFunBase.ConcreteEvaluation, Evaluation]
                     E = @inferred ev(sp, ep, 0)
                     @test E[2:4] ≈ E[1:4][2:end]
