@@ -344,9 +344,11 @@ using Static
         f = Fun(x->cospi(1000x))
         g = Fun(f,Legendre())
         h = Fun(g,Chebyshev())
-        @test norm(f.coefficients-h.coefficients,Inf) < 1000eps()
+        @test norm(coefficients(f) - coefficients(h), Inf) < 1000eps()
         @time j = Fun(h,Legendre())
-        @test norm(g.coefficients-j.coefficients,Inf) < 60000eps()
+        # The accuracy in the following may be improved,
+        # See https://github.com/JuliaApproximation/FastTransforms.jl/issues/201
+        @test norm(coefficients(g) - coefficients(j), Inf) < 60000eps()
     end
 
     @testset "conversion for non-compatible paramters" begin
