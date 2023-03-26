@@ -22,7 +22,19 @@ const NormalizedJacobi{D<:Domain,R,T} = NormalizedPolynomialSpace{Jacobi{D,R,T},
 NormalizedJacobi(s...) = NormalizedPolynomialSpace(Jacobi(s...))
 NormalizedLegendre(d...) = NormalizedPolynomialSpace(Legendre(d...))
 
-normalization(::Type{T}, sp::Jacobi, k::Int) where T = FastTransforms.Anαβ(k, sp.a, sp.b)
+function normalization(::Type{T}, sp::Jacobi, k::Int) where T
+    if sp.a == sp.b == -0.5 && k == 0
+        # In this case, the expression for Anαβ has a division by zero, so we evaluate this using Mathematica
+        # In principle this may be generalized to arbitrary α + β = -1
+        # The exact expression from Mathematica in terms of the hypergeometric 2F1 function
+        # \fbox{$\frac{\, _2F_1(1,-\alpha ;\beta +2;-1)}{\beta +1}+\frac{\, _2F_1(1,-\beta ;\alpha +2;-1)}{\alpha +1}\text{ if }\alpha >-1\land \beta >-1$}
+        # or, by eliminating β and expressed in terms of the polygamma function,
+        # \fbox{$\frac{1}{2} \left(\psi ^{(0)}\left(\frac{1}{2}-\frac{\alpha }{2}\right)-\psi ^{(0)}\left(-\frac{\alpha }{2}\right)\right)+\frac{1}{2} \left(\psi ^{(0)}\left(\frac{\alpha }{2}+1\right)-\psi ^{(0)}\left(\frac{\alpha }{2}+\frac{1}{2}\right)\right)\text{ if }-1<\alpha <0$}
+        T(pi)
+    else
+        FastTransforms.Anαβ(T(k), T(sp.a), T(sp.b))
+    end
+end
 
 function Ultraspherical(J::Jacobi)
     if J.a == J.b

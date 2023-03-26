@@ -55,7 +55,7 @@ using Static
 
     @testset "Conversion" begin
         testtransforms(Jacobi(-0.5,-0.5))
-        @test norm(Fun(Fun(exp),Jacobi(-.5,-.5))-Fun(exp,Jacobi(-.5,-.5))) < 300eps()
+        @test norm(Fun(Fun(exp),Jacobi(-0.5,-0.5))-Fun(exp,Jacobi(-0.5,-0.5))) < 300eps()
 
         @testset for d in (-1..1, 0..1, ChebyshevInterval())
             @testset "Chebyshev" begin
@@ -70,6 +70,11 @@ using Static
                         end
                     end
                 end
+                # Jacobi(-0.5, -0.5) to NormalizedJacobi(-0.5, -0.5) can have a NaN in the (1,1) index
+                # if the normalization is not carefully implemented,
+                # so this test checks that this is not the case
+                g = Conversion(Jacobi(-0.5,-0.5), NormalizedJacobi(-0.5,-0.5)) * Fun(x->x^3, Jacobi(-0.5, -0.5))
+                @test coefficients(g) ≈ coefficients(Fun(x->x^3, NormalizedChebyshev()))
             end
             @testset "legendre" begin
                 f = Fun(x->x^2, Legendre(d))
