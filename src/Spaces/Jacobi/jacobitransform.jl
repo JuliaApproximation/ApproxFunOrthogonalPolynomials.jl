@@ -39,7 +39,7 @@ end
 
 
 function coefficients(f::AbstractVector{T}, a::Jacobi, b::Chebyshev) where T
-    if domain(a) == domain(b) && (!isapproxinteger(a.a-0.5) || !isapproxinteger(a.b-0.5))
+    if domainscompatible(a, b) && !(isapproxinteger_addhalf(a.a) && isapproxinteger_addhalf(a.b))
         jac2cheb(f, strictconvert(T,a.a), strictconvert(T,a.b))
     else
         defaultcoefficients(f,a,b)
@@ -47,7 +47,7 @@ function coefficients(f::AbstractVector{T}, a::Jacobi, b::Chebyshev) where T
 end
 function coefficients(f::AbstractVector{T}, a::Chebyshev, b::Jacobi) where T
     isempty(f) && return f
-    if domain(a) == domain(b) && (!isapproxinteger(b.a-0.5) || !isapproxinteger(b.b-0.5))
+    if domainscompatible(a, b) && !(isapproxinteger_addhalf(b.a) && isapproxinteger_addhalf(b.b))
         cheb2jac(f, strictconvert(T,b.a), strictconvert(T,b.b))
     else
         defaultcoefficients(f,a,b)
@@ -55,7 +55,7 @@ function coefficients(f::AbstractVector{T}, a::Chebyshev, b::Jacobi) where T
 end
 
 function coefficients(f::AbstractVector,a::Jacobi,b::Jacobi)
-    if domain(a) == domain(b) && (!isapproxinteger(a.a-b.a) || !isapproxinteger(a.b-b.b))
+    if domainscompatible(a, b) && !(isapproxinteger(a.a-b.a) && isapproxinteger(a.b-b.b))
         jac2jac(f,a.a,a.b,b.a,b.b)
     else
         defaultcoefficients(f,a,b)
