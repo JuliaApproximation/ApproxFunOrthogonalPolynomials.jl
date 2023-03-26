@@ -142,5 +142,6 @@ _changepolybasis(v, a, b) = defaultcoefficients(v, a, b)
 function coefficients(f::AbstractVector{T},
         a::MaybeNormalized{<:Union{Chebyshev,Ultraspherical,Jacobi}},
         b::MaybeNormalized{<:Union{Chebyshev,Ultraspherical,Jacobi}}) where T
+    a == b && return f
     _changepolybasis(f, a, b)
 end
