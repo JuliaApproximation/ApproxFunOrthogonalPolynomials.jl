@@ -348,7 +348,8 @@ using Static
         @time j = Fun(h,Legendre())
         # The accuracy in the following may be improved,
         # See https://github.com/JuliaApproximation/FastTransforms.jl/issues/201
-        @test norm(coefficients(g) - coefficients(j), Inf) < 60000eps()
+        # On FastTransforms v0.15, an upper bound of 60000eps() works
+        @test norm(coefficients(g) - coefficients(j), Inf) < 10000eps()
     end
 
     @testset "conversion for non-compatible paramters" begin
