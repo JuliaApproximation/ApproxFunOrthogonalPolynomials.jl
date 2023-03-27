@@ -48,32 +48,44 @@ end
 
 # Fast conversion between common bases using FastTransforms
 
-function _changepolybasis(v::StridedVector{T},
-        C::MaybeNormalized{<:Chebyshev{<:ChebyshevInterval}},
-        U::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
-        ) where {T<:AbstractFloat}
+# The chebyshev-ultraspherical transforms are currently very slow,
+# see https://github.com/JuliaApproximation/FastTransforms.jl/issues/204
 
-    normcheb = C isa NormalizedPolynomialSpace
-    normultra = U isa NormalizedPolynomialSpace
-    cheb2ultra(v, strictconvert(T, order(U)); normcheb, normultra)
-end
-function _changepolybasis(v::StridedVector{T},
-        U::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
-        C::MaybeNormalized{<:Chebyshev{<:ChebyshevInterval}}) where {T<:AbstractFloat}
+# function _changepolybasis(v::StridedVector{T},
+#         C::MaybeNormalized{<:Chebyshev{<:ChebyshevInterval}},
+#         U::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
+#         ) where {T<:AbstractFloat}
 
-    normultra = U isa NormalizedPolynomialSpace
-    normcheb = C isa NormalizedPolynomialSpace
-    ultra2cheb(v, strictconvert(T, order(U)); normultra, normcheb)
-end
-function _changepolybasis(v::StridedVector{T},
-        U1::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
-        U2::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
-        ) where {T<:AbstractFloat}
+#     if hasconversion(C, U)
+#         return ApproxFunBase.mul_coefficients(Conversion(C, U), v)
+#     end
+#     normcheb = C isa NormalizedPolynomialSpace
+#     normultra = U isa NormalizedPolynomialSpace
+#     cheb2ultra(v, strictconvert(T, order(U)); normcheb, normultra)
+# end
+# function _changepolybasis(v::StridedVector{T},
+#         U::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
+#         C::MaybeNormalized{<:Chebyshev{<:ChebyshevInterval}}) where {T<:AbstractFloat}
 
-    norm1 = U1 isa NormalizedPolynomialSpace
-    norm2 = U2 isa NormalizedPolynomialSpace
-    ultra2ultra(v, strictconvert(T, order(U1)), strictconvert(T, order(U2)); norm1, norm2)
-end
+#     if hasconversion(U, C)
+#         return ApproxFunBase.mul_coefficients(Conversion(U, C), v)
+#     end
+#     normultra = U isa NormalizedPolynomialSpace
+#     normcheb = C isa NormalizedPolynomialSpace
+#     ultra2cheb(v, strictconvert(T, order(U)); normultra, normcheb)
+# end
+# function _changepolybasis(v::StridedVector{T},
+#         U1::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
+#         U2::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
+#         ) where {T<:AbstractFloat}
+
+#     if hasconversion(U1, U2)
+#         return ApproxFunBase.mul_coefficients(Conversion(U1, U2), v)
+#     end
+#     norm1 = U1 isa NormalizedPolynomialSpace
+#     norm2 = U2 isa NormalizedPolynomialSpace
+#     ultra2ultra(v, strictconvert(T, order(U1)), strictconvert(T, order(U2)); norm1, norm2)
+# end
 
 function _changepolybasis(v::StridedVector{T},
         C::MaybeNormalized{<:Chebyshev{<:ChebyshevInterval}},
@@ -142,6 +154,6 @@ _changepolybasis(v, a, b) = defaultcoefficients(v, a, b)
 function coefficients(f::AbstractVector{T},
         a::MaybeNormalized{<:Union{Chebyshev,Ultraspherical,Jacobi}},
         b::MaybeNormalized{<:Union{Chebyshev,Ultraspherical,Jacobi}}) where T
-    a == b && return f
+    spacescompatible(a,b) && return f
     _changepolybasis(f, a, b)
 end
