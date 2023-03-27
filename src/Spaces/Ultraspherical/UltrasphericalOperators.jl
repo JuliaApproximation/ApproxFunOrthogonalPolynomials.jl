@@ -190,8 +190,10 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
     throw(ArgumentError("please implement $A → $B"))
 end
 
-maxspace_rule(A::Ultraspherical,B::Ultraspherical) = order(A) > order(B) ? A : B
-
+function maxspace_rule(A::Ultraspherical, B::Ultraspherical)
+    isapproxinteger(order(A) - order(B)) || return NoSpace()
+    order(A) > order(B) ? A : B
+end
 
 function getindex(M::ConcreteConversion{<:Chebyshev,U,T},
         k::Integer,j::Integer) where {T, U<:Ultraspherical{<:Union{Integer, StaticInt}}}
