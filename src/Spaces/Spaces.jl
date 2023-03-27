@@ -50,30 +50,45 @@ end
 
 # The chebyshev-ultraspherical transforms are currently very slow,
 # see https://github.com/JuliaApproximation/FastTransforms.jl/issues/204
+# We therefore go through hoops to only call these for non-integral Ultraspherical orders
 
-# function _changepolybasis(v::StridedVector{T},
-#         C::MaybeNormalized{<:Chebyshev{<:ChebyshevInterval}},
-#         U::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
-#         ) where {T<:AbstractFloat}
+function _changepolybasis(v::StridedVector{T},
+        C::MaybeNormalized{<:Chebyshev{<:ChebyshevInterval}},
+        U::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
+        ) where {T<:AbstractFloat}
 
-#     if hasconversion(C, U)
-#         return ApproxFunBase.mul_coefficients(Conversion(C, U), v)
-#     end
-#     normcheb = C isa NormalizedPolynomialSpace
-#     normultra = U isa NormalizedPolynomialSpace
-#     cheb2ultra(v, strictconvert(T, order(U)); normcheb, normultra)
-# end
-# function _changepolybasis(v::StridedVector{T},
-#         U::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
-#         C::MaybeNormalized{<:Chebyshev{<:ChebyshevInterval}}) where {T<:AbstractFloat}
+    normcheb = C isa NormalizedPolynomialSpace
+    normultra = U isa NormalizedPolynomialSpace
+    Uc = normultra ? _stripnorm(U) : U
+    Cc = normcheb ? _stripnorm(C) : C
+    if order(U) == 1
+        v = ApproxFunBase.mul_coefficients(Conversion(C, Cc), v)
+        vc = ultraconversion(v)
+        ApproxFunBase.mul_coefficients!(Conversion(Uc, U), vc)
+    elseif order(U) isa Union{Integer, StaticInt}
+        coefficients(v, C, Ultraspherical(1,domain(U)), U)
+    else
+        cheb2ultra(v, strictconvert(T, order(Uc)); normcheb, normultra)
+    end
+end
+function _changepolybasis(v::StridedVector{T},
+        U::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
+        C::MaybeNormalized{<:Chebyshev{<:ChebyshevInterval}}) where {T<:AbstractFloat}
 
-#     if hasconversion(U, C)
-#         return ApproxFunBase.mul_coefficients(Conversion(U, C), v)
-#     end
-#     normultra = U isa NormalizedPolynomialSpace
-#     normcheb = C isa NormalizedPolynomialSpace
-#     ultra2cheb(v, strictconvert(T, order(U)); normultra, normcheb)
-# end
+    normultra = U isa NormalizedPolynomialSpace
+    normcheb = C isa NormalizedPolynomialSpace
+    Uc = normultra ? _stripnorm(U) : U
+    Cc = normcheb ? _stripnorm(C) : C
+    if order(U) == 1
+        v = ApproxFunBase.mul_coefficients(Conversion(U, Uc), v)
+        vc = ultraiconversion(v)
+        ApproxFunBase.mul_coefficients!(Conversion(Cc, C), vc)
+    elseif order(U) isa Union{Integer, StaticInt}
+        coefficients(v, U, Ultraspherical(1,domain(U)), C)
+    else
+        ultra2cheb(v, strictconvert(T, order(Uc)); normultra, normcheb)
+    end
+end
 # function _changepolybasis(v::StridedVector{T},
 #         U1::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
 #         U2::MaybeNormalized{<:Ultraspherical{<:Any,<:ChebyshevInterval}},
