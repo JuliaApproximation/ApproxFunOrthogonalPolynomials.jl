@@ -192,6 +192,8 @@ using Static
                     NormalizedUltraspherical(NormalizedPolynomialSpace(j))
             end
         end
+
+        @test ApproxFunOrthogonalPolynomials.normalization(ComplexF64, Jacobi(-0.5, -0.5), 0) ≈ pi
     end
 
     @testset "inplace transform" begin
