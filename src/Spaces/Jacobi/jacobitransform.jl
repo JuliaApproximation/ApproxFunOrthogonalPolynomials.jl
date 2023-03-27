@@ -36,28 +36,3 @@ icjt(P, cfs, ::Val{false}) = P * cfs
 function *(P::JacobiITransformPlan, cfs::AbstractVector)
     P.ichebplan * icjt(P.icjtplan, cfs, Val(inplace(P)))
 end
-
-
-function coefficients(f::AbstractVector{T}, a::Jacobi, b::Chebyshev) where T
-    if domainscompatible(a, b) && !(isapproxinteger_addhalf(a.a) && isapproxinteger_addhalf(a.b))
-        jac2cheb(f, strictconvert(T,a.a), strictconvert(T,a.b))
-    else
-        defaultcoefficients(f,a,b)
-    end
-end
-function coefficients(f::AbstractVector{T}, a::Chebyshev, b::Jacobi) where T
-    isempty(f) && return f
-    if domainscompatible(a, b) && !(isapproxinteger_addhalf(b.a) && isapproxinteger_addhalf(b.b))
-        cheb2jac(f, strictconvert(T,b.a), strictconvert(T,b.b))
-    else
-        defaultcoefficients(f,a,b)
-    end
-end
-
-function coefficients(f::AbstractVector,a::Jacobi,b::Jacobi)
-    if domainscompatible(a, b) && !(isapproxinteger(a.a-b.a) && isapproxinteger(a.b-b.b))
-        jac2jac(f,a.a,a.b,b.a,b.b)
-    else
-        defaultcoefficients(f,a,b)
-    end
-end

@@ -190,8 +190,10 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
     throw(ArgumentError("please implement $A → $B"))
 end
 
-maxspace_rule(A::Ultraspherical,B::Ultraspherical) = order(A) > order(B) ? A : B
-
+function maxspace_rule(A::Ultraspherical, B::Ultraspherical)
+    isapproxinteger(order(A) - order(B)) || return NoSpace()
+    order(A) > order(B) ? A : B
+end
 
 function getindex(M::ConcreteConversion{<:Chebyshev,U,T},
         k::Integer,j::Integer) where {T, U<:Ultraspherical{<:Union{Integer, StaticInt}}}
@@ -291,27 +293,6 @@ function _conversion_rule(a::Ultraspherical, b::Ultraspherical)
         NoSpace()
     end
 end
-
-
-function coefficients(g::AbstractVector,sp::Ultraspherical{<:Union{Integer,StaticInt}},C::Chebyshev)
-    domainscompatible(C,sp) || throw(ArgumentError("domains don't match: $(domain(sp)) and $(domain(C))"))
-    if order(sp) == 1
-        ultraiconversion(g)
-    else
-        # do one at a time
-        coefficients(g,sp,Ultraspherical(1,domain(sp)),C)
-    end
-end
-function coefficients(g::AbstractVector,C::Chebyshev,sp::Ultraspherical)
-    domainscompatible(C,sp) || throw(ArgumentError("domains don't match: $(domain(C)) and $(domain(sp))"))
-    if order(sp) == 1
-        ultraconversion(g)
-    else
-        # do one at a time
-        coefficients(g,C,Ultraspherical(1,domain(sp)),sp)
-    end
-end
-
 
 # TODO: include in getindex to speed up
 function Integral(sp::Chebyshev{DD}, m::Number) where {DD<:IntervalOrSegment}
