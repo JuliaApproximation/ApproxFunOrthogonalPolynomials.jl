@@ -131,6 +131,8 @@ spacescompatible(a::Ultraspherical,b::Ultraspherical) =
     compare_orders(order(a), order(b)) && domainscompatible(a,b)
 hasfasttransform(::Ultraspherical) = true
 
+
+
 include("UltrasphericalOperators.jl")
 include("DirichletSpace.jl")
 include("ContinuousSpace.jl")
