@@ -437,6 +437,24 @@ using Static
         end
     end
 
+    @testset "Fun coefficients conversion" begin
+        for d in Any[(), (0..1,)]
+            sp1 = Any[Chebyshev(d...),
+                Ultraspherical(1,d...), Ultraspherical(2,d...), Ultraspherical(3.5,d...)]
+            sp2 = Any[Jacobi(1,1,d...), Jacobi(1,2,d...)]
+            for _S1 in sp1, _S2 in sp2,
+                S1 in (_S1, NormalizedPolynomialSpace(_S1)),
+                S2 in (_S2, NormalizedPolynomialSpace(_S2))
+
+                f = Fun(x->x^4, S1)
+                g = Fun(f, S2)
+                h = Fun(g, S1)
+                @test f ≈ h
+                @test coefficients(f) ≈ coefficients(h)
+            end
+        end
+    end
+
     @testset "Reverse orientation" begin
         S = Jacobi(0.1,0.2)
 

@@ -257,4 +257,21 @@ using Static
             @inferred Union{TA, TB} Integral(Ultraspherical(1), 3)
         end
     end
+
+    @testset "Fun coefficients conversion" begin
+        for d in Any[(), (0..1,)]
+            sp = Any[Chebyshev(d...), Ultraspherical(0.5,d...),
+                Ultraspherical(1,d...), Ultraspherical(2,d...), Ultraspherical(3.5,d...)]
+            for _S1 in sp, _S2 in sp,
+                S1 in (_S1, NormalizedPolynomialSpace(_S1)),
+                S2 in (_S2, NormalizedPolynomialSpace(_S2))
+
+                f = Fun(x->x^4, S1)
+                g = Fun(f, S2)
+                h = Fun(g, S1)
+                @test f ≈ h
+                @test coefficients(f) ≈ coefficients(h)
+            end
+        end
+    end
 end
