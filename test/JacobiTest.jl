@@ -440,7 +440,8 @@ using Static
     @testset "Fun coefficients conversion" begin
         for d in Any[(), (0..1,)]
             sp1 = Any[Chebyshev(d...),
-                Ultraspherical(1,d...), Ultraspherical(2,d...), Ultraspherical(3.5,d...)]
+                Ultraspherical(1,d...), Ultraspherical(2,d...), Ultraspherical(3.5,d...),
+                Jacobi(1,1,d...), Jacobi(1,2,d...)]
             sp2 = Any[Jacobi(1,1,d...), Jacobi(1,2,d...)]
             for _S1 in sp1, _S2 in sp2,
                 S1 in (_S1, NormalizedPolynomialSpace(_S1)),
