@@ -348,9 +348,6 @@ using Static
         h = Fun(g,Chebyshev())
         @test norm(coefficients(f) - coefficients(h), Inf) < 1000eps()
         @time j = Fun(h,Legendre())
-        # The accuracy in the following may be improved,
-        # See https://github.com/JuliaApproximation/FastTransforms.jl/issues/201
-        # On FastTransforms v0.15, an upper bound of 60000eps() works
         @test norm(coefficients(g) - coefficients(j), Inf) < 10000eps()
     end
 
