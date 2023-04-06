@@ -3,7 +3,7 @@ using LinearAlgebra
 using Test
 
 function test_transform!(v, v2, S)
-    v .= rand.(eltype(v))
+    v .= LinearIndices(v).^2
     v2 .= v
     @test itransform(S, transform(S, v)) ≈ v
     @test transform(S, itransform(S, v)) ≈ v
