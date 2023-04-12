@@ -191,6 +191,7 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
 end
 
 function maxspace_rule(A::Ultraspherical, B::Ultraspherical)
+    domainscompatible(A, B) || return NoSpace()
     isapproxinteger(order(A) - order(B)) || return NoSpace()
     order(A) > order(B) ? A : B
 end
