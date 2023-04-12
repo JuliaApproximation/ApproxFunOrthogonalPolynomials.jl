@@ -131,7 +131,9 @@ spacescompatible(a::Ultraspherical,b::Ultraspherical) =
     compare_orders(order(a), order(b)) && domainscompatible(a,b)
 hasfasttransform(::Ultraspherical) = true
 
-
+# these methods help with type-inference
+hasconversion(C::Chebyshev, U::Ultraspherical{<:Union{Int,StaticInt}}) = domainscompatible(C,U)
+hasconversion(U::Ultraspherical{<:Union{Int,StaticInt}}, C::Chebyshev) = false
 
 include("UltrasphericalOperators.jl")
 include("DirichletSpace.jl")
