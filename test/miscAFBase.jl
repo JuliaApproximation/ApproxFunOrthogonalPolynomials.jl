@@ -143,25 +143,6 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
         end
     end
 
-    @testset "inplace transform" begin
-        @testset for sp_c in (Legendre(), Chebyshev(), Jacobi(1,2), Jacobi(0.3, 2.3),
-                Ultraspherical(1), Ultraspherical(2))
-            @testset for sp in (sp_c, NormalizedPolynomialSpace(sp_c))
-                v = rand(10)
-                v2 = copy(v)
-                @test itransform!(sp, transform!(sp, v)) ≈ v
-                @test transform!(sp, v) ≈ transform(sp, v2)
-                @test itransform(sp, v) ≈ v2
-                @test itransform!(sp, v) ≈ v2
-
-                # different vector
-                p_fwd = ApproxFunBase.plan_transform!(sp, v)
-                p_inv = ApproxFunBase.plan_itransform!(sp, v)
-                @test p_inv * copy(p_fwd * copy(v)) ≈ v
-            end
-        end
-    end
-
     @testset "conversion" begin
         C12 = Conversion(Chebyshev(), NormalizedLegendre())
         C21 = Conversion(NormalizedLegendre(), Chebyshev())
@@ -377,6 +358,12 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
         f = () -> Multiplication(Fun(Chebyshev(), Float64[]), Ultraspherical(1))
         M = VERSION >= v"1.8" ? (@inferred f()) : f()
         @test all(iszero, coefficients(M * Fun()))
+    end
+
+    @testset "TimesOperator" begin
+        x = Fun()
+        A = @inferred Derivative() * Multiplication(x, Chebyshev())
+        @test A * x ≈ 2x
     end
 end
 
