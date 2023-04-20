@@ -103,17 +103,17 @@ ones(S::Ultraspherical) = ones(Float64, S)
 
 ## Fast evaluation
 
-function Base.first(f::Fun{<:Ultraspherical{Int}})
+function first(f::Fun{<:Ultraspherical{Int}})
     n = length(f.coefficients)
     n == 0 && return zero(cfstype(f))
     n == 1 && return first(f.coefficients)
     foldr(-,coefficients(f,Chebyshev))
 end
 
-Base.last(f::Fun{<:Ultraspherical{Int}}) = reduce(+,coefficients(f,Chebyshev))
+last(f::Fun{<:Ultraspherical{Int}}) = reduce(+,coefficients(f,Chebyshev))
 
-Base.first(f::Fun{<:Ultraspherical}) = f(leftendpoint(domain(f)))
-Base.last(f::Fun{<:Ultraspherical}) = f(rightendpoint(domain(f)))
+first(f::Fun{<:Ultraspherical}) = f(leftendpoint(domain(f)))
+last(f::Fun{<:Ultraspherical}) = f(rightendpoint(domain(f)))
 
 function Fun(::typeof(identity), s::Ultraspherical)
     d = domain(s)
