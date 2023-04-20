@@ -57,14 +57,14 @@ setdomain(S::Chebyshev, d::Domain) = Chebyshev(d)
 ones(::Type{T}, S::Chebyshev) where {T<:Number} = Fun(S,fill(one(T),1))
 ones(S::Chebyshev) = Fun(S,fill(1.0,1))
 
-function Base.first(f::Fun{<:Chebyshev})
+function first(f::Fun{<:Chebyshev})
     n = ncoefficients(f)
     n == 0 && return zero(cfstype(f))
     n == 1 && return f.coefficients[1]
     foldr(-,coefficients(f))
 end
 
-Base.last(f::Fun{<:Chebyshev}) = reduce(+,coefficients(f))
+last(f::Fun{<:Chebyshev}) = reduce(+,coefficients(f))
 
 spacescompatible(a::Chebyshev,b::Chebyshev) = domainscompatible(a,b)
 hasfasttransform(::Chebyshev) = true
