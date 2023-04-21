@@ -13,17 +13,8 @@ recγ(::Type{T},::Chebyshev,k) where {T} = one(T)/2   # one(T) ensures we get co
 
 ## Evaluation
 
-Evaluation(S::Chebyshev,x::typeof(leftendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-Evaluation(S::Chebyshev,x::typeof(rightendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
 Evaluation(S::Chebyshev,x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
-
-Evaluation(S::NormalizedPolynomialSpace{<:Chebyshev},x::typeof(leftendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-Evaluation(S::NormalizedPolynomialSpace{<:Chebyshev},x::typeof(rightendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-Evaluation(S::NormalizedPolynomialSpace{<:Chebyshev},x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+Evaluation(S::NormalizedChebyshev,x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
 
 function evaluatechebyshev(n::Integer,x::T) where T<:Number
     if n == 1
@@ -49,7 +40,21 @@ function forwardrecurrence(::Type{T},S::Chebyshev,r::AbstractUnitRange{<:Integer
     first(r) == 0 ? v : v[r .+ 1]
 end
 
-function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)},j::Integer) where {DD<:IntervalOrSegment,RR}
+function getindex(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment},<:SpecialEvalPtType}, j::Integer)
+    _getindex_eval_endpoints(op, evaluation_point(op), j)
+end
+function getindex(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment},<:SpecialEvalPtType}, j::AbstractUnitRange)
+    _getindex_eval_endpoints(op, evaluation_point(op), j)
+end
+
+function _getindex_eval_endpoints(op, x, j)
+    if isleftendpoint(x)
+        _getindex_eval_leftendpoint(op, x, j)
+    else
+        _getindex_eval_rightendpoint(op, x, j)
+    end
+end
+function _getindex_eval_leftendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}}, x, j::Integer)
     T=eltype(op)
     if op.order == 0
         ifelse(isodd(j),  # right rule
@@ -60,8 +65,7 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)
         op[j:j][1]
     end
 end
-
-function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint)},j::Integer) where {DD<:IntervalOrSegment,RR}
+function _getindex_eval_rightendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}}, x, j::Integer)
     T=eltype(op)
     if op.order == 0
         one(T)
@@ -70,8 +74,7 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint
         op[j:j][1]
     end
 end
-
-function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)},k::AbstractUnitRange) where {DD<:IntervalOrSegment,RR}
+function _getindex_eval_leftendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}}, x, k::AbstractUnitRange)
     Base.require_one_based_indexing(k)
     T=eltype(op)
     x = op.x
@@ -94,9 +97,7 @@ function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(leftendpoint)
 
     scal!(cst,ret)
 end
-
-
-function getindex(op::ConcreteEvaluation{<:Chebyshev{DD,RR},typeof(rightendpoint)},k::AbstractUnitRange) where {DD<:IntervalOrSegment,RR}
+function _getindex_eval_rightendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}}, x, k::AbstractUnitRange)
     Base.require_one_based_indexing(k)
     T=eltype(op)
     x = op.x

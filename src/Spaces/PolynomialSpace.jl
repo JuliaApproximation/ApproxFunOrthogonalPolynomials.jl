@@ -374,26 +374,12 @@ function forwardrecurrence(::Type{T},S::Space,r::AbstractRange,x::Number) where 
 end
 
 getindex(op::ConcreteEvaluation{<:PolynomialSpace}, k::Integer) = op[k:k][1]
-# avoid ambiguity
-for OP in (:leftendpoint, :rightendpoint)
-    @eval getindex(op::ConcreteEvaluation{<:PolynomialSpace,typeof($OP)},k::Integer) =
-        op[k:k][1]
-end
 
-function getindex(op::ConcreteEvaluation{J,typeof(leftendpoint)},kr::AbstractRange) where J<:PolynomialSpace
-    _getindex_evaluation(op, leftendpoint(domain(op)), kr)
-end
+_evalpt(op, x::Number) = x
+_evalpt(op, x::SpecialEvalPtType) = boundaryfn(x)(domain(op))
 
-function getindex(op::ConcreteEvaluation{J,typeof(rightendpoint)},kr::AbstractRange) where J<:PolynomialSpace
-    _getindex_evaluation(op, rightendpoint(domain(op)), kr)
-end
-
-function getindex(op::ConcreteEvaluation{J,TT}, kr::AbstractRange) where {J<:PolynomialSpace,TT<:Number}
-    _getindex_evaluation(op, op.x, kr)
-end
-
-function _getindex_evaluation(op::ConcreteEvaluation{<:PolynomialSpace}, x, kr::AbstractRange)
-    _getindex_evaluation(eltype(op), op.space, op.order, x, kr)
+function getindex(op::ConcreteEvaluation{<:PolynomialSpace},kr::AbstractRange)
+    _getindex_evaluation(eltype(op), op.space, op.order, _evalpt(op, evaluation_point(op)), kr)
 end
 
 function _getindex_evaluation(::Type{T}, sp, order, x, kr::AbstractRange) where {T}
