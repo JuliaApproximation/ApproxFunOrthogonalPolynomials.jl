@@ -639,6 +639,7 @@ using Static
                 @test rdirichlet(sp) * f ≈ f(rightendpoint(domain(f)))
                 @test lneumann(sp) * f ≈ f'(leftendpoint(domain(f)))
                 @test rneumann(sp) * f ≈ f'(rightendpoint(domain(f)))
+                @inferred bvp(sp)[1]
             end
         end
     end
