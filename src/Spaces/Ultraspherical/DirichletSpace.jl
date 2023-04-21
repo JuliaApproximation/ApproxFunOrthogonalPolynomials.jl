@@ -143,72 +143,88 @@ conversion_rule(b::ChebyshevDirichlet,a::Chebyshev)=b
 ## Evaluation Functional
 
 
-bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{1,0,D,R},typeof(leftendpoint)}) where {D,R} = 0,0
-bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{1,0,D,R},typeof(rightendpoint)}) where {D,R} = 0,ℵ₀
-bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{0,1,D,R},typeof(leftendpoint)}) where {D,R} = 0,ℵ₀
-bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{0,1,D,R},typeof(rightendpoint)}) where {D,R} = 0,0
-bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{1,1,D,R},typeof(leftendpoint)}) where {D,R} = 0,1
-bandwidths(B::ConcreteEvaluation{ChebyshevDirichlet{1,1,D,R},typeof(rightendpoint)}) where {D,R} = 0,1
+function bandwidths(B::ConcreteEvaluation{<:ChebyshevDirichlet{1,0},<:SpecialEvalPtType})
+    pt = evaluation_point(B)
+    if isleftendpoint(pt)
+        0,0
+    else
+        0,ℵ₀
+    end
+end
+function bandwidths(B::ConcreteEvaluation{<:ChebyshevDirichlet{0,1},<:SpecialEvalPtType})
+    pt = evaluation_point(B)
+    if isleftendpoint(pt)
+        0,ℵ₀
+    else
+        0,0
+    end
+end
+bandwidths(B::ConcreteEvaluation{<:ChebyshevDirichlet{1,1},<:SpecialEvalPtType}) = 0,1
 
-function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{1,0,D,R},typeof(leftendpoint)},kr::AbstractRange) where {D,R}
-    d = domain(B)
+function getindex(B::ConcreteEvaluation{<:ChebyshevDirichlet,<:SpecialEvalPtType}, kr::AbstractRange)
+    _getindex_eval_endpoints(B, evaluation_point(B), kr)
+end
 
+function _getindex_default(B::ConcreteEvaluation{<:ChebyshevDirichlet}, x, kr)
+    S = Space(domain(B))
+    O = Evaluation(S,x,B.order) * Conversion(domainspace(B),S)
+    O[kr]
+end
+
+function _getindex_eval_leftendpoint(B::ConcreteEvaluation{<:ChebyshevDirichlet{1,0}}, x, kr::AbstractRange)
     if B.order == 0
         eltype(B)[k==1 ? 1.0 : 0.0 for k=kr]
     else
-        (Evaluation(d,B.x,B.order)*Conversion(domainspace(B)))[kr]
+        _getindex_default(B, x, kr)
     end
 end
 
-function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{1,0,D,R},typeof(rightendpoint)},kr::AbstractRange) where {D,R}
-    d = domain(B)
-
+function _getindex_eval_rightendpoint(B::ConcreteEvaluation{<:ChebyshevDirichlet{1,0}}, x, kr::AbstractRange)
     if B.order == 0
         eltype(B)[k==1 ? 1.0 : 2.0 for k=kr]
     else
-        (Evaluation(d,B.x,B.order)*Conversion(domainspace(B)))[kr]
+        _getindex_default(B, x, kr)
     end
 end
 
-function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{0,1,D,R},typeof(leftendpoint)},kr::AbstractRange) where {D,R}
+function _getindex_eval_leftendpoint(B::ConcreteEvaluation{<:ChebyshevDirichlet{0,1}}, x, kr::AbstractRange)
     S = Space(domain(B))
 
     if B.order == 0
         eltype(B)[k==1 ? 1.0 : -(-1)^k*2.0 for k=kr]
     else
-        (Evaluation(S,B.x,B.order)*Conversion(domainspace(B),S))[kr]
+        _getindex_default(B, x, kr)
     end
 end
 
-function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{0,1,D,R},typeof(rightendpoint)},kr::AbstractRange) where {D,R}
+function _getindex_eval_rightendpoint(B::ConcreteEvaluation{<:ChebyshevDirichlet{0,1}}, x, kr::AbstractRange)
     S = Space(domain(B))
-
 
     if B.order == 0
         eltype(B)[k==1 ? 1.0 : 0.0 for k=kr]
     else
-        (Evaluation(S,B.x,B.order)*Conversion(domainspace(B),S))[kr]
+        _getindex_default(B, x, kr)
     end
 end
 
 
-function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{1,1,D,R},typeof(leftendpoint)},kr::AbstractRange) where {D,R}
+function _getindex_eval_leftendpoint(B::ConcreteEvaluation{<:ChebyshevDirichlet{1,1}}, x, kr::AbstractRange)
     S = Space(domain(B))
 
     if B.order == 0
         eltype(B)[k==1 ? 1.0 : (k==2 ? -1.0 : 0.0) for k=kr]
     else
-        getindex(Evaluation(S,B.x,B.order)*Conversion(domainspace(B),S),kr)
+        _getindex_default(B, x, kr)
     end
 end
 
-function getindex(B::ConcreteEvaluation{ChebyshevDirichlet{1,1,D,R},typeof(rightendpoint)},kr::AbstractRange) where {D,R}
+function _getindex_eval_rightendpoint(B::ConcreteEvaluation{<:ChebyshevDirichlet{1,1}}, x, kr::AbstractRange)
     S = Space(domain(B))
 
     if B.order == 0
         eltype(B)[k==1||k==2 ? 1.0 : 0.0 for k=kr]
     else
-        getindex(Evaluation(S,B.x,B.order)*Conversion(domainspace(B),S),kr)
+        _getindex_default(B, x, kr)
     end
 end
 

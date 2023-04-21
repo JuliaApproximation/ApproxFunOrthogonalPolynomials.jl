@@ -30,17 +30,10 @@ getindex(T::ConcreteDerivative{<:Jacobi}, k::Integer, j::Integer) =
 
 # Evaluation
 
-Evaluation(S::Jacobi,x::typeof(leftendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-Evaluation(S::Jacobi,x::typeof(rightendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-Evaluation(S::Jacobi,x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+Evaluation(S::MaybeNormalized{<:Jacobi},x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
 
-Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::typeof(leftendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::typeof(rightendpoint),o::Integer) =
-    ConcreteEvaluation(S,x,o)
-Evaluation(S::NormalizedPolynomialSpace{<:Jacobi},x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+ldiffbc(d::MaybeNormalized{<:Union{Chebyshev, Ultraspherical, Jacobi}},k) = Evaluation(d,LeftEndPoint,k)
+rdiffbc(d::MaybeNormalized{<:Union{Chebyshev, Ultraspherical, Jacobi}},k) = Evaluation(d,RightEndPoint,k)
 
 ## Integral
 

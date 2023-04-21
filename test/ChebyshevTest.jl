@@ -412,8 +412,14 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
                     D3p = @inferred ev(sp, ep(d), 3)
                     @test Number(D3p * f) ≈ f'''(ep(d))
                 end
+                @test ldirichlet(sp) * f ≈ f(leftendpoint(domain(f)))
+                @test rdirichlet(sp) * f ≈ f(rightendpoint(domain(f)))
+                @test lneumann(sp) * f ≈ f'(leftendpoint(domain(f)))
+                @test rneumann(sp) * f ≈ f'(rightendpoint(domain(f)))
+                @inferred bvp(sp)[1]
             end
         end
+
 
         @testset "ChebyshevDirichlet" begin
             function Evaluation2(sp::ChebyshevDirichlet,x,ord)
