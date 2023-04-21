@@ -389,5 +389,4 @@ end
 ReverseOrientation(S::Ultraspherical) = ReverseOrientationWrapper(NegateEven(S,reverseorientation(S)))
 Reverse(S::Ultraspherical) = ReverseWrapper(NegateEven(S,S))
 
-Evaluation(S::Ultraspherical,x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
-Evaluation(S::NormalizedUltraspherical,x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+Evaluation(S::MaybeNormalized{<:Ultraspherical},x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
