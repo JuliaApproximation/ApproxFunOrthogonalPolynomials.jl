@@ -30,8 +30,8 @@ end
 
 Recast the self-adjoint eigenvalue problem `L v = λ v` subject to `B v = 0` to the generalized
 eigenvalue problem `SA v = λ SB v`, where `SA` and `SB` are `Symmetric(::BandedMatrix)`es, and
-return `SA` and `SB`. The `domainspace` of the operators must be one of `Legedre(::Domain)` or
-`Ultraspherical(0.5, ::Domain)`.
+return the `n × n` matrix representations of `SA` and `SB`.
+The `domainspace` of the operators must be one of `Legedre(::Domain)` or `Ultraspherical(0.5, ::Domain)`.
 
 !!! note
     No tests are performed to assert that the system is self-adjoint, and it's the user's responsibility
