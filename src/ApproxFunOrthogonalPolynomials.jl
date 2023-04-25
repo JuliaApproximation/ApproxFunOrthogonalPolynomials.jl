@@ -44,7 +44,7 @@ import ApproxFunBase: Fun, SubSpace, WeightSpace, NoSpace, HeavisideSpace,
                     ℓ⁰, recα, recβ, recγ, ℵ₀, ∞, RectDomain,
                     assert_integer, supportsinplacetransform, ContinuousSpace, SpecialEvalPtType,
                     isleftendpoint, isrightendpoint, evaluation_point, boundaryfn, ldiffbc, rdiffbc,
-                    LeftEndPoint, RightEndPoint, normalizedspace
+                    LeftEndPoint, RightEndPoint, normalizedspace, promotedomainspace
 
 import DomainSets: Domain, indomain, UnionDomain, FullSpace, Point,
             Interval, ChebyshevInterval, boundary, rightendpoint, leftendpoint,
@@ -140,6 +140,7 @@ include("Spaces/Spaces.jl")
 include("roots.jl")
 include("specialfunctions.jl")
 include("fastops.jl")
+include("symeigen.jl")
 include("show.jl")
 
 end

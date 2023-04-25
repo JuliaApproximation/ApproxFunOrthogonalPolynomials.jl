@@ -221,4 +221,12 @@ using Test
         λ = eigvals(Matrix([B;L][1:n,1:n]), Matrix([B-B;C][1:n,1:n]))
         @test eltype(λ) == Complex{Float64}
     end
+
+    @testset "convenience function for symmetric problems" begin
+        L = -Derivative(Legendre(0..1))^2
+        B = Dirichlet()
+        SA, SB = ApproxFunOrthogonalPolynomials.symmetric_bandmatrices_eigen(L, B, 20)
+        λ = eigvals(SA, SB)[1:4]
+        @test λ ≈ (1:4).^2 .* pi^2 rtol=1e-8
+    end
 end
