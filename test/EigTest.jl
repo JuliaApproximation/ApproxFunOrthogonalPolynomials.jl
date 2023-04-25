@@ -223,10 +223,12 @@ using Test
     end
 
     @testset "convenience function for symmetric problems" begin
-        L = -Derivative(Legendre(0..1))^2
-        B = Dirichlet()
-        SA, SB = ApproxFunOrthogonalPolynomials.symmetric_bandmatrices_eigen(L, B, 20)
-        λ = eigvals(SA, SB)[1:4]
-        @test λ ≈ (1:4).^2 .* pi^2 rtol=1e-8
+        for S in Any[Legendre(0..1), Ultraspherical(0.5, 0..1)]
+            L = -Derivative(S)^2
+            B = Dirichlet()
+            SA, SB = ApproxFunOrthogonalPolynomials.symmetric_bandmatrices_eigen(L, B, 20)
+            λ = eigvals(SA, SB)[1:4]
+            @test λ ≈ (1:4).^2 .* pi^2 rtol=1e-8
+        end
     end
 end
