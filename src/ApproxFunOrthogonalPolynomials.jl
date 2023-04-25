@@ -59,7 +59,8 @@ import Base: convert, getindex, eltype, <, <=, +, -, *, /, ^, ==,
                 isless, union, angle, isnan, isapprox, isempty,
                 minimum, maximum, extrema, zeros, one, promote_rule,
                 getproperty, real, imag, max, min, log, acos,
-                sin, cos, asinh, acosh, atanh, ones
+                sin, cos, asinh, acosh, atanh, ones,
+                Matrix
                 # atan, tan, tanh, asin, sec, sinh, cosh,
                 # split
 

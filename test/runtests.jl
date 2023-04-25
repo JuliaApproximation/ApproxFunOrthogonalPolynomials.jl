@@ -14,6 +14,9 @@ end
     @test reverseorientation(Arc(1,2,(0.1,0.2))) == Arc(1,2,(0.2,0.1))
 end
 
+# missing import bug
+@test ApproxFunOrthogonalPolynomials.Matrix === Base.Matrix
+
 include("testutils.jl")
 
 include("ClenshawTest.jl"); GC.gc()
