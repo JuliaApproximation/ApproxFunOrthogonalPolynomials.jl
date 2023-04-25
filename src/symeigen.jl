@@ -29,7 +29,7 @@ end
     symmetric_bandmatrices_eigen(L::Operator, B::Operator, n::Integer)
 
 Recast the self-adjoint eigenvalue problem `L v = λ v` subject to `B v = 0` to the generalized
-eigenvalue problem `SA v = λ SB v`, where `SA` and `SB` are `Symmetric(::BandedMatrix)`es, and
+eigenvalue problem `SA v = λ SB v`, where `SA` and `SB` are symmetric banded operators, and
 return the `n × n` matrix representations of `SA` and `SB`.
 The `domainspace` of the operators must be one of `Legedre(::Domain)` or `Ultraspherical(0.5, ::Domain)`.
 
