@@ -82,7 +82,7 @@ import SpecialFunctions: erfcx, dawson,
 
 using StaticArrays: SVector
 
-import LinearAlgebra: isdiag
+import LinearAlgebra: isdiag, eigvals
 
 points(d::IntervalOrSegmentDomain{T},n::Integer) where {T} =
     _maybefromcanonical(d, chebyshevpoints(float(real(eltype(T))), n))  # eltype to handle point

@@ -2,6 +2,7 @@ using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using ApproxFunBase: bandwidth
 using BandedMatrices
+using LinearAlgebra
 using SpecialFunctions
 using Test
 
@@ -226,11 +227,12 @@ using Test
         for S in Any[Legendre(0..1), Ultraspherical(0.5, 0..1)]
             L = -Derivative(S)^2
             B = Dirichlet()
-            SA, SB = ApproxFunOrthogonalPolynomials.symmetric_bandmatrices_eigen(L, B, 20)
+            Seg = SymmetricEigensystem(L, B)
             λ = if VERSION >= v"1.8"
-                eigvals(SA, SB)
+                eigvals(Seg, 20)
             else
                 # workaround for BandedMatrices bug on v1.6
+                SA, SB = ApproxFunOrthogonalPolynomials.symmetric_bandmatrices_eigen(L, B, 20)
                 eigvals(Matrix(SA), Matrix(SB))
             end
             @test λ[1:4] ≈ (1:4).^2 .* pi^2 rtol=1e-8

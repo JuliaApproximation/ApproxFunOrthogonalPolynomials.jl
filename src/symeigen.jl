@@ -69,3 +69,8 @@ function symmetric_bandmatrices_eigen(S::SymmetricEigensystem, n::Integer)
     SB = Symmetric(BB[1:n,1:n], :L)
     return SA, SB
 end
+
+function eigvals(S::SymmetricEigensystem, n::Integer)
+    SA, SB = symmetric_bandmatrices_eigen(S, n)
+    eigvals(SA, SB)
+end
