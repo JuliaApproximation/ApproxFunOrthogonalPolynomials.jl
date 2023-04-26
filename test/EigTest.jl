@@ -13,25 +13,19 @@ using Test
         #
         d = Segment(-1..1)
         S = Ultraspherical(0.5, d)
-        NS = NormalizedPolynomialSpace(S)
         L = -Derivative(S, 2)
-        C = Conversion(domainspace(L), rangespace(L))
         B = Neumann(S)
-        QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
 
-        # Currently a hack to avoid a LAPACK calling bug with a pencil (A, B)
-        # with smaller bandwidth in A.
         n = 50
-        SA = Symmetric(Matrix(A[1:n,1:n]), :L)
-        SB = Symmetric(Matrix(B[1:n,1:n]), :L)
-        λ = eigvals(SA, SB)
+        SA, SB = symmetric_bandmatrices_eigen(L, B, n)
+
+        # A hack to avoid a BandedMatrices bug on Julia v1.6, with a pencil (A, B)
+        # with smaller bandwidth in A.
+        λ = if VERSION >= v"1.8"
+            eigvals(SA, SB)
+        else
+            eigvals(Symmetric(Matrix(SA)), Symmetric(Matrix(SB)))
+        end
 
         @test λ[1:round(Int, 2n/5)] ≈ (π^2/4).*(0:round(Int, 2n/5)-1).^2
     end
@@ -44,24 +38,13 @@ using Test
         #
         d = Segment(-1..0)∪Segment(0..1)
         S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
-        NS = PiecewiseSpace(NormalizedUltraspherical.(0.5, d.domains))
         V = 100Fun(abs, S)
         L = -Derivative(S, 2) + V
-        C = Conversion(domainspace(L), rangespace(L))
         B = [Dirichlet(S); continuity(S, 0:1)]
-        QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
 
+        Seig = SymmetricEigensystem(L, B)
         n = 100
-        SA = Symmetric(A[1:n,1:n], :L)
-        SB = Symmetric(B[1:n,1:n], :L)
-        λ = eigvals(SA, SB)
+        λ = eigvals(Seig, n)
 
         @test λ[1] ≈ parse(BigFloat, "2.19503852085715200848808942880214615154684642693583513254593767079468401198338e+01")
     end
@@ -74,24 +57,15 @@ using Test
         #
         d = Segment(-1..(-0.5))∪Segment(-0.5..0.5)∪Segment(0.5..1)
         S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
-        NS = PiecewiseSpace(NormalizedUltraspherical.(0.5, d.domains))
+
         V = Fun(x->abs(x) ≥ 1/2 ? 1000 : 0, S)
         L = -Derivative(S, 2) + V
-        C = Conversion(domainspace(L), rangespace(L))
         B = [Dirichlet(S); continuity(S, 0:1)]
-        QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
+
+        Seig = SymmetricEigensystem(L, B)
 
         n = 150
-        SA = Symmetric(A[1:n,1:n], :L)
-        SB = Symmetric(B[1:n,1:n], :L)
-        λ = eigvals(SA, SB)
+        λ = eigvals(Seig, n)
         # From Lee--Greengard (1997).
         λtrue = [2.95446;5.90736;8.85702;11.80147].^2
         @test norm((λ[1:4] - λtrue)./λ[1:4]) < 1e-5
@@ -105,27 +79,19 @@ using Test
         #
         d = Segment(-1..0.25)∪Segment(0.25..1)
         S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
-        NS = PiecewiseSpace(NormalizedUltraspherical.(0.5, d.domains))
         V = Fun(identity, S)
         L = -Derivative(S, 2) + V
-        C = Conversion(domainspace(L), rangespace(L))
+
         B4 = zeros(Operator{ApproxFunBase.prectype(S)}, 1, 2)
         B4[1, 1] = -Evaluation(component(S, 1), rightendpoint, 1) - 100*0.5*Evaluation(component(S, 1), rightendpoint)
         B4[1, 2] = Evaluation(component(S, 2), leftendpoint, 1)  - 100*0.5*Evaluation(component(S, 2), leftendpoint)
         B4 = ApproxFunBase.InterlaceOperator(B4, PiecewiseSpace, ApproxFunBase.ArraySpace)
         B = [Evaluation(S, -1); Evaluation(S, 1) + Evaluation(S, 1, 1); continuity(S, 0); B4]
+
         QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
 
         n = 100
-        SA = Symmetric(A[1:n,1:n], :L)
-        SB = Symmetric(B[1:n,1:n], :L)
+        SA, SB = symmetric_bandmatrices_eigen(L, B, n)
 
         k = 3
 
@@ -150,22 +116,12 @@ using Test
         #
         d = Segment(big(-1.0)..big(1.0))
         S = Ultraspherical(big(0.5), d)
-        NS = NormalizedPolynomialSpace(S)
         L = -Derivative(S, 2)
         C = Conversion(domainspace(L), rangespace(L))
         B = Dirichlet(S)
-        QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
 
         n = 300
-        SA = Symmetric(A[1:n,1:n], :L)
-        SB = Symmetric(B[1:n,1:n], :L)
+        SA, SB = symmetric_bandmatrices_eigen(L, B, n)
         BSA = BandedMatrix(SA)
         BSB = BandedMatrix(SB)
         begin
@@ -227,13 +183,14 @@ using Test
         for S in Any[Legendre(0..1), Ultraspherical(0.5, 0..1)]
             L = -Derivative(S)^2
             B = Dirichlet()
-            Seg = SymmetricEigensystem(L, B)
+            Seig = SymmetricEigensystem(L, B)
+            n = 20
             λ = if VERSION >= v"1.8"
-                eigvals(Seg, 20)
+                eigvals(Seig, n)
             else
                 # workaround for BandedMatrices bug on v1.6
-                SA, SB = ApproxFunOrthogonalPolynomials.symmetric_bandmatrices_eigen(L, B, 20)
-                eigvals(Matrix(SA), Matrix(SB))
+                SA, SB = ApproxFunOrthogonalPolynomials.symmetric_bandmatrices_eigen(L, B, n)
+                eigvals(Symmetric(Matrix(SA)), Symmetric(Matrix(SB)))
             end
             @test λ[1:4] ≈ (1:4).^2 .* pi^2 rtol=1e-8
         end

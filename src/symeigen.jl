@@ -20,11 +20,6 @@ struct SymmetricEigensystem{LT,QT}
         if isambiguous(domainspace(L))
             throw(ArgumentError("could not detect spaces, please specify the domain spaces for the operators"))
         end
-        d = domain(L2)
-        if !(domainspace(L2) == Legendre(d) || domainspace(L2) == Ultraspherical(0.5, d))
-            throw(ArgumentError("domainspace of the operators must be $(Legendre(d)) or $(Ultraspherical(0.5,d)) "*
-                "for the symmetric banded conversion, received $(domainspace(L2))"))
-        end
 
         QS = QuotientSpace(B2)
         S = domainspace(L2)
@@ -36,9 +31,8 @@ end
 function basis_recombination(SE::SymmetricEigensystem)
     L, Q = SE.L, SE.Q
     S = domainspace(L)
-    NS = NormalizedPolynomialSpace(S)
-    D1 = ConcreteConversion(S, NS)
-    D2 = ConcreteConversion(NS, S)
+    D1 = Conversion_normalizedspace(S)
+    D2 = Conversion_normalizedspace(S, Val(:backward))
     R = D1*Q;
     C = Conversion(S, rangespace(L))
     P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))));
