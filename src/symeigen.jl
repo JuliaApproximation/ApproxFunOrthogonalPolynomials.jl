@@ -80,13 +80,6 @@ function symmetric_bandmatrices_eigen(L::Operator, B::Operator, n::Integer)
     bandmatrices_eigen(SymmetricEigensystem(L, B), n)
 end
 
-function bandmatrices_eigen(S::SymmetricEigensystem, n::Integer)
-    A, B = _bandmatrices_eigen(S, n)
-    SA = Symmetric(A, :L)
-    SB = Symmetric(B, :L)
-    return SA, SB
-end
-
 """
     bandmatrices_eigen(S::SymmetricEigensystem, n::Integer)
 
@@ -98,6 +91,13 @@ return the `n × n` matrix representations of `SA` and `SB`.
     No tests are performed to assert that the system is self-adjoint, and it's the user's responsibility
     to ensure that the operators are compliant.
 """
+function bandmatrices_eigen(S::SymmetricEigensystem, n::Integer)
+    A, B = _bandmatrices_eigen(S, n)
+    SA = Symmetric(A, :L)
+    SB = Symmetric(B, :L)
+    return SA, SB
+end
+
 bandmatrices_eigen(S::EigenSystem, n::Integer) = _bandmatrices_eigen(S, n)
 
 function _bandmatrices_eigen(S::EigenSystem, n::Integer)
