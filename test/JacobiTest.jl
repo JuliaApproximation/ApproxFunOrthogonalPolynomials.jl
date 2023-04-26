@@ -191,6 +191,11 @@ using Static
                 @test NormalizedPolynomialSpace(Ultraspherical(j)) ==
                     NormalizedUltraspherical(NormalizedPolynomialSpace(j))
             end
+
+            @test conversion_type(NormalizedLegendre(), Jacobi(1,1)) == NormalizedLegendre()
+            @test conversion_type(Jacobi(1,1), NormalizedLegendre()) == NormalizedLegendre()
+            @test conversion_type(Jacobi(1,1), NormalizedJacobi(2,2)) == ApproxFunBase.NoSpace()
+            @test conversion_type(NormalizedJacobi(2,2), Jacobi(1,1)) == ApproxFunBase.NoSpace()
         end
 
         @test ApproxFunOrthogonalPolynomials.normalization(ComplexF64, Jacobi(-0.5, -0.5), 0) ≈ pi
