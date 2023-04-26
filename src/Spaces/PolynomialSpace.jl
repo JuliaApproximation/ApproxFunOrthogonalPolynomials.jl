@@ -444,6 +444,7 @@ setdomain(NS::NormalizedPolynomialSpace, d::Domain) = NormalizedPolynomialSpace(
 NormalizedPolynomialSpace(space::PolynomialSpace{D,R}) where {D,R} = NormalizedPolynomialSpace{typeof(space),D,R}(space)
 
 normalizedspace(S::PolynomialSpace) = NormalizedPolynomialSpace(S)
+normalizedspace(S::NormalizedPolynomialSpace) = S
 
 supportsinplacetransform(N::NormalizedPolynomialSpace) = supportsinplacetransform(N.space)
 

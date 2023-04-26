@@ -452,5 +452,7 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
         g = Conversion(S, NS) * f
         @test g(0.4) ≈ 0.4
         @test g(-0.4) ≈ -0.4
+
+        @test normalizedspace(NS) == NS
     end
 end
