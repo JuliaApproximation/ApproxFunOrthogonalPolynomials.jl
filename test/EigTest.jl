@@ -88,14 +88,12 @@ using Test
         B4 = ApproxFunBase.InterlaceOperator(B4, PiecewiseSpace, ApproxFunBase.ArraySpace)
         B = [Evaluation(S, -1); Evaluation(S, 1) + Evaluation(S, 1, 1); continuity(S, 0); B4]
 
-        QS = QuotientSpace(B)
-
         n = 100
         SA, SB = symmetric_bandmatrices_eigen(L, B, n)
-
-        k = 3
-
         λ, Q = eigen(SA, SB);
+
+        QS = QuotientSpace(B)
+        k = 3
         u_QS = Fun(QS, Q[:, k])
         u_S = Fun(u_QS, S)
         u = Fun(u_S, PiecewiseSpace(Chebyshev.(components(d))))
@@ -146,21 +144,14 @@ using Test
         #
         d = Segment(-1..1)
         S = Ultraspherical(0.5, d)
-        NS = NormalizedPolynomialSpace(S)
         Lsk = Derivative(S)
-        Csk = Conversion(domainspace(Lsk), rangespace(Lsk))
         B = Evaluation(S, -1) + Evaluation(S, 1)
-        QS = PathologicalQuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        Psk = cache(PartialInverseOperator(Csk, (0, 4 + bandwidth(Lsk, 1) + bandwidth(R, 1) + bandwidth(Csk, 2))))
-        Ask = R'D1*Psk*Lsk*D2*R
-        Bsk = R'R
+        Seig = SkewSymmetricEigensystem(Lsk, B)
 
         n = 100
-        λim = imag(sort!(eigvals(Matrix(tril(Ask[1:n,1:n], 1)), Matrix(tril(Bsk[1:n,1:n], 2))), by = abs))
+        Ask, Bsk = bandmatrices_eigen(Seig, n)
+        λ = eigvals(Matrix(tril(Ask, 1)), Matrix(tril(Bsk, 2)))
+        λim = imag(sort!(λ, by = abs))
 
         @test abs.(λim[1:2:round(Int, 2n/5)]) ≈ π.*(0.5:round(Int, 2n/5)/2)
         @test abs.(λim[2:2:round(Int, 2n/5)]) ≈ π.*(0.5:round(Int, 2n/5)/2)
@@ -189,7 +180,7 @@ using Test
                 eigvals(Seig, n)
             else
                 # workaround for BandedMatrices bug on v1.6
-                SA, SB = ApproxFunOrthogonalPolynomials.symmetric_bandmatrices_eigen(L, B, n)
+                SA, SB = symmetric_bandmatrices_eigen(L, B, n)
                 eigvals(Symmetric(Matrix(SA)), Symmetric(Matrix(SB)))
             end
             @test λ[1:4] ≈ (1:4).^2 .* pi^2 rtol=1e-8
