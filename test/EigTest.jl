@@ -37,7 +37,7 @@ using Test
         # where V = 100|x|.
         #
         d = Segment(-1..0)∪Segment(0..1)
-        S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
+        S = PiecewiseSpace(Ultraspherical.(0.5, components(d)))
         V = 100Fun(abs, S)
         L = -Derivative(S, 2) + V
         B = [Dirichlet(S); continuity(S, 0:1)]
@@ -55,8 +55,8 @@ using Test
         #
         # where V = 1000[χ_[-1,-1/2](x) + χ_[1/2,1](x)].
         #
-        d = Segment(-1..(-0.5))∪Segment(-0.5..0.5)∪Segment(0.5..1)
-        S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
+        d = Segment(-1..(-0.5)) ∪ Segment(-0.5..0.5) ∪ Segment(0.5..1)
+        S = PiecewiseSpace(Ultraspherical.(0.5, components(d)))
 
         V = Fun(x->abs(x) ≥ 1/2 ? 1000 : 0, S)
         L = -Derivative(S, 2) + V
@@ -77,8 +77,8 @@ using Test
         #
         # where V = x + 100δ(x-0.25).
         #
-        d = Segment(-1..0.25)∪Segment(0.25..1)
-        S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
+        d = Segment(-1..0.25) ∪ Segment(0.25..1)
+        S = PiecewiseSpace(Ultraspherical.(0.5, components(d)))
         V = Fun(identity, S)
         L = -Derivative(S, 2) + V
 
@@ -98,7 +98,7 @@ using Test
         λ, Q = eigen(SA, SB);
         u_QS = Fun(QS, Q[:, k])
         u_S = Fun(u_QS, S)
-        u = Fun(u_S, PiecewiseSpace(Chebyshev.(d.domains)))
+        u = Fun(u_S, PiecewiseSpace(Chebyshev.(components(d))))
         u /= sign(u'(-1))
         u1, u2 = components(u)
 
