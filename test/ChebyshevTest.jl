@@ -445,7 +445,7 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
     @testset "PiecewiseSpace" begin
         d = Segment(-1..0) ∪ Segment(0..1)
         S = PiecewiseSpace(Chebyshev.(components(d)))
-        NS = normalized(S)
+        NS = normalizedspace(S)
         @test domain(NS) == domain(S)
         @test NS isa PiecewiseSpace{<:NTuple{<:Any,NormalizedChebyshev}}
         f = Fun(S)

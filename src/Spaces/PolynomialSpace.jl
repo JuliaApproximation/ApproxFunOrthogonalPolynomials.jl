@@ -1,4 +1,4 @@
-export PolynomialSpace, NormalizedPolynomialSpace, normalized
+export PolynomialSpace, NormalizedPolynomialSpace
 
 ## Orthogonal polynomials
 
@@ -443,8 +443,7 @@ setdomain(NS::NormalizedPolynomialSpace, d::Domain) = NormalizedPolynomialSpace(
 
 NormalizedPolynomialSpace(space::PolynomialSpace{D,R}) where {D,R} = NormalizedPolynomialSpace{typeof(space),D,R}(space)
 
-normalized(S::PolynomialSpace) = NormalizedPolynomialSpace(S)
-normalized(S::PiecewiseSpace{<:NTuple{<:Any,PolynomialSpace}}) = PiecewiseSpace(map(normalized, components(S)))
+normalizedspace(S::PolynomialSpace) = NormalizedPolynomialSpace(S)
 
 supportsinplacetransform(N::NormalizedPolynomialSpace) = supportsinplacetransform(N.space)
 
