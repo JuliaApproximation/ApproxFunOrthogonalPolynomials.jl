@@ -441,4 +441,16 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
         blk = @inferred ApproxFunBase.block(s, 2)
         @test Int(blk) == 1
     end
+
+    @testset "PiecewiseSpace" begin
+        d = Segment(-1..0) ∪ Segment(0..1)
+        S = PiecewiseSpace(Chebyshev.(components(d)))
+        NS = normalized(S)
+        @test domain(NS) == domain(S)
+        @test NS isa PiecewiseSpace{<:NTuple{<:Any,NormalizedChebyshev}}
+        f = Fun(S)
+        g = Conversion(S, NS) * f
+        @test g(0.4) ≈ 0.4
+        @test g(-0.4) ≈ -0.4
+    end
 end
