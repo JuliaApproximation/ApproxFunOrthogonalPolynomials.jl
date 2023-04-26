@@ -227,8 +227,13 @@ using Test
             L = -Derivative(S)^2
             B = Dirichlet()
             SA, SB = ApproxFunOrthogonalPolynomials.symmetric_bandmatrices_eigen(L, B, 20)
-            λ = eigvals(SA, SB)[1:4]
-            @test λ ≈ (1:4).^2 .* pi^2 rtol=1e-8
+            λ = if VERSION >= v"1.8"
+                eigvals(SA, SB)
+            else
+                # workaround for BandedMatrices bug on v1.6
+                eigvals(Matrix(SA), Matrix(SB))
+            end
+            @test λ[1:4] ≈ (1:4).^2 .* pi^2 rtol=1e-8
         end
     end
 end
