@@ -444,7 +444,7 @@ setdomain(NS::NormalizedPolynomialSpace, d::Domain) = NormalizedPolynomialSpace(
 NormalizedPolynomialSpace(space::PolynomialSpace{D,R}) where {D,R} = NormalizedPolynomialSpace{typeof(space),D,R}(space)
 
 normalized(S::PolynomialSpace) = NormalizedPolynomialSpace(S)
-normalized(S::PiecewiseSpace{<:NTuple{<:Any,PolynomialSpace}}) = PiecewiseSpace(map(NormalizedPolynomialSpace, components(S)))
+normalized(S::PiecewiseSpace{<:NTuple{<:Any,PolynomialSpace}}) = PiecewiseSpace(map(normalized, components(S)))
 
 supportsinplacetransform(N::NormalizedPolynomialSpace) = supportsinplacetransform(N.space)
 
