@@ -146,11 +146,11 @@ using Test
         S = Ultraspherical(0.5, d)
         Lsk = Derivative(S)
         B = Evaluation(S, -1) + Evaluation(S, 1)
-        Seig = SkewSymmetricEigensystem(Lsk, B)
+        Seig = SkewSymmetricEigensystem(Lsk, B, PathologicalQuotientSpace)
 
         n = 100
         Ask, Bsk = bandmatrices_eigen(Seig, n)
-        λ = eigvals(Matrix(tril(Ask, 1)), Matrix(tril(Bsk, 2)))
+        λ = eigvals(Ask, Bsk)
         λim = imag(sort!(λ, by = abs))
 
         @test abs.(λim[1:2:round(Int, 2n/5)]) ≈ π.*(0.5:round(Int, 2n/5)/2)
