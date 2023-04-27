@@ -9,6 +9,10 @@ on:
       - 'README.md'
       - '.github/workflows/TagBot.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pre_job:
     # continue-on-error: true # Uncomment once integration is finished
