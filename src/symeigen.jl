@@ -1,4 +1,4 @@
-export symmetric_bandmatrices_eigen, bandmatrices_eigen, SymmetricEigensystem, SkewSymmetricEigensystem
+export bandmatrices_eigen, SymmetricEigensystem, SkewSymmetricEigensystem
 
 abstract type EigenSystem end
 
@@ -80,29 +80,15 @@ function basis_recombination(SE::EigenSystem)
 end
 
 """
-    symmetric_bandmatrices_eigen(L::Operator, B::Operator, n::Integer)
+    bandmatrices_eigen(S::Union{SymmetricEigensystem, SkewSymmetricEigensystem}, n::Integer)
 
-Recast the self-adjoint eigenvalue problem `L v = λ v` subject to `B v = 0` to the generalized
-eigenvalue problem `SA v = λ SB v`, where `SA` and `SB` are symmetric banded operators, and
+Recast the symmetric/skew-symmetric eigenvalue problem `L v = λ v` subject to `B v = 0` to the generalized
+eigenvalue problem `SA v = λ SB v`, where `SA` and `SB` are banded operators, and
 return the `n × n` matrix representations of `SA` and `SB`.
+If `S isa SymmetricEigensystem`, the returned matrices will be `Symmetric`.
 
 !!! note
-    No tests are performed to assert that the system is self-adjoint, and it's the user's responsibility
-    to ensure that the operators are compliant.
-"""
-function symmetric_bandmatrices_eigen(L::Operator, B::Operator, n::Integer)
-    bandmatrices_eigen(SymmetricEigensystem(L, B), n)
-end
-
-"""
-    bandmatrices_eigen(S::SymmetricEigensystem, n::Integer)
-
-Recast the self-adjoint eigenvalue problem `L v = λ v` subject to `B v = 0` to the generalized
-eigenvalue problem `SA v = λ SB v`, where `SA` and `SB` are symmetric banded operators, and
-return the `n × n` matrix representations of `SA` and `SB`.
-
-!!! note
-    No tests are performed to assert that the system is self-adjoint, and it's the user's responsibility
+    No tests are performed to assert that the system is symmetric/skew-symmetric, and it's the user's responsibility
     to ensure that the operators are compliant.
 """
 function bandmatrices_eigen(S::SymmetricEigensystem, n::Integer)
@@ -126,7 +112,7 @@ function _bandmatrices_eigen(S::EigenSystem, n::Integer)
     return A, B
 end
 
-function eigvals(S::SymmetricEigensystem, n::Integer)
+function eigvals(S::EigenSystem, n::Integer)
     SA, SB = bandmatrices_eigen(S, n)
     eigvals(SA, SB)
 end

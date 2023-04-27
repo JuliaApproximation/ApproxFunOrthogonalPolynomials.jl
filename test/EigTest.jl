@@ -12,22 +12,24 @@ using Test
         # -𝒟² u = λu,  u'(±1) = 0.
         #
         d = Segment(-1..1)
-        S = Ultraspherical(0.5, d)
-        L = -Derivative(S, 2)
-        B = Neumann(S)
+        for S in (Ultraspherical(0.5, d), Legendre(d))
+            L = -Derivative(S, 2)
+            B = Neumann(S)
 
-        n = 50
-        SA, SB = symmetric_bandmatrices_eigen(L, B, n)
+            n = 50
+            Seig = SymmetricEigensystem(L, B)
+            SA, SB = bandmatrices_eigen(Seig, n)
 
-        # A hack to avoid a BandedMatrices bug on Julia v1.6, with a pencil (A, B)
-        # with smaller bandwidth in A.
-        λ = if VERSION >= v"1.8"
-            eigvals(SA, SB)
-        else
-            eigvals(Symmetric(Matrix(SA)), Symmetric(Matrix(SB)))
+            # A hack to avoid a BandedMatrices bug on Julia v1.6, with a pencil (A, B)
+            # with smaller bandwidth in A.
+            λ = if VERSION >= v"1.8"
+                eigvals(SA, SB)
+            else
+                eigvals(Symmetric(Matrix(SA)), Symmetric(Matrix(SB)))
+            end
+
+            @test λ[1:round(Int, 2n/5)] ≈ (π^2/4).*(0:round(Int, 2n/5)-1).^2
         end
-
-        @test λ[1:round(Int, 2n/5)] ≈ (π^2/4).*(0:round(Int, 2n/5)-1).^2
     end
 
     @testset "Schrödinger with piecewise-linear potential with Dirichlet boundary conditions" begin
@@ -89,7 +91,8 @@ using Test
         B = [Evaluation(S, -1); Evaluation(S, 1) + Evaluation(S, 1, 1); continuity(S, 0); B4]
 
         n = 100
-        SA, SB = symmetric_bandmatrices_eigen(L, B, n)
+        Seig = SymmetricEigensystem(L, B)
+        SA, SB = bandmatrices_eigen(Seig, n)
         λ, Q = eigen(SA, SB);
 
         QS = QuotientSpace(B)
@@ -119,7 +122,8 @@ using Test
         B = Dirichlet(S)
 
         n = 300
-        SA, SB = symmetric_bandmatrices_eigen(L, B, n)
+        Seig = SymmetricEigensystem(L, B)
+        SA, SB = bandmatrices_eigen(Seig, n)
         BSA = BandedMatrix(SA)
         BSB = BandedMatrix(SB)
         begin
@@ -149,8 +153,7 @@ using Test
         Seig = SkewSymmetricEigensystem(Lsk, B, PathologicalQuotientSpace)
 
         n = 100
-        Ask, Bsk = bandmatrices_eigen(Seig, n)
-        λ = eigvals(Ask, Bsk)
+        λ = eigvals(Seig, n)
         λim = imag(sort!(λ, by = abs))
 
         @test abs.(λim[1:2:round(Int, 2n/5)]) ≈ π.*(0.5:round(Int, 2n/5)/2)
@@ -168,22 +171,5 @@ using Test
         n = 10 # ≥ 10 appears to do the trick
         λ = eigvals(Matrix([B;L][1:n,1:n]), Matrix([B-B;C][1:n,1:n]))
         @test eltype(λ) == Complex{Float64}
-    end
-
-    @testset "convenience function for symmetric problems" begin
-        for S in Any[Legendre(0..1), Ultraspherical(0.5, 0..1)]
-            L = -Derivative(S)^2
-            B = Dirichlet()
-            Seig = SymmetricEigensystem(L, B)
-            n = 20
-            λ = if VERSION >= v"1.8"
-                eigvals(Seig, n)
-            else
-                # workaround for BandedMatrices bug on v1.6
-                SA, SB = symmetric_bandmatrices_eigen(L, B, n)
-                eigvals(Symmetric(Matrix(SA)), Symmetric(Matrix(SB)))
-            end
-            @test λ[1:4] ≈ (1:4).^2 .* pi^2 rtol=1e-8
-        end
     end
 end
