@@ -102,7 +102,7 @@ function bandmatrices_eigen(S::EigenSystem, n::Integer)
     A, B = _bandmatrices_eigen(S, n)
     A2 = tril(A, bandwidth(A,1))
     B2 = tril(B, bandwidth(B,1))
-    A2, B2
+    Matrix(A2), Matrix(B2)
 end
 
 function _bandmatrices_eigen(S::EigenSystem, n::Integer)
