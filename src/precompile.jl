@@ -1,6 +1,6 @@
-using SnoopPrecompile
+using PrecompileTools
 
-@precompile_setup begin
+@setup_workload begin
     splist = Any[Jacobi(1, 1), Chebyshev(), Ultraspherical(1)]
     append!(splist, Any[Jacobi(1, 1, 0..1), Chebyshev(0..1), Ultraspherical(1, 0..1)])
     spreal = copy(splist)
@@ -10,7 +10,7 @@ using SnoopPrecompile
     v = ones(2)
     m = ones(2,2)
     a = ones(2,2,2)
-    @precompile_all_calls begin
+    @compile_workload begin
         for S in splist
         	f = Fun(S,v)
             f(0.1)
