@@ -183,7 +183,7 @@ using Static
         end
 
         @testset "conversion between spaces" begin
-            for u in (Ultraspherical(1), Chebyshev())
+            for u in (Ultraspherical(1), Chebyshev(), Jacobi(1,1), Legendre())
                 @test NormalizedPolynomialSpace(Jacobi(u)) ==
                     NormalizedJacobi(NormalizedPolynomialSpace(u))
             end
@@ -192,13 +192,30 @@ using Static
                     NormalizedUltraspherical(NormalizedPolynomialSpace(j))
             end
 
-            @test conversion_type(NormalizedLegendre(), Jacobi(1,1)) == NormalizedLegendre()
-            @test conversion_type(Jacobi(1,1), NormalizedLegendre()) == NormalizedLegendre()
-            @test conversion_type(Jacobi(1,1), NormalizedJacobi(2,2)) == Jacobi(1,1)
-            @test conversion_type(NormalizedJacobi(2,2), Jacobi(1,1)) == Jacobi(1,1)
+            @testset "conversion_type for NormalizedPolynomialSpace" begin
+                @test conversion_type(NormalizedLegendre(), Jacobi(1,1)) == NormalizedLegendre()
+                @test conversion_type(Jacobi(1,1), NormalizedLegendre()) == NormalizedLegendre()
+                @test conversion_type(Jacobi(1,1), NormalizedJacobi(2,2)) == Jacobi(1,1)
+                @test conversion_type(NormalizedJacobi(2,2), Jacobi(1,1)) == Jacobi(1,1)
+            end
+
+            @testset "NormalizedPolynomialSpace constructor" begin
+                @test NormalizedLegendre(NormalizedLegendre()) == NormalizedLegendre()
+                @test NormalizedJacobi(NormalizedJacobi(1,1)) == NormalizedJacobi(1,1)
+                @test Legendre(Legendre()) == Legendre()
+                @test Legendre(Ultraspherical(0.5)) == Legendre()
+                @test_throws ArgumentError Legendre(Chebyshev())
+            end
         end
 
         @test ApproxFunOrthogonalPolynomials.normalization(ComplexF64, Jacobi(-0.5, -0.5), 0) ≈ pi
+
+        @testset "domainspace promotion bug" begin
+            X = Multiplication(Fun(Legendre()), NormalizedLegendre()) → Jacobi(2,2)
+            Y = X : Legendre()
+            @test domainspace(Y) == Legendre()
+            @test Y * Fun(Legendre()) ≈ Fun(x->x^2, Legendre())
+        end
     end
 
     @testset "inplace transform" begin

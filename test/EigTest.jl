@@ -2,6 +2,7 @@ using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using ApproxFunBase: bandwidth
 using BandedMatrices
+using LinearAlgebra
 using SpecialFunctions
 using Test
 
@@ -11,28 +12,24 @@ using Test
         # -𝒟² u = λu,  u'(±1) = 0.
         #
         d = Segment(-1..1)
-        S = Ultraspherical(0.5, d)
-        NS = NormalizedPolynomialSpace(S)
-        L = -Derivative(S, 2)
-        C = Conversion(domainspace(L), rangespace(L))
-        B = Neumann(S)
-        QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
+        for S in (Ultraspherical(0.5, d), Legendre(d))
+            L = -Derivative(S, 2)
+            B = Neumann(S)
 
-        # Currently a hack to avoid a LAPACK calling bug with a pencil (A, B)
-        # with smaller bandwidth in A.
-        n = 50
-        SA = Symmetric(Matrix(A[1:n,1:n]), :L)
-        SB = Symmetric(Matrix(B[1:n,1:n]), :L)
-        λ = eigvals(SA, SB)
+            n = 50
+            Seig = SymmetricEigensystem(L, B)
+            SA, SB = bandmatrices_eigen(Seig, n)
 
-        @test λ[1:round(Int, 2n/5)] ≈ (π^2/4).*(0:round(Int, 2n/5)-1).^2
+            # A hack to avoid a BandedMatrices bug on Julia v1.6, with a pencil (A, B)
+            # with smaller bandwidth in A.
+            λ = if VERSION >= v"1.8"
+                eigvals(SA, SB)
+            else
+                eigvals(Symmetric(Matrix(SA)), Symmetric(Matrix(SB)))
+            end
+
+            @test λ[1:round(Int, 2n/5)] ≈ (π^2/4).*(0:round(Int, 2n/5)-1).^2
+        end
     end
 
     @testset "Schrödinger with piecewise-linear potential with Dirichlet boundary conditions" begin
@@ -42,25 +39,14 @@ using Test
         # where V = 100|x|.
         #
         d = Segment(-1..0)∪Segment(0..1)
-        S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
-        NS = PiecewiseSpace(NormalizedUltraspherical.(0.5, d.domains))
+        S = PiecewiseSpace(Ultraspherical.(0.5, components(d)))
         V = 100Fun(abs, S)
         L = -Derivative(S, 2) + V
-        C = Conversion(domainspace(L), rangespace(L))
         B = [Dirichlet(S); continuity(S, 0:1)]
-        QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
 
+        Seig = SymmetricEigensystem(L, B)
         n = 100
-        SA = Symmetric(A[1:n,1:n], :L)
-        SB = Symmetric(B[1:n,1:n], :L)
-        λ = eigvals(SA, SB)
+        λ = eigvals(Seig, n)
 
         @test λ[1] ≈ parse(BigFloat, "2.19503852085715200848808942880214615154684642693583513254593767079468401198338e+01")
     end
@@ -71,26 +57,17 @@ using Test
         #
         # where V = 1000[χ_[-1,-1/2](x) + χ_[1/2,1](x)].
         #
-        d = Segment(-1..(-0.5))∪Segment(-0.5..0.5)∪Segment(0.5..1)
-        S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
-        NS = PiecewiseSpace(NormalizedUltraspherical.(0.5, d.domains))
+        d = Segment(-1..(-0.5)) ∪ Segment(-0.5..0.5) ∪ Segment(0.5..1)
+        S = PiecewiseSpace(Ultraspherical.(0.5, components(d)))
+
         V = Fun(x->abs(x) ≥ 1/2 ? 1000 : 0, S)
         L = -Derivative(S, 2) + V
-        C = Conversion(domainspace(L), rangespace(L))
         B = [Dirichlet(S); continuity(S, 0:1)]
-        QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
+
+        Seig = SymmetricEigensystem(L, B)
 
         n = 150
-        SA = Symmetric(A[1:n,1:n], :L)
-        SB = Symmetric(B[1:n,1:n], :L)
-        λ = eigvals(SA, SB)
+        λ = eigvals(Seig, n)
         # From Lee--Greengard (1997).
         λtrue = [2.95446;5.90736;8.85702;11.80147].^2
         @test norm((λ[1:4] - λtrue)./λ[1:4]) < 1e-5
@@ -102,36 +79,27 @@ using Test
         #
         # where V = x + 100δ(x-0.25).
         #
-        d = Segment(-1..0.25)∪Segment(0.25..1)
-        S = PiecewiseSpace(Ultraspherical.(0.5, d.domains))
-        NS = PiecewiseSpace(NormalizedUltraspherical.(0.5, d.domains))
+        d = Segment(-1..0.25) ∪ Segment(0.25..1)
+        S = PiecewiseSpace(Ultraspherical.(0.5, components(d)))
         V = Fun(identity, S)
         L = -Derivative(S, 2) + V
-        C = Conversion(domainspace(L), rangespace(L))
+
         B4 = zeros(Operator{ApproxFunBase.prectype(S)}, 1, 2)
         B4[1, 1] = -Evaluation(component(S, 1), rightendpoint, 1) - 100*0.5*Evaluation(component(S, 1), rightendpoint)
         B4[1, 2] = Evaluation(component(S, 2), leftendpoint, 1)  - 100*0.5*Evaluation(component(S, 2), leftendpoint)
         B4 = ApproxFunBase.InterlaceOperator(B4, PiecewiseSpace, ApproxFunBase.ArraySpace)
         B = [Evaluation(S, -1); Evaluation(S, 1) + Evaluation(S, 1, 1); continuity(S, 0); B4]
-        QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
 
         n = 100
-        SA = Symmetric(A[1:n,1:n], :L)
-        SB = Symmetric(B[1:n,1:n], :L)
-
-        k = 3
-
+        Seig = SymmetricEigensystem(L, B)
+        SA, SB = bandmatrices_eigen(Seig, n)
         λ, Q = eigen(SA, SB);
+
+        QS = QuotientSpace(B)
+        k = 3
         u_QS = Fun(QS, Q[:, k])
         u_S = Fun(u_QS, S)
-        u = Fun(u_S, PiecewiseSpace(Chebyshev.(d.domains)))
+        u = Fun(u_S, PiecewiseSpace(Chebyshev.(components(d))))
         u /= sign(u'(-1))
         u1, u2 = components(u)
 
@@ -149,22 +117,13 @@ using Test
         #
         d = Segment(big(-1.0)..big(1.0))
         S = Ultraspherical(big(0.5), d)
-        NS = NormalizedPolynomialSpace(S)
         L = -Derivative(S, 2)
         C = Conversion(domainspace(L), rangespace(L))
         B = Dirichlet(S)
-        QS = QuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))))
-        A = R'D1*P*L*D2*R
-        B = R'R
 
         n = 300
-        SA = Symmetric(A[1:n,1:n], :L)
-        SB = Symmetric(B[1:n,1:n], :L)
+        Seig = SymmetricEigensystem(L, B)
+        SA, SB = bandmatrices_eigen(Seig, n)
         BSA = BandedMatrix(SA)
         BSB = BandedMatrix(SB)
         begin
@@ -189,21 +148,13 @@ using Test
         #
         d = Segment(-1..1)
         S = Ultraspherical(0.5, d)
-        NS = NormalizedPolynomialSpace(S)
         Lsk = Derivative(S)
-        Csk = Conversion(domainspace(Lsk), rangespace(Lsk))
         B = Evaluation(S, -1) + Evaluation(S, 1)
-        QS = PathologicalQuotientSpace(B)
-        Q = Conversion(QS, S)
-        D1 = Conversion(S, NS)
-        D2 = Conversion(NS, S)
-        R = D1*Q
-        Psk = cache(PartialInverseOperator(Csk, (0, 4 + bandwidth(Lsk, 1) + bandwidth(R, 1) + bandwidth(Csk, 2))))
-        Ask = R'D1*Psk*Lsk*D2*R
-        Bsk = R'R
+        Seig = SkewSymmetricEigensystem(Lsk, B, PathologicalQuotientSpace)
 
         n = 100
-        λim = imag(sort!(eigvals(Matrix(tril(Ask[1:n,1:n], 1)), Matrix(tril(Bsk[1:n,1:n], 2))), by = abs))
+        λ = eigvals(Seig, n)
+        λim = imag(sort!(λ, by = abs))
 
         @test abs.(λim[1:2:round(Int, 2n/5)]) ≈ π.*(0.5:round(Int, 2n/5)/2)
         @test abs.(λim[2:2:round(Int, 2n/5)]) ≈ π.*(0.5:round(Int, 2n/5)/2)

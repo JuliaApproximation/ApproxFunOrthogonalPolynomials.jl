@@ -14,13 +14,18 @@ end
 Jacobi(b::T,a::T,d::Domain) where {T<:Number} =
     Jacobi{typeof(d),promote_type(T,real(prectype(d)))}(b, a, d)
 Legendre(domain = ChebyshevInterval()) = Jacobi(0,0,Domain(domain)::Domain)
+Legendre(s::PolynomialSpace) = Legendre(Jacobi(s))
+Legendre(s::Jacobi) = s.a == s.b == 0 ? s : throw(ArgumentError("can't convert $s to Legendre"))
 Jacobi(b::Number,a::Number,d=ChebyshevInterval()) = Jacobi(promote(b, a)..., Domain(d)::Domain)
 Jacobi(A::Ultraspherical) = Jacobi(order(A)-0.5,order(A)-0.5,domain(A))
 Jacobi(A::Chebyshev) = Jacobi(-0.5,-0.5,domain(A))
+Jacobi(A::Jacobi) = A
 
 const NormalizedJacobi{D<:Domain,R,T} = NormalizedPolynomialSpace{Jacobi{D,R,T},D,R}
 NormalizedJacobi(s...) = NormalizedPolynomialSpace(Jacobi(s...))
+NormalizedJacobi(s::Space) = NormalizedPolynomialSpace(Jacobi(_stripnorm(s)))
 NormalizedLegendre(d...) = NormalizedPolynomialSpace(Legendre(d...))
+NormalizedLegendre(s::Space) = NormalizedPolynomialSpace(Legendre(_stripnorm(s)))
 
 function normalization(::Type{T}, sp::Jacobi, k::Int) where T
     x = FastTransforms.Anαβ(k, sp.a, sp.b)
