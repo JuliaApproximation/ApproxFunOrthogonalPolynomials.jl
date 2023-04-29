@@ -46,9 +46,9 @@ SkewSymmetricEigensystem
 
 for SET in (:SymmetricEigensystem, :SkewSymmetricEigensystem)
     @eval begin
-        struct $SET{LT,QT} <: EigenSystem
+        struct $SET{LT,QST} <: EigenSystem
             L :: LT
-            Q :: QT
+            QS :: QST
 
             function $SET(L, B, ::Type{QST} = QuotientSpace) where {QST}
                 L2, B2 = promotedomainspace((L, B))
@@ -57,19 +57,18 @@ for SET in (:SymmetricEigensystem, :SkewSymmetricEigensystem)
                 end
 
                 QS = QST(B2)
-                S = domainspace(L2)
-                Q = Conversion(QS, S)
-                new{typeof(L2),typeof(Q)}(L2, Q)
+                new{typeof(L2),typeof(QS)}(L2, QS)
             end
         end
     end
 end
 
 function basis_recombination(SE::EigenSystem)
-    L, Q = SE.L, SE.Q
+    L, QS = SE.L, SE.QS
     S = domainspace(L)
     D1 = Conversion_normalizedspace(S)
     D2 = Conversion_normalizedspace(S, Val(:backward))
+    Q = Conversion(QS, S)
     R = D1*Q;
     C = Conversion(S, rangespace(L))
     P = cache(PartialInverseOperator(C, (0, bandwidth(L, 1) + bandwidth(R, 1) + bandwidth(C, 2))));
@@ -115,4 +114,16 @@ end
 function eigvals(S::EigenSystem, n::Integer)
     SA, SB = bandmatrices_eigen(S, n)
     eigvals(SA, SB)
+end
+
+function eigs(Seig::EigenSystem, n::Integer; tolerance::Float64=100eps())
+    SA, SB = bandmatrices_eigen(Seig, n)
+    λ, v = eigen(SA, SB)
+    vm = Matrix(v)
+    L, QS = Seig.L, Seig.QS
+    S = domainspace(L)
+    Q = Conversion(QS, S)
+    QM = Q[ApproxFunBase.FiniteRange, axes(vm, 1)]
+    V = QM * vm
+    ApproxFunBase.pruneeigs(λ,V,S,tolerance)
 end
