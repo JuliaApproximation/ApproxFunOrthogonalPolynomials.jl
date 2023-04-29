@@ -109,6 +109,10 @@ using Test
         @test u2'(0.25) - u1'(0.25) ≈ 100*u(0.25)
         @test -u1'' + component(V, 1)*u1 ≈ λ[k]*u1
         @test -u2'' + component(V, 2)*u2 ≈ λ[k]*u2
+
+        λ2, f = eigs(Seig, n, tolerance=1e-8);
+        @test λ2[1:10] ≈ λ[1:10]
+        @test f[k] ≈ u || f[k] ≈ -u
     end
 
     @testset "BigFloat negative Laplacian with Dirichlet boundary conditions" begin
