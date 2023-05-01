@@ -176,14 +176,16 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
         if -1 ≤ b-a ≤ 1 && (a,b) ≠ (2,1)
             return ConcreteConversion(A,B)
         elseif b-a > 1
-            r = b:-1:a+1
+            r = decreasingunitsteprange(b, a+1)
             v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in r]
             if !(last(r) ≈ a+1)
                 vlast = ConcreteConversion(A, Ultraspherical(last(r)-1, d))
-                push!(v, vlast)
+                v2 = Union{eltype(v), typeof(vlast)}[v; vlast]
+            else
+                v2 = v
             end
             bwsum = isapproxinteger(b-a) ? (0, 2length(v)) : (0,ℵ₀)
-            return ConversionWrapper(TimesOperator(v, bwsum, (ℵ₀,ℵ₀), bwsum), A, B)
+            return ConversionWrapper(TimesOperator(v2, bwsum, (ℵ₀,ℵ₀), bwsum), A, B)
         end
     end
     throw(ArgumentError("please implement $A → $B"))
