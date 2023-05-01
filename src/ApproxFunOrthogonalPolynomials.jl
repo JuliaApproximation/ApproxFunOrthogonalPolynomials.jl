@@ -144,5 +144,6 @@ include("roots.jl")
 include("specialfunctions.jl")
 include("fastops.jl")
 include("show.jl")
+include("precompile.jl")
 
 end
