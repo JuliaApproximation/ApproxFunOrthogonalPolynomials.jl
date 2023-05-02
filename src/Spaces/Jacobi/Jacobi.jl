@@ -43,7 +43,7 @@ end
 
 function Ultraspherical(J::Jacobi)
     if J.a == J.b
-        Ultraspherical(J.a+half(Odd(1)),domain(J))
+        Ultraspherical(J.a+_onehalf(J.a),domain(J))
     else
         error("Cannot construct Ultraspherical with a=$(J.a) and b=$(J.b)")
     end
