@@ -206,6 +206,8 @@ using Static
                 @test Legendre(Ultraspherical(0.5)) == Legendre()
                 @test_throws ArgumentError Legendre(Chebyshev())
             end
+
+            @test Jacobi(Ultraspherical(Jacobi(1,1))) === Jacobi(1,1)
         end
 
         @test ApproxFunOrthogonalPolynomials.normalization(ComplexF64, Jacobi(-0.5, -0.5), 0) ≈ pi
