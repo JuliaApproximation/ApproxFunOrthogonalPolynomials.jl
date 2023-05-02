@@ -138,9 +138,10 @@ compare_op(::Any, args...) = compare_op(args...)
 compare_orders(a::Number, b::Number) = compare_op(a, b)(a, b)
 
 # work around type promotions to preserve types for StepRanges involving HalfOddIntegers with a unit step
+const HalfOddInteger{T<:Integer} = Half{Odd{T}}
 decreasingunitsteprange(start, stop) = start:-1:stop
-decreasingunitsteprange(start::Half{<:Odd}, stop::Integer) = start:-1:oftype(start, stop - half(1))
-decreasingunitsteprange(start::Integer, stop::Half{<:Odd}) = start:-1:oftype(start, stop - half(1))
+decreasingunitsteprange(start::HalfOddInteger, stop::Integer) = start:-1:oftype(start, stop - half(1))
+decreasingunitsteprange(start::Integer, stop::HalfOddInteger) = start:-1:oftype(start, stop - half(1))
 
 include("bary.jl")
 

@@ -133,7 +133,9 @@ end
 
 ## Conversion Operator
 
-isequalhalf(x) = x == half(Odd(1))
+isequalhalf(x) = x == 0.5
+isequalhalf(x::HalfOddInteger) = x == half(Odd(1))
+isequalhalf(x::Integer) = false
 
 function Conversion(A::Chebyshev, B::Ultraspherical)
     @assert domain(A) == domain(B)
