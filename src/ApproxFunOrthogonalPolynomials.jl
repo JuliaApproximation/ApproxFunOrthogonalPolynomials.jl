@@ -143,6 +143,38 @@ decreasingunitsteprange(start, stop) = start:-1:stop
 decreasingunitsteprange(start::HalfOddInteger, stop::Integer) = start:-1:oftype(start, stop - half(1))
 decreasingunitsteprange(start::Integer, stop::HalfOddInteger) = start:-1:oftype(start, stop - half(1))
 
+
+# return 1/2, possibly preserving types but not being too fussy
+_onehalf(x) = onehalf(x)
+_onehalf(::Union{StaticInt, StaticFloat64}) = static(0.5)
+_onehalf(::Integer) = half(Odd(1))
+
+# return -1/2, possibly preserving types but not being too fussy
+_minonehalf(x) = -onehalf(x)
+_minonehalf(@nospecialize(_::Union{StaticInt, StaticFloat64})) = static(-0.5)
+_minonehalf(::Integer) = half(Odd(-1))
+
+isapproxminhalf(a) = a ≈ _minonehalf(a)
+isapproxminhalf(@nospecialize(a::StaticInt)) = isequalminhalf(a)
+isapproxminhalf(::Integer) = false
+
+isequalminhalf(x) = x == _minonehalf(x)
+isequalminhalf(@nospecialize(a::StaticInt)) = false
+isequalminhalf(::Integer) = false
+
+isequalhalf(x) = x == _onehalf(x)
+isequalhalf(@nospecialize(a::StaticInt)) = false
+isequalhalf(x::Integer) = false
+
+isapproxinteger_addhalf(a) = !isapproxinteger(a) && isapproxinteger(a+_onehalf(a))
+isapproxinteger_addhalf(a::HalfOddInteger) = true
+isapproxinteger_addhalf(@nospecialize(a::StaticInt)) = false
+function isapproxinteger_addhalf(a::StaticFloat64)
+    x = mod(a, static(1))
+    x == _onehalf(x) || dynamic(x) ≈ 0.5
+end
+isapproxinteger_addhalf(::Integer) = false
+
 include("bary.jl")
 
 
