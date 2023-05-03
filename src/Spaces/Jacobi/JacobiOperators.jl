@@ -281,10 +281,7 @@ end
     elseif isequalminhalf(A.a - order(B)) && isequalminhalf(A.b - order(B))
         ConcreteConversion(A,B)
     elseif A.a == A.b == 0
-        ConversionWrapper(
-            SpaceOperator(
-                Conversion(Ultraspherical(_onehalf(A.a),domain(A)),B),
-                A,B))
+        ConversionWrapper(SpaceOperator(Conversion(Ultraspherical(A), B), A, B))
     elseif A.a == A.b
         US = Ultraspherical(A)
         ConversionWrapper(SpaceOperator(
@@ -304,10 +301,7 @@ end
     elseif isequalminhalf(B.a - order(A)) && isequalminhalf(B.b - order(A))
         ConcreteConversion(A,B)
     elseif B.a == B.b == 0
-        ConversionWrapper(
-            SpaceOperator(
-                Conversion(A,Ultraspherical(_onehalf(B.a),domain(B))),
-                A,B))
+        ConversionWrapper(SpaceOperator(Conversion(A, Ultraspherical(B)), A, B))
     elseif B.a == B.b
         US = Ultraspherical(B)
         ConversionWrapper(SpaceOperator(
