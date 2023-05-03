@@ -18,7 +18,7 @@ Legendre(s::Jacobi) = s.a == s.b == 0 ? s : throw(ArgumentError("can't convert $
 Jacobi(b::Number,a::Number,d=ChebyshevInterval()) = Jacobi(promote(b, a)..., Domain(d)::Domain)
 function Jacobi(A::Ultraspherical)
     m = order(A)
-    n = m - _onehalf(m)
+    n = m + half(Odd(-1))
     Jacobi(n,n,domain(A))
 end
 function Jacobi(A::Chebyshev)

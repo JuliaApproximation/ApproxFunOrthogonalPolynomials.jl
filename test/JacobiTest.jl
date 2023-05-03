@@ -219,6 +219,10 @@ using Static
             end
 
             @test Jacobi(Ultraspherical(Jacobi(1,1))) === Jacobi(1,1)
+
+            @inferred (U -> Val(isinteger(Jacobi(U).a)))(Ultraspherical(half(Odd(1))))
+            @inferred (U -> Val(isinteger(Jacobi(U).a)))(Ultraspherical(1))
+            @inferred (U -> Val(isinteger(Jacobi(U).a)))(Ultraspherical(static(1)))
         end
 
         @test ApproxFunOrthogonalPolynomials.normalization(ComplexF64, Jacobi(-0.5, -0.5), 0) ≈ pi
