@@ -232,7 +232,7 @@ function Conversion(A::Jacobi,B::PolynomialSpace)
     @assert domain(A) == domain(B)
     J = Jacobi(B)
     J == A ? ConcreteConversion(A,B) :
-             ConversionWrapper(SpaceOperator(TimesOperator(Conversion(J,B),Conversion(A,J)), A, B), A, B)
+             ConversionWrapper(SpaceOperator(TimesOperator(Conversion(J,B),Conversion(A,J)), A, B))
 end
 
 function Conversion(A::Jacobi,B::Chebyshev)
