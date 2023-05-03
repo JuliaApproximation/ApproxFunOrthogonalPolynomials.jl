@@ -221,29 +221,26 @@ end
 
 # Assume m is compatible
 
-function Conversion(A::PolynomialSpace,B::Jacobi)
+function Conversion(A::PolynomialSpace, B::Jacobi)
     @assert domain(A) == domain(B)
     J = Jacobi(A)
     J == B ? ConcreteConversion(A,B) :
              ConversionWrapper(SpaceOperator(TimesOperator(Conversion(J,B),Conversion(A,J)), A, B))
 end
 
-function Conversion(A::Jacobi,B::PolynomialSpace)
+function Conversion(A::Jacobi, B::PolynomialSpace)
     @assert domain(A) == domain(B)
     J = Jacobi(B)
     J == A ? ConcreteConversion(A,B) :
              ConversionWrapper(SpaceOperator(TimesOperator(Conversion(J,B),Conversion(A,J)), A, B))
 end
 
-function Conversion(A::Jacobi,B::Chebyshev)
+function Conversion(A::Jacobi, B::Chebyshev)
     @assert domain(A) == domain(B)
     if isequalminhalf(A.a) && isequalminhalf(A.b)
         ConcreteConversion(A,B)
     elseif A.a == A.b == 0
-        ConversionWrapper(
-            SpaceOperator(
-                ConcreteConversion(Ultraspherical(_onehalf(A.a),domain(A)), B),
-                A,B))
+        ConversionWrapper(SpaceOperator(ConcreteConversion(Ultraspherical(A), B), A, B))
     elseif A.a == A.b
         US = Ultraspherical(A)
         ConversionWrapper(SpaceOperator(TimesOperator(Conversion(US,B), ConcreteConversion(A,US)), A, B))
@@ -253,15 +250,12 @@ function Conversion(A::Jacobi,B::Chebyshev)
     end
 end
 
-function Conversion(A::Chebyshev,B::Jacobi)
+function Conversion(A::Chebyshev, B::Jacobi)
     @assert domain(A) == domain(B)
     if isequalminhalf(B.a) && isequalminhalf(B.b)
         ConcreteConversion(A,B)
     elseif B.a == B.b == 0
-        ConversionWrapper(
-            SpaceOperator(
-                ConcreteConversion(A, Ultraspherical(_onehalf(B.a),domain(B))),
-                A,B))
+        ConversionWrapper(SpaceOperator(ConcreteConversion(A, Ultraspherical(B)), A, B))
     elseif B.a == B.b
         US = Ultraspherical(B)
         ConversionWrapper(SpaceOperator(TimesOperator(ConcreteConversion(US,B), Conversion(A,US)), A, B))
