@@ -122,6 +122,12 @@ using Static
             @test Conversion(S1, S2) * Fun(x->x^4, S1) ≈ Fun(x->x^4, S2)
         end
 
+        C = Conversion(Jacobi(Chebyshev()), Ultraspherical(1))
+        @test C * Fun(x->x^2, Jacobi(-0.5, -0.5)) ≈ Fun(x->x^2, Ultraspherical(1))
+
+        C = Conversion(Ultraspherical(0.5), Jacobi(Chebyshev()))
+        @test C * Fun(x->x^2, Ultraspherical(0.5)) ≈ Fun(x->x^2, Jacobi(Chebyshev()))
+
         @testset "inference tests" begin
             #= Note all cases are inferred as of now,
             but as the situation eveolves in the future, more @inferred tests

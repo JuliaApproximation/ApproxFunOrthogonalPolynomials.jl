@@ -1,9 +1,13 @@
 module ApproxFunOrthogonalPolynomials_Runtests
 
 using ApproxFunOrthogonalPolynomials
+using ApproxFunOrthogonalPolynomials: isapproxminhalf, isequalminhalf, isequalhalf, isapproxinteger_addhalf
 using LinearAlgebra
 using Test
 using Aqua
+using Static
+using HalfIntegers
+using OddEvenIntegers
 
 @testset "Project quality" begin
     Aqua.test_all(ApproxFunOrthogonalPolynomials, ambiguities=false,
@@ -18,6 +22,36 @@ end
 @test ApproxFunOrthogonalPolynomials.Matrix === Base.Matrix
 
 include("testutils.jl")
+
+@testset "helpers" begin
+    for f in [isequalminhalf, isapproxminhalf]
+        @test f(-0.5)
+        @test f(static(-0.5))
+        @test f(half(Odd(-1)))
+        @test !f(-0.2)
+        @test !f(half(Odd(1)))
+        @test !f(1)
+        @test !f(static(1))
+    end
+    @test !isequalhalf(-0.5)
+    @test !isequalhalf(static(-0.5))
+    @test !isequalhalf(half(Odd(-1)))
+    @test !isequalhalf(-0.2)
+    @test isequalhalf(0.5)
+    @test isequalhalf(static(0.5))
+    @test isequalhalf(half(Odd(1)))
+    @test !isequalhalf(1)
+    @test !isequalhalf(static(1))
+
+    @test isapproxinteger_addhalf(0.5)
+    @test isapproxinteger_addhalf(static(0.5))
+    @test isapproxinteger_addhalf(half(Odd(1)))
+    @test !isapproxinteger_addhalf(1)
+    @test !isapproxinteger_addhalf(static(1))
+
+    @test ApproxFunOrthogonalPolynomials._minonehalf(2) == -0.5
+    @test ApproxFunOrthogonalPolynomials._onehalf(2) == 0.5
+end
 
 include("ClenshawTest.jl"); GC.gc()
 include("ChebyshevTest.jl"); GC.gc()

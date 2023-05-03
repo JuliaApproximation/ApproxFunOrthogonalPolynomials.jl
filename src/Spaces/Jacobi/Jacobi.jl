@@ -16,8 +16,15 @@ Legendre(domain = ChebyshevInterval()) = Jacobi(0,0,Domain(domain)::Domain)
 Legendre(s::PolynomialSpace) = Legendre(Jacobi(s))
 Legendre(s::Jacobi) = s.a == s.b == 0 ? s : throw(ArgumentError("can't convert $s to Legendre"))
 Jacobi(b::Number,a::Number,d=ChebyshevInterval()) = Jacobi(promote(b, a)..., Domain(d)::Domain)
-Jacobi(A::Ultraspherical) = Jacobi(order(A)-half(Odd(1)),order(A)-half(Odd(1)),domain(A))
-Jacobi(A::Chebyshev) = Jacobi(half(Odd(-1)),half(Odd(-1)),domain(A))
+function Jacobi(A::Ultraspherical)
+    m = order(A)
+    n = m - _onehalf(m)
+    Jacobi(n,n,domain(A))
+end
+function Jacobi(A::Chebyshev)
+    n = half(Odd(-1))
+    Jacobi(n,n,domain(A))
+end
 Jacobi(A::Jacobi) = A
 
 const NormalizedJacobi{D<:Domain,R,T} = NormalizedPolynomialSpace{Jacobi{D,R,T},D,R}
