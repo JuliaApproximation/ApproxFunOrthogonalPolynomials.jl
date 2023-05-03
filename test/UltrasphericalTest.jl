@@ -4,6 +4,8 @@ using Test
 using SpecialFunctions
 using LinearAlgebra
 using Static
+using OddEvenIntegers
+using HalfIntegers
 
 @verbose @testset "Ultraspherical" begin
     @testset "promotion" begin
@@ -40,12 +42,26 @@ using Static
             @inferred (() -> Conversion(Chebyshev(), Ultraspherical(2.5)))();
         end
 
+        Tallowed = Union{
+            typeof(Conversion(Chebyshev(), Ultraspherical(half(Odd(1))))),
+            typeof(Conversion(Chebyshev(), Ultraspherical(half(Odd(3)))))
+        }
+        @inferred Tallowed Conversion(Chebyshev(), Ultraspherical(half(Odd(1))));
+        @inferred Tallowed Conversion(Chebyshev(), Ultraspherical(half(Odd(3))));
+
         # Conversions between Ultraspherical should lead to a small union of types
         Tallowed = Union{
             typeof(Conversion(Ultraspherical(1), Ultraspherical(2))),
             typeof(Conversion(Ultraspherical(1), Ultraspherical(3)))}
         @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(2));
         @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(3));
+
+        Tallowed = Union{
+            typeof(Conversion(Ultraspherical(1), Ultraspherical(half(Odd(3))))),
+            typeof(Conversion(Ultraspherical(1), Ultraspherical(half(Odd(5)))))}
+
+        @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(half(Odd(3))));
+        @inferred Tallowed Conversion(Ultraspherical(1), Ultraspherical(half(Odd(5))));
 
         @inferred Conversion(Ultraspherical(static(1)), Ultraspherical(static(4)));
         @inferred (() -> Conversion(Ultraspherical(1), Ultraspherical(4)))();
@@ -62,6 +78,10 @@ using Static
             C2 = Conversion(Ultraspherical(static(1)), Ultraspherical(static(n)))
             @test C1[1:4, 1:4] == C2[1:4, 1:4]
         end
+
+        C1 = Conversion(Chebyshev(), Ultraspherical(1.5))
+        C2 = Conversion(Chebyshev(), Ultraspherical(half(Odd(3))))
+        @test C1[1:4, 1:4] == C2[1:4, 1:4]
 
         f = Fun(x->x^2, Ultraspherical(0.5)) # Legendre
         CLC = Conversion(Ultraspherical(0.5), Chebyshev())

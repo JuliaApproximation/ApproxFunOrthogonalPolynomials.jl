@@ -122,6 +122,12 @@ using Static
             @test Conversion(S1, S2) * Fun(x->x^4, S1) ≈ Fun(x->x^4, S2)
         end
 
+        C = Conversion(Jacobi(Chebyshev()), Ultraspherical(1))
+        @test C * Fun(x->x^2, Jacobi(-0.5, -0.5)) ≈ Fun(x->x^2, Ultraspherical(1))
+
+        C = Conversion(Ultraspherical(0.5), Jacobi(Chebyshev()))
+        @test C * Fun(x->x^2, Ultraspherical(0.5)) ≈ Fun(x->x^2, Jacobi(Chebyshev()))
+
         @testset "inference tests" begin
             #= Note all cases are inferred as of now,
             but as the situation eveolves in the future, more @inferred tests
@@ -165,6 +171,11 @@ using Static
 
                 CCJmix = Conversion(Chebyshev(), Jacobi(0.5,1.5))
                 @test CCJmix * Fun(Chebyshev()) ≈ Fun(Jacobi(0.5,1.5))
+
+                @inferred (P -> Conversion(P, Jacobi(1,1)))(Chebyshev());
+                if VERSION >= v"1.8"
+                    @inferred (P -> Conversion(Jacobi(1,1), P))(Ultraspherical(3));
+                end
             end
 
             @testset "Ultraspherical" begin
@@ -206,6 +217,12 @@ using Static
                 @test Legendre(Ultraspherical(0.5)) == Legendre()
                 @test_throws ArgumentError Legendre(Chebyshev())
             end
+
+            @test Jacobi(Ultraspherical(Jacobi(1,1))) === Jacobi(1,1)
+
+            @inferred (U -> Val(isinteger(Jacobi(U).a)))(Ultraspherical(half(Odd(1))))
+            @inferred (U -> Val(isinteger(Jacobi(U).a)))(Ultraspherical(1))
+            @inferred (U -> Val(isinteger(Jacobi(U).a)))(Ultraspherical(static(1)))
         end
 
         @test ApproxFunOrthogonalPolynomials.normalization(ComplexF64, Jacobi(-0.5, -0.5), 0) ≈ pi

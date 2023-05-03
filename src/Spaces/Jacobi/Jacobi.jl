@@ -1,6 +1,5 @@
 export Jacobi, NormalizedJacobi, Legendre, NormalizedLegendre
 
-
 """
 `Jacobi(b,a)` represents the space spanned by Jacobi polynomials `P_k^{(a,b)}`,
 which are orthogonal with respect to the weight `(1+x)^β*(1-x)^α`
@@ -17,8 +16,15 @@ Legendre(domain = ChebyshevInterval()) = Jacobi(0,0,Domain(domain)::Domain)
 Legendre(s::PolynomialSpace) = Legendre(Jacobi(s))
 Legendre(s::Jacobi) = s.a == s.b == 0 ? s : throw(ArgumentError("can't convert $s to Legendre"))
 Jacobi(b::Number,a::Number,d=ChebyshevInterval()) = Jacobi(promote(b, a)..., Domain(d)::Domain)
-Jacobi(A::Ultraspherical) = Jacobi(order(A)-0.5,order(A)-0.5,domain(A))
-Jacobi(A::Chebyshev) = Jacobi(-0.5,-0.5,domain(A))
+function Jacobi(A::Ultraspherical)
+    m = order(A)
+    n = m + half(Odd(-1))
+    Jacobi(n,n,domain(A))
+end
+function Jacobi(A::Chebyshev)
+    n = half(Odd(-1))
+    Jacobi(n,n,domain(A))
+end
 Jacobi(A::Jacobi) = A
 
 const NormalizedJacobi{D<:Domain,R,T} = NormalizedPolynomialSpace{Jacobi{D,R,T},D,R}
@@ -44,7 +50,7 @@ end
 
 function Ultraspherical(J::Jacobi)
     if J.a == J.b
-        Ultraspherical(J.a+0.5,domain(J))
+        Ultraspherical(J.a+_onehalf(J.a),domain(J))
     else
         error("Cannot construct Ultraspherical with a=$(J.a) and b=$(J.b)")
     end
@@ -62,8 +68,6 @@ convert(::Type{Jacobi{D,R1,T1}},J::Jacobi{D,R2,T2}) where {D,R1,R2,T1,T2} =
 compare_orders((Aa, Ba)::NTuple{2,Number}, (Ab, Bb)::NTuple{2,Number}) = compare_orders(Aa, Ba) && compare_orders(Ab, Bb)
 spacescompatible(a::Jacobi, b::Jacobi) = compare_orders((a.a, b.a), (a.b, b.b)) && domainscompatible(a,b)
 
-isapproxinteger_addhalf(a) = !isapproxinteger(a) && isapproxinteger(a+0.5)
-isapproxinteger_addhalf(::Integer) = false
 function canonicalspace(S::Jacobi)
     if isapproxinteger_addhalf(S.a) && isapproxinteger_addhalf(S.b)
         Chebyshev(domain(S))
