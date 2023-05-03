@@ -180,7 +180,7 @@ bandwidths(::ConcreteConversion{<:Jacobi,<:Jacobi}) = (0,1)
 
 
 
-function Base.getindex(C::ConcreteConversion{<:Jacobi,<:Jacobi,T},k::Integer,j::Integer) where {T}
+function getindex(C::ConcreteConversion{<:Jacobi,<:Jacobi,T},k::Integer,j::Integer) where {T}
     L=C.domainspace
     if L.b+1==C.rangespace.b
         if j==k
