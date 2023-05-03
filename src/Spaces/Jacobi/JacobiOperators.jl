@@ -225,14 +225,14 @@ function Conversion(A::PolynomialSpace,B::Jacobi)
     @assert domain(A) == domain(B)
     J = Jacobi(A)
     J == B ? ConcreteConversion(A,B) :
-             ConversionWrapper(TimesOperator(Conversion(J,B),Conversion(A,J)))
+             ConversionWrapper(SpaceOperator(TimesOperator(Conversion(J,B),Conversion(A,J)), A, B))
 end
 
 function Conversion(A::Jacobi,B::PolynomialSpace)
     @assert domain(A) == domain(B)
     J = Jacobi(B)
     J == A ? ConcreteConversion(A,B) :
-             ConversionWrapper(TimesOperator(Conversion(J,B),Conversion(A,J)))
+             ConversionWrapper(SpaceOperator(TimesOperator(Conversion(J,B),Conversion(A,J)), A, B), A, B)
 end
 
 function Conversion(A::Jacobi,B::Chebyshev)
@@ -246,7 +246,7 @@ function Conversion(A::Jacobi,B::Chebyshev)
                 A,B))
     elseif A.a == A.b
         US = Ultraspherical(A)
-        ConversionWrapper(Conversion(US,B)*ConcreteConversion(A,US))
+        ConversionWrapper(SpaceOperator(TimesOperator(Conversion(US,B), ConcreteConversion(A,US)), A, B))
     else
         J = Jacobi(B)
         ConcreteConversion(J,B)*Conversion(A,J)
@@ -264,7 +264,7 @@ function Conversion(A::Chebyshev,B::Jacobi)
                 A,B))
     elseif B.a == B.b
         US = Ultraspherical(B)
-        ConcreteConversion(US,B) * Conversion(A,US)
+        ConversionWrapper(SpaceOperator(TimesOperator(ConcreteConversion(US,B), Conversion(A,US)), A, B))
     else
         J = Jacobi(A)
         Conversion(J,B)*ConcreteConversion(A,J)
@@ -272,11 +272,12 @@ function Conversion(A::Chebyshev,B::Jacobi)
 end
 
 
-function Conversion(A::Jacobi,B::Ultraspherical)
+@inline function _Conversion(A::Jacobi, B::Ultraspherical)
     @assert domain(A) == domain(B)
     if isequalminhalf(A.a) && isequalminhalf(A.b)
-        ConversionWrapper(Conversion(Chebyshev(domain(A)),B)*
-            ConcreteConversion(A,Chebyshev(domain(A))))
+        C = Chebyshev(domain(A))
+        ConversionWrapper(SpaceOperator(
+            TimesOperator(Conversion(C,B), ConcreteConversion(A,C)), A, B))
     elseif isequalminhalf(A.a - order(B)) && isequalminhalf(A.b - order(B))
         ConcreteConversion(A,B)
     elseif A.a == A.b == 0
@@ -286,18 +287,20 @@ function Conversion(A::Jacobi,B::Ultraspherical)
                 A,B))
     elseif A.a == A.b
         US = Ultraspherical(A)
-        ConversionWrapper(Conversion(US,B)*ConcreteConversion(A,US))
+        ConversionWrapper(SpaceOperator(
+            TimesOperator(Conversion(US,B), ConcreteConversion(A,US)), A, B))
     else
         J = Jacobi(B)
         ConcreteConversion(J,B)*Conversion(A,J)
     end
 end
 
-function Conversion(A::Ultraspherical,B::Jacobi)
+@inline function _Conversion(A::Ultraspherical, B::Jacobi)
     @assert domain(A) == domain(B)
     if isequalminhalf(B.a) && isequalminhalf(B.b)
-        ConversionWrapper(ConcreteConversion(Chebyshev(domain(A)),B)*
-            Conversion(A,Chebyshev(domain(A))))
+        C = Chebyshev(domain(B))
+        ConversionWrapper(SpaceOperator(
+            TimesOperator(ConcreteConversion(C, B), Conversion(A, C)), A, B))
     elseif isequalminhalf(B.a - order(A)) && isequalminhalf(B.b - order(A))
         ConcreteConversion(A,B)
     elseif B.a == B.b == 0
@@ -307,13 +310,21 @@ function Conversion(A::Ultraspherical,B::Jacobi)
                 A,B))
     elseif B.a == B.b
         US = Ultraspherical(B)
-        ConversionWrapper(ConcreteConversion(US,B)*Conversion(A,US))
+        ConversionWrapper(SpaceOperator(
+            TimesOperator(ConcreteConversion(US,B), Conversion(A,US)), A, B))
     else
         J = Jacobi(A)
         Conversion(J,B)*ConcreteConversion(A,J)
     end
 end
 
+@static if VERSION >= v"1.8"
+    Base.@constprop :aggressive Conversion(A::Jacobi, B::Ultraspherical) = _Conversion(A, B)
+    Base.@constprop :aggressive Conversion(A::Ultraspherical, B::Jacobi) = _Conversion(A, B)
+else
+    Conversion(A::Jacobi, B::Ultraspherical) = _Conversion(A, B)
+    Conversion(A::Ultraspherical, B::Jacobi) = _Conversion(A, B)
+end
 
 
 

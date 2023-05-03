@@ -165,6 +165,11 @@ using Static
 
                 CCJmix = Conversion(Chebyshev(), Jacobi(0.5,1.5))
                 @test CCJmix * Fun(Chebyshev()) ≈ Fun(Jacobi(0.5,1.5))
+
+                @inferred (P -> Conversion(P, Jacobi(1,1)))(Chebyshev());
+                if VERSION >= v"1.8"
+                    @inferred (P -> Conversion(Jacobi(1,1), P))(Ultraspherical(3));
+                end
             end
 
             @testset "Ultraspherical" begin
