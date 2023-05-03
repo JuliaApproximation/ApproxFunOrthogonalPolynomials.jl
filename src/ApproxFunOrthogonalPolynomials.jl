@@ -61,7 +61,7 @@ import Base: convert, getindex, eltype, <, <=, +, -, *, /, ^, ==,
                 minimum, maximum, extrema, zeros, one, promote_rule,
                 getproperty, real, imag, max, min, log, acos,
                 sin, cos, asinh, acosh, atanh, ones,
-                Matrix
+                Matrix, size
                 # atan, tan, tanh, asin, sec, sinh, cosh,
                 # split
 
@@ -106,8 +106,8 @@ function ShiftedChebyshevGrid(grid::G, shift::S, scale::S) where {G,S}
     T = typeof(zero(eltype(G)) * zero(S))
     ShiftedChebyshevGrid{T,S,G}(grid, shift, scale)
 end
-Base.size(S::ShiftedChebyshevGrid) = size(S.grid)
-Base.@propagate_inbounds Base.getindex(S::ShiftedChebyshevGrid, i::Int) = S.shift + S.grid[i] * S.scale
+size(S::ShiftedChebyshevGrid) = size(S.grid)
+Base.@propagate_inbounds getindex(S::ShiftedChebyshevGrid, i::Int) = S.shift + S.grid[i] * S.scale
 function Base.showarg(io::IO, S::ShiftedChebyshevGrid, toplevel::Bool)
     print(io, "ShiftedChebyshevGrid{", eltype(S), "}")
 end
