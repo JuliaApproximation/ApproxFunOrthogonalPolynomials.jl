@@ -10,6 +10,8 @@ using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace,
 using ApproxFunOrthogonalPolynomials: jacobip
 using StaticArrays: SVector
 using Static
+using HalfIntegers
+using OddEvenIntegers
 
 @verbose @testset "Jacobi" begin
     @testset "Basic" begin
@@ -531,24 +533,25 @@ using Static
         testspace(Ultraspherical(1); haslineintegral=false)
         testspace(Ultraspherical(2); haslineintegral=false)
         # minpoints is a tempory fix a bug
-        @time testspace(Ultraspherical(1//2); haslineintegral=false, minpoints=2)
-        @test norm(Fun(exp,Ultraspherical(1//2))-Fun(exp,Jacobi(0,0))) < 100eps()
+        for m in (1//2, half(Odd(1)))
+            @time testspace(Ultraspherical(m); haslineintegral=false, minpoints=2)
+            @test norm(Fun(exp,Ultraspherical(m))-Fun(exp,Jacobi(0,0))) < 100eps()
+        end
 
         C=Conversion(Jacobi(0,0),Chebyshev())
         @time testbandedbelowoperator(C)
         @test norm(C*Fun(exp,Jacobi(0,0))  - Fun(exp)) < 100eps()
 
 
-        C=Conversion(Ultraspherical(1//2),Chebyshev())
-        @time testbandedbelowoperator(C)
-        @test norm(C*Fun(exp,Ultraspherical(1//2))  - Fun(exp)) < 100eps()
+        for m in (1//2, half(Odd(1)))
+            C=Conversion(Ultraspherical(m),Chebyshev())
+            @time testbandedbelowoperator(C)
+            @test norm(C*Fun(exp,Ultraspherical(m))  - Fun(exp)) < 100eps()
 
-
-
-        C=Conversion(Chebyshev(),Ultraspherical(1//2))
-        @time testbandedbelowoperator(C)
-        @test norm(C*Fun(exp)-Fun(exp,Legendre())) < 100eps()
-
+            C=Conversion(Chebyshev(),Ultraspherical(m))
+            @time testbandedbelowoperator(C)
+            @test norm(C*Fun(exp)-Fun(exp,Legendre())) < 100eps()
+        end
 
         C=Conversion(Chebyshev(),Jacobi(0,0))
         @time testbandedbelowoperator(C)
@@ -560,8 +563,10 @@ using Static
         @test norm(C*Fun(exp) - Fun(exp,Jacobi(1,1))) < 100eps()
 
 
-        C=Conversion(Ultraspherical(1//2),Ultraspherical(1))
-        @time testbandedbelowoperator(C)
+        for m in (1//2, half(Odd(1)))
+            C=Conversion(Ultraspherical(m),Ultraspherical(1))
+            @time testbandedbelowoperator(C)
+        end
 
         λ1 = ApproxFunOrthogonalPolynomials.order(domainspace(C))
         λ2 = ApproxFunOrthogonalPolynomials.order(rangespace(C))
@@ -577,7 +582,9 @@ using Static
 
         @test norm(Cex - C[1:20,1:20]) < 100eps()
 
-        @test norm(C*Fun(exp,Ultraspherical(1//2))-Fun(exp,Ultraspherical(1))) < 100eps()
+        for m in (1//2, half(Odd(1)))
+            @test norm(C*Fun(exp,Ultraspherical(m))-Fun(exp,Ultraspherical(1))) < 100eps()
+        end
 
         C=Conversion(Jacobi(0,0),Ultraspherical(1))
         testbandedbelowoperator(C)
