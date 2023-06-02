@@ -107,6 +107,13 @@ using HalfIntegers
                 @test g ≈ Fun(ff, Ultraspherical(n1))
             end
         end
+
+        @testset "complex normalization" begin
+            C = Conversion(NormalizedUltraspherical(NormalizedLegendre()), Ultraspherical(Legendre()))
+            CC = convert(Operator{ComplexF64}, C)
+            @test CC isa Operator{ComplexF64}
+            @test CC[1:4, 1:4] ≈ C[1:4, 1:4]
+        end
     end
 
     @testset "Normalized space" begin
