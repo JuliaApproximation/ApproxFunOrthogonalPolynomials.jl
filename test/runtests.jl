@@ -11,7 +11,7 @@ using OddEvenIntegers
 
 @testset "Project quality" begin
     Aqua.test_all(ApproxFunOrthogonalPolynomials, ambiguities=false,
-        stale_deps=(; ignore=[:ApproxFunBaseTest]))
+        stale_deps=(; ignore=[:ApproxFunBaseTest]), piracy = false)
 end
 
 @testset "Domain" begin
