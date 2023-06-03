@@ -37,7 +37,13 @@ rdiffbc(d::MaybeNormalized{<:Union{Chebyshev, Ultraspherical, Jacobi}},k) = Eval
 
 ## Integral
 
-function Integral(J::Jacobi,k::Number)
+@static if VERSION >= v"1.8"
+    Base.@constprop :aggressive Integral(J::Jacobi, k::Number) = _Integral(J, k)
+else
+    Integral(J::Jacobi, k::Number) = _Integral(J, k)
+end
+
+@inline function _Integral(J::Jacobi,k::Number)
     assert_integer(k)
     @assert k > 0 "order of integral must be > 0"
     if k > 1
@@ -46,10 +52,12 @@ function Integral(J::Jacobi,k::Number)
     elseif J.a > 0 && J.b > 0   # we have a simple definition
         ConcreteIntegral(J,1)
     else   # convert and then integrate
-        sp=Jacobi(J.b+1,J.a+1,domain(J))
-        C=Conversion(J,sp)
-        Q=Integral(sp,1)
-        IntegralWrapper(TimesOperator(Q,C),1,J)
+        a_max = maximum(J.a:1:(1 + (J.a > 1)))
+        b_max = maximum(J.b:1:(1 + (J.b > 1)))
+        sp=Jacobi(b_max,a_max,domain(J))
+        C=_conversion_shiftordersbyone(J,sp)
+        Qconc=ConcreteIntegral(sp,1)
+        IntegralWrapper(TimesOperator(Qconc,C),1,J,rangespace(Qconc))
     end
 end
 
@@ -124,7 +132,19 @@ for (Func,Len,Sum) in ((:DefiniteIntegral,:complexlength,:sum),(:DefiniteLineInt
     end
 end
 
-
+function _conversion_shiftordersbyone(L::Jacobi, M::Jacobi)
+    dl=domain(L)
+    dm=domain(M)
+    # We split this into steps where a and b are changed by 1:
+    # Define the intermediate space J = Jacobi(M.b, L.a, dm)
+    # Conversion(L, M) == Conversion(J, M) * Conversion(L, J)
+    # Conversion(L, J) = Conversion(Jacobi(L.b, L.a, dm), Jacobi(M.b, L.a, dm))
+    # Conversion(J, M) = Conversion(Jacobi(M.b, L.a, dm), Jacobi(M.b, M.a, dm))
+    CLJ = [ConcreteConversion(Jacobi(b-1,L.a,dm), Jacobi(b, L.a, dm)) for b in M.b:-1:L.b+1]
+    CJM = [ConcreteConversion(Jacobi(M.b,a-1,dm), Jacobi(M.b, a, dm)) for a in M.a:-1:L.a+1]
+    C = [CJM; CLJ]
+    return ConversionWrapper(TimesOperator(C))
+end
 
 ## Conversion
 # We can only increment by a or b by one, so the following
@@ -153,15 +173,7 @@ function Conversion(L::Jacobi,M::Jacobi)
         elseif L.a ≈ L.b && M.a ≈ M.b
             return Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
         else
-            # We split this into steps where a and b are changed by 1:
-            # Define the intermediate space J = Jacobi(M.b, L.a, dm)
-            # Conversion(L, M) == Conversion(J, M) * Conversion(L, J)
-            # Conversion(L, J) = Conversion(Jacobi(L.b, L.a, dm), Jacobi(M.b, L.a, dm))
-            # Conversion(J, M) = Conversion(Jacobi(M.b, L.a, dm), Jacobi(M.b, M.a, dm))
-            CLJ = [ConcreteConversion(Jacobi(b-1,L.a,dm), Jacobi(b, L.a, dm)) for b in decreasingunitsteprange(M.b, L.b+1)]
-            CJM = [ConcreteConversion(Jacobi(M.b,a-1,dm), Jacobi(M.b, a, dm)) for a in decreasingunitsteprange(M.a, L.a+1)]
-            C = [CJM; CLJ]
-            return ConversionWrapper(TimesOperator(C))
+            return _conversion_shiftordersbyone(L, M)
         end
     elseif isapproxinteger_addhalf(L.a - M.a) && isapproxinteger_addhalf(L.b - M.b)
         if L.a ≈ L.b && M.a ≈ M.b && isapproxminhalf(M.a)

@@ -691,7 +691,10 @@ using OddEvenIntegers
     end
 
     @testset "Integral" begin
-        @testset for sp in (Legendre(), Jacobi(1,1))
+        @inferred (() -> Integral(Legendre()))()
+        @inferred (() -> Integral(Jacobi(1,1)))()
+        @inferred (() -> Integral(Jacobi(Ultraspherical(1))))()
+        @testset for sp in (Legendre(), Jacobi(1,1), Jacobi(Ultraspherical(1)))
             Ij = Integral(sp, 1)
             @test !isdiag(Ij)
             f = Fun(sp)
