@@ -177,7 +177,7 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
         if -1 ≤ b-a ≤ 1 && (a,b) ≠ (2,1)
             return ConcreteConversion(A,B)
         elseif b-a > 1
-            r = decreasingunitsteprange(b, a+1)
+            r = b:-1:a+1
             v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in r]
             if !(last(r) ≈ a+1)
                 vlast = ConcreteConversion(A, Ultraspherical(last(r)-1, d))
