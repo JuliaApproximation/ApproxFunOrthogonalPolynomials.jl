@@ -132,7 +132,7 @@ const TupleOrVector{T} = Union{Tuple{T,Vararg{T}},AbstractVector{<:T}}
 
 # If any of the orders is an Integer, use == for an exact comparison, else fall back to isapprox
 # We assume that Integer orders are deliberately chosen to be exact
-compare_op(::Integer, args...) = ==
+compare_op(::Union{Integer, HalfInteger}, args...) = ==
 compare_op() = ≈
 compare_op(::Any, args...) = compare_op(args...)
 compare_orders(a::Number, b::Number) = compare_op(a, b)(a, b)
