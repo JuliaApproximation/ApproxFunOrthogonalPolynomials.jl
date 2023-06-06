@@ -1,6 +1,7 @@
 module ComplexTest
 
 using ApproxFunOrthogonalPolynomials
+using LinearAlgebra
 using Test
 
 @testset "Complex" begin
