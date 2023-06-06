@@ -1,3 +1,5 @@
+module HermiteTest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using SpecialFunctions
@@ -75,3 +77,5 @@ using ApproxFunBaseTest: testbandedoperator
         @test g(1.) ≈ 3.
     end
 end
+
+end # module

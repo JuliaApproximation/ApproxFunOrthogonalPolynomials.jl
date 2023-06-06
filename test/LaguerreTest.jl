@@ -1,9 +1,12 @@
+module LaguerreTest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using SpecialFunctions
 using Test
 using ApproxFunBaseTest: testbandedoperator
 
+include("testutils.jl")
 
 @verbose @testset "Laguerre and WeightedLaguerre" begin
     @testset "Ray" begin
@@ -107,3 +110,5 @@ using ApproxFunBaseTest: testbandedoperator
         @test rangespace(M) == LaguerreWeight(-0.5,Laguerre())
     end
 end
+
+end # module

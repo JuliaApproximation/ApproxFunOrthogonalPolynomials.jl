@@ -1,3 +1,5 @@
+module JacobiTest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using Test
@@ -12,6 +14,8 @@ using StaticArrays: SVector
 using Static
 using HalfIntegers
 using OddEvenIntegers
+
+include("testutils.jl")
 
 @verbose @testset "Jacobi" begin
     @testset "Basic" begin
@@ -694,16 +698,21 @@ using OddEvenIntegers
         @inferred (() -> Integral(Legendre()))()
         @inferred (() -> Integral(Jacobi(1,1)))()
         @inferred (() -> Integral(Jacobi(Ultraspherical(1))))()
-        @testset for sp in (Legendre(), Jacobi(1,1), Jacobi(Ultraspherical(1)))
-            Ij = Integral(sp, 1)
-            @test !isdiag(Ij)
-            f = Fun(sp)
-            g = Ij * f
-            g = Fun(g, sp)
-            g = g - coefficients(g)[1]
-            gexp = Fun(x->x^2/2, sp)
-            gexp = gexp - coefficients(gexp)[1]
-            @test g ≈ gexp
+        @inferred (() -> Integral(NormalizedLegendre()))()
+        @inferred (() -> Integral(NormalizedJacobi(1,1)))()
+        @inferred (() -> Integral(NormalizedJacobi(NormalizedUltraspherical(1))))()
+        for sp in (Legendre(), Jacobi(1,1), Jacobi(Ultraspherical(1)))
+            @testset for _sp in (sp, NormalizedPolynomialSpace(sp))
+                Ij = Integral(_sp, 1)
+                @test !isdiag(Ij)
+                f = Fun(sp)
+                g = Ij * f
+                g = Fun(g, sp)
+                g = g - coefficients(g)[1]
+                gexp = Fun(x->x^2/2, sp)
+                gexp = gexp - coefficients(gexp)[1]
+                @test g ≈ gexp
+            end
         end
 
         @testset for n in 3:6, d in ((), (0..1,)),
@@ -740,3 +749,5 @@ using OddEvenIntegers
         @test ApproxFunBase.hasconversion(Chebyshev()*Legendre(), NormalizedChebyshev()*NormalizedLegendre())
     end
 end
+
+end # module

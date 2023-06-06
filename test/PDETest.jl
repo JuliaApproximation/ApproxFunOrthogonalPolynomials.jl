@@ -1,9 +1,13 @@
+module PDETest
+
 using ApproxFunBase
 using ApproxFunOrthogonalPolynomials
 using LinearAlgebra
 using Test
 using ApproxFunBase: Block, ldiv_coefficients
 using ApproxFunBaseTest: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator
+
+include("testutils.jl")
 
 @verbose @testset "PDE" begin
     @testset "Rectangle Laplace/Poisson" begin
@@ -295,3 +299,5 @@ using ApproxFunBaseTest: testbandedblockbandedoperator, testblockbandedoperator,
         @test u(-0.4,0.1) ≈ u(-0.5,0.0) atol = 0.0001
     end
 end
+
+end # module

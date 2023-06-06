@@ -1,3 +1,5 @@
+module ComplexTest
+
 using ApproxFunOrthogonalPolynomials
 using Test
 
@@ -27,3 +29,5 @@ using Test
         @test norm(integrate(f)+im*f-f.coefficients[1]*im) < 100eps()
     end
 end
+
+end # module

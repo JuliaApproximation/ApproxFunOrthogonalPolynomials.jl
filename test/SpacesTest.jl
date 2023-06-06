@@ -1,3 +1,5 @@
+module SpacesTest
+
 using ApproxFunOrthogonalPolynomials
 using SpecialFunctions
 using LinearAlgebra
@@ -318,3 +320,5 @@ using ApproxFunBaseTest: testbandedoperator, testraggedbelowoperator,
         @test f(-0.1) ≈ -0.1
     end
 end
+
+end # module
