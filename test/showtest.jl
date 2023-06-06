@@ -2,6 +2,7 @@ module ShowTest
 
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
+using Test
 
 @testset "show" begin
 	@test repr(Chebyshev()) == "Chebyshev()"
