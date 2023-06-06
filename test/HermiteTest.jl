@@ -2,9 +2,10 @@ module HermiteTest
 
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
+using ApproxFunBaseTest: testbandedoperator
+using LinearAlgebra
 using SpecialFunctions
 using Test
-using ApproxFunBaseTest: testbandedoperator
 
 @testset "Hermite and GaussWeight" begin
     @testset "Evaluation" begin
