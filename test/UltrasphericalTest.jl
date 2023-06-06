@@ -1,3 +1,5 @@
+module UltrasphericalTest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using Test
@@ -6,6 +8,8 @@ using LinearAlgebra
 using Static
 using OddEvenIntegers
 using HalfIntegers
+
+include("testutils.jl")
 
 @verbose @testset "Ultraspherical" begin
     @testset "promotion" begin
@@ -307,3 +311,5 @@ using HalfIntegers
         end
     end
 end
+
+end # module

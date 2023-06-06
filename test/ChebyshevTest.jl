@@ -1,10 +1,14 @@
+module ChebyshevTest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using LinearAlgebra
 using Test
-using ApproxFunBase: recA, recB, recC, transform!, itransform!
+using ApproxFunBase: transform!, itransform!
 using ApproxFunBaseTest: testspace
 using ApproxFunOrthogonalPolynomials: forwardrecurrence
+
+include("testutils.jl")
 
 @verbose @testset "Chebyshev" begin
     @testset "Forward recurrence" begin
@@ -456,3 +460,5 @@ using ApproxFunOrthogonalPolynomials: forwardrecurrence
         @test normalizedspace(NS) == NS
     end
 end
+
+end # module

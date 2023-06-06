@@ -1,10 +1,15 @@
+module ODETest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using SpecialFunctions
 using Test
 using LazyArrays
+using LinearAlgebra
 using ApproxFunBase: Multiplication, interlace, ∞, ℵ₀
 using ApproxFunBaseTest: testraggedbelowoperator, testbandedoperator
+
+include("testutils.jl")
 
 @verbose @testset "ODE" begin
     @testset "Airy" begin
@@ -256,3 +261,5 @@ using ApproxFunBaseTest: testraggedbelowoperator, testbandedoperator
         @test norm(F*x-u)<1000eps()
     end
 end
+
+end # module

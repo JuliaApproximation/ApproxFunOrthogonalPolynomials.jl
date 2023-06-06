@@ -1,3 +1,5 @@
+module VectorTest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using LazyArrays
@@ -11,6 +13,7 @@ using StaticArrays: SVector
 
 using ApproxFunBaseTest: testblockbandedoperator, testraggedbelowoperator
 
+include("testutils.jl")
 
 @verbose @testset "Vector" begin
     @testset "Construction" begin
@@ -253,3 +256,5 @@ using ApproxFunBaseTest: testblockbandedoperator, testraggedbelowoperator
         @test diagm(0 => [x,x]) * [1,2] == [x,2x]
     end
 end
+
+end # module

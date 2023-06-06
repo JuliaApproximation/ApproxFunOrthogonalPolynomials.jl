@@ -1,3 +1,5 @@
+module MultivariateTest
+
 using ApproxFunBase
 using ApproxFunOrthogonalPolynomials
 using LinearAlgebra
@@ -11,6 +13,8 @@ using ApproxFunOrthogonalPolynomials: chebyshevtransform
 using StaticArrays: SVector
 
 using Base: oneto
+
+include("testutils.jl")
 
 @verbose @testset "Multivariate" begin
     @testset "vectorization order" begin
@@ -563,3 +567,5 @@ using Base: oneto
         @test d2 == (0..1) × (0.0..2.0) × (0..2)
     end
 end
+
+end # module

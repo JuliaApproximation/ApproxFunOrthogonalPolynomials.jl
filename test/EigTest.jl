@@ -1,3 +1,5 @@
+module EigTest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using ApproxFunBase: bandwidth
@@ -177,3 +179,5 @@ using Test
         @test eltype(λ) == Complex{Float64}
     end
 end
+
+end # module

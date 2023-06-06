@@ -1,3 +1,5 @@
+module OperatorTest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using BlockBandedMatrices
@@ -7,6 +9,8 @@ using ApproxFunBase: Multiplication, InterlaceOperator, Block, ∞
 using ApproxFunBaseTest: testfunctional, testbandedoperator, testraggedbelowoperator,
                         testblockbandedoperator
 using ApproxFunOrthogonalPolynomials: JacobiZ
+
+include("testutils.jl")
 
 @verbose @testset "Operator" begin
     @testset "Evaluation" begin
@@ -314,4 +318,4 @@ using ApproxFunOrthogonalPolynomials: JacobiZ
     end
 end
 
-
+end # module

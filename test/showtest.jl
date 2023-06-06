@@ -1,4 +1,9 @@
+module ShowTest
+
+using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
+using Test
+
 @testset "show" begin
 	@test repr(Chebyshev()) == "Chebyshev()"
 	@test repr(NormalizedChebyshev()) == "NormalizedChebyshev()"
@@ -51,3 +56,5 @@ using ApproxFunBase
 		@test contains(String(take!(io)), summarystr)
 	end
 end
+
+end # module

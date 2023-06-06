@@ -1,8 +1,12 @@
+module BroadcastingTest
+
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using SpecialFunctions
 using LinearAlgebra
 using Test
+
+include("testutils.jl")
 
 @verbose @testset "broadcast" begin
     @testset "Special functions" begin
@@ -65,3 +69,5 @@ using Test
         @test norm.(f,[1,2]) ≈ norm.(F,[1,2]) ≈ [norm(f[1],1),norm(f[2],2)] # isa Vector{Float64}
     end
 end
+
+end #module
