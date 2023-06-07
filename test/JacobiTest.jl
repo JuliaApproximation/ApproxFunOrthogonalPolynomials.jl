@@ -214,6 +214,9 @@ include("testutils.jl")
                 @test (@inferred conversion_type(Jacobi(1,1), NormalizedLegendre())) == Legendre()
                 @test (@inferred conversion_type(Jacobi(1,1), NormalizedJacobi(2,2))) == Jacobi(1,1)
                 @test (@inferred conversion_type(NormalizedJacobi(2,2), Jacobi(1,1))) == Jacobi(1,1)
+
+                @test (@inferred (() ->
+                    conversion_type(NormalizedLegendre(0..1), Legendre(0..1)))()) == Legendre(0..1)
             end
 
             @testset "NormalizedPolynomialSpace constructor" begin
