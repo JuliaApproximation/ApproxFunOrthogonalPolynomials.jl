@@ -475,22 +475,12 @@ function Fun(::typeof(identity), S::NormalizedPolynomialSpace)
     Fun(S, coeffs)
 end
 
-function _conversion_rule(a::NormalizedPolynomialSpace{S}, b::S, f) where S<:PolynomialSpace
-    asp = a.space
-    c = f(asp, b)
-    if c == b
-        return b
-    else
-        return c
-    end
-end
-
 function conversion_rule(a::NormalizedPolynomialSpace{S}, b::S) where S<:PolynomialSpace
-    _conversion_rule(a, b, conversion_type)
+    conversion_type(a.space, b)
 end
 
 function maxspace_rule(a::NormalizedPolynomialSpace{S}, b::S) where S<:PolynomialSpace
-    _conversion_rule(a, b, maxspace)
+    maxspace(a.space, b)
 end
 
 bandwidths(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S}) where {S,D,R} = (0, 0)
