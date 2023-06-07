@@ -162,14 +162,14 @@ isequalhalf(x) = x == _onehalf(x)
 isequalhalf(@nospecialize(a::StaticInt)) = false
 isequalhalf(x::Integer) = false
 
-isapproxinteger_addhalf(a) = !isapproxinteger(a) && isapproxinteger(a+_onehalf(a))
-isapproxinteger_addhalf(a::HalfOddInteger) = true
-isapproxinteger_addhalf(@nospecialize(a::StaticInt)) = false
-function isapproxinteger_addhalf(a::StaticFloat64)
+isapproxhalfoddinteger(a) = !isapproxinteger(a) && isapproxinteger(a+_onehalf(a))
+isapproxhalfoddinteger(a::HalfOddInteger) = true
+isapproxhalfoddinteger(@nospecialize(a::StaticInt)) = false
+function isapproxhalfoddinteger(a::StaticFloat64)
     x = mod(a, static(1))
     x == _onehalf(x) || dynamic(x) ≈ 0.5
 end
-isapproxinteger_addhalf(::Integer) = false
+isapproxhalfoddinteger(::Integer) = false
 
 include("bary.jl")
 

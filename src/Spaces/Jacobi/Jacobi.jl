@@ -69,7 +69,7 @@ compare_orders((Aa, Ba)::NTuple{2,Number}, (Ab, Bb)::NTuple{2,Number}) = compare
 spacescompatible(a::Jacobi, b::Jacobi) = compare_orders((a.a, b.a), (a.b, b.b)) && domainscompatible(a,b)
 
 function canonicalspace(S::Jacobi)
-    if isapproxinteger_addhalf(S.a) && isapproxinteger_addhalf(S.b)
+    if isapproxhalfoddinteger(S.a) && isapproxhalfoddinteger(S.b)
         Chebyshev(domain(S))
     else
         # return space with parameters in (-1,0.]
