@@ -1,7 +1,7 @@
 module ApproxFunOrthogonalPolynomials_Runtests
 
 using ApproxFunOrthogonalPolynomials
-using ApproxFunOrthogonalPolynomials: isapproxminhalf, isequalminhalf, isequalhalf, isapproxinteger_addhalf
+using ApproxFunOrthogonalPolynomials: isapproxminhalf, isequalminhalf, isequalhalf, isapproxhalfoddinteger
 using LinearAlgebra
 using Test
 using Aqua
@@ -46,11 +46,11 @@ include("testutils.jl")
     @test !isequalhalf(1)
     @test !isequalhalf(static(1))
 
-    @test isapproxinteger_addhalf(0.5)
-    @test isapproxinteger_addhalf(static(0.5))
-    @test isapproxinteger_addhalf(half(Odd(1)))
-    @test !isapproxinteger_addhalf(1)
-    @test !isapproxinteger_addhalf(static(1))
+    @test isapproxhalfoddinteger(0.5)
+    @test isapproxhalfoddinteger(static(0.5))
+    @test isapproxhalfoddinteger(half(Odd(1)))
+    @test !isapproxhalfoddinteger(1)
+    @test !isapproxhalfoddinteger(static(1))
 
     @test ApproxFunOrthogonalPolynomials._minonehalf(2) == -0.5
     @test ApproxFunOrthogonalPolynomials._onehalf(2) == 0.5

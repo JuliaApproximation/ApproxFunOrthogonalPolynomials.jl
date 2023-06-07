@@ -143,7 +143,7 @@ function Conversion(A::Chebyshev, B::Ultraspherical)
     dB = domain(B)
     if isequalhalf(mB) || mB == 1
         return ConcreteConversion(A,B)
-    elseif (isinteger(mB) || isapproxinteger_addhalf(mB)) && mB > 0
+    elseif (isinteger(mB) || isapproxhalfoddinteger(mB)) && mB > 0
         r = mB:-1:(isinteger(mB) ? 2 : 1)
         v = [ConcreteConversion(Ultraspherical(i-1, d), Ultraspherical(i,d)) for i in r]
         U = domainspace(last(v))
@@ -173,7 +173,7 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
     d=domain(A)
     if b==a
         return ConversionWrapper(Operator(I,A))
-    elseif isapproxinteger(b-a) || isapproxinteger_addhalf(b-a)
+    elseif isapproxinteger(b-a) || isapproxhalfoddinteger(b-a)
         if -1 ≤ b-a ≤ 1 && (a,b) ≠ (2,1)
             return ConcreteConversion(A,B)
         elseif b-a > 1

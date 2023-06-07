@@ -175,7 +175,7 @@ function Conversion(L::Jacobi,M::Jacobi)
         else
             return _conversion_shiftordersbyone(L, M)
         end
-    elseif isapproxinteger_addhalf(L.a - M.a) && isapproxinteger_addhalf(L.b - M.b)
+    elseif isapproxhalfoddinteger(L.a - M.a) && isapproxhalfoddinteger(L.b - M.b)
         if L.a ≈ L.b && M.a ≈ M.b && isapproxminhalf(M.a)
             return Conversion(L,Ultraspherical(L),Chebyshev(dm),M)
         elseif L.a ≈ L.b && isapproxminhalf(L.a) && M.a ≈ M.b && M.a >= L.a
@@ -485,7 +485,7 @@ for (OPrule,OP) in ((:conversion_rule,:conversion_type), (:maxspace_rule,:maxspa
             if isapproxminhalf(B.a) && isapproxminhalf(B.b)
                 # the spaces are the same
                 A
-            elseif isapproxinteger_addhalf(B.a) && isapproxinteger_addhalf(B.b)
+            elseif isapproxhalfoddinteger(B.a) && isapproxhalfoddinteger(B.b)
                 $OP(Jacobi(A),B)
             else
                 NoSpace()
@@ -496,7 +496,7 @@ for (OPrule,OP) in ((:conversion_rule,:conversion_type), (:maxspace_rule,:maxspa
             if isapproxminhalf(B.a - m) && isapproxminhalf(B.b - m)
                 # the spaces are the same
                 A
-            elseif isapproxinteger_addhalf(B.a) && isapproxinteger_addhalf(B.b)
+            elseif isapproxhalfoddinteger(B.a) && isapproxhalfoddinteger(B.b)
                 $OP(Jacobi(A),B)
             else
                 NoSpace()
