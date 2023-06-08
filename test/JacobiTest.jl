@@ -210,10 +210,13 @@ include("testutils.jl")
             end
 
             @testset "conversion_type for NormalizedPolynomialSpace" begin
-                @test conversion_type(NormalizedLegendre(), Jacobi(1,1)) == NormalizedLegendre()
-                @test conversion_type(Jacobi(1,1), NormalizedLegendre()) == NormalizedLegendre()
-                @test conversion_type(Jacobi(1,1), NormalizedJacobi(2,2)) == Jacobi(1,1)
-                @test conversion_type(NormalizedJacobi(2,2), Jacobi(1,1)) == Jacobi(1,1)
+                @test (@inferred conversion_type(NormalizedLegendre(), Jacobi(1,1))) == Legendre()
+                @test (@inferred conversion_type(Jacobi(1,1), NormalizedLegendre())) == Legendre()
+                @test (@inferred conversion_type(Jacobi(1,1), NormalizedJacobi(2,2))) == Jacobi(1,1)
+                @test (@inferred conversion_type(NormalizedJacobi(2,2), Jacobi(1,1))) == Jacobi(1,1)
+
+                @test (@inferred (() ->
+                    conversion_type(NormalizedLegendre(0..1), Legendre(0..1)))()) == Legendre(0..1)
             end
 
             @testset "NormalizedPolynomialSpace constructor" begin
@@ -635,6 +638,11 @@ include("testutils.jl")
         @testset "space promotion" begin
             @test space(1 + Fun(NormalizedLegendre())) == NormalizedLegendre()
             @test space(1 + Fun(NormalizedJacobi(1,1,0..1))) == NormalizedJacobi(1,1,0..1)
+        end
+
+        @testset "inference in maxspace/conversion_type" begin
+            @inferred maxspace(NormalizedLegendre(), Legendre())
+            @inferred (()->maxspace(NormalizedLegendre(0..1), Legendre(0..1)))()
         end
     end
 
