@@ -124,7 +124,8 @@ include("testutils.jl")
         end
 
         @testset for (S1, S2) in ((Legendre(), Jacobi(-0.5, -0.5)), (Jacobi(-0.5, -0.5), Legendre()),
-                (Legendre(), Jacobi(1.5, 1.5)))
+                (Legendre(), Jacobi(1.5, 1.5)), (Legendre(), Ultraspherical(0.5)),
+                (Ultraspherical(0.5), Legendre()))
             @test Conversion(S1, S2) * Fun(x->x^4, S1) ≈ Fun(x->x^4, S2)
         end
 
@@ -241,6 +242,30 @@ include("testutils.jl")
             Y = X : Legendre()
             @test domainspace(Y) == Legendre()
             @test Y * Fun(Legendre()) ≈ Fun(x->x^2, Legendre())
+        end
+
+        @testset "getindex for ConcreteConversion" begin
+            for m in (0,1)
+                C = Conversion(Jacobi(m,m), Ultraspherical(m+0.5))
+                @test isdiag(C)
+                B = C[1:10, 1:10]
+                for i in 1:10
+                    @test C[i,i] ≈ B[i,i]
+                end
+
+                C = Conversion(Ultraspherical(m+0.5), Jacobi(m,m))
+                @test isdiag(C)
+                B = C[1:10, 1:10]
+                for i in 1:10
+                    @test C[i,i] ≈ B[i,i]
+                end
+            end
+        end
+
+        @testset "NormalizedJacobi and NormalizedUltraspherical" begin
+            C = Conversion(NormalizedUltraspherical(1.5), NormalizedJacobi(1,1))
+            @test isdiag(C)
+            @test C[1:10, 1:10] ≈ I
         end
     end
 

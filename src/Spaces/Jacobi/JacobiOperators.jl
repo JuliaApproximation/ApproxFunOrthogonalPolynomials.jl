@@ -379,9 +379,14 @@ end
 function getindex(C::ConcreteConversion{<:Ultraspherical,<:Jacobi,T}, k::Integer, j::Integer) where {T}
     if j==k
         S=rangespace(C)
-        jp=jacobip(T,k-1,S.a,S.b,one(T))
-        um=strictconvert(Operator{T}, Evaluation(setcanonicaldomain(domainspace(C)),rightendpoint,0))[k]::T
-        (um/jp)::T
+        U=domainspace(C)
+        if S.a == S.b == 0 && isequalhalf(order(U))
+            oneunit(T)
+        else
+            jp=jacobip(T,k-1,S.a,S.b,one(T))
+            um=strictconvert(Operator{T}, Evaluation(setcanonicaldomain(U),RightEndPoint,0))[k]::T
+            (um/jp)::T
+        end
     else
         zero(T)
     end
@@ -392,12 +397,18 @@ function BandedMatrix(S::SubOperator{T,ConcreteConversion{US,J,T},NTuple{2,UnitR
     kr,jr = parentindices(S)
     k=(kr ∩ jr)
 
-    sp=rangespace(parent(S))
-    jp=jacobip(T,k.-1,sp.a,sp.b,one(T))
-    um=Evaluation(T,setcanonicaldomain(domainspace(parent(S))),rightendpoint,0)[k]
-    vals = um./jp
+    C = parent(S)
+    sp = rangespace(C)
+    U = domainspace(C)
+    if sp.a == 0 && sp.b == 0 && isequalhalf(order(U))
+        ret[band(bandshift(S))] .= oneunit(T)
+    else
+        jp=jacobip(T,k.-1,sp.a,sp.b,one(T))
+        um=Evaluation(T,setcanonicaldomain(U),RightEndPoint,0)[k]
+        vals = um./jp
 
-    ret[band(bandshift(S))] = vals
+        ret[band(bandshift(S))] = vals
+    end
     ret
 end
 
@@ -406,9 +417,14 @@ end
 function getindex(C::ConcreteConversion{<:Jacobi,<:Ultraspherical,T}, k::Integer, j::Integer) where {T}
     if j==k
         S=domainspace(C)
-        jp=jacobip(T,k-1,S.a,S.b,one(T))
-        um=Evaluation(T,setcanonicaldomain(rangespace(C)),rightendpoint,0)[k]
-        jp/um::T
+        U = rangespace(C)
+        if S.a == S.b == 0 && isequalhalf(order(U))
+            oneunit(T)
+        else
+            jp=jacobip(T,k-1,S.a,S.b,one(T))
+            um=Evaluation(T,setcanonicaldomain(rangespace(C)),RightEndPoint,0)[k]
+            jp/um::T
+        end
     else
         zero(T)
     end
@@ -419,12 +435,17 @@ function BandedMatrix(S::SubOperator{T,ConcreteConversion{J,US,T},NTuple{2,UnitR
     kr,jr = parentindices(S)
     k=(kr ∩ jr)
 
-    sp=domainspace(parent(S))
-    jp=jacobip(T,k.-1,sp.a,sp.b,one(T))
-    um=Evaluation(T,setcanonicaldomain(rangespace(parent(S))),rightendpoint,0)[k]
-    vals = jp./um
-
-    ret[band(bandshift(S))] = vals
+    C = parent(S)
+    sp=domainspace(C)
+    U = rangespace(C)
+    if sp.a == 0 && sp.b == 0 && isequalhalf(order(U))
+        ret[band(bandshift(S))] .= oneunit(T)
+    else
+        jp=jacobip(T,k.-1,sp.a,sp.b,one(T))
+        um=Evaluation(T,setcanonicaldomain(U),RightEndPoint,0)[k]
+        vals = jp./um
+        ret[band(bandshift(S))] = vals
+    end
     ret
 end
 
