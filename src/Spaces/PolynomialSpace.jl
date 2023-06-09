@@ -466,6 +466,17 @@ function Conversion(L::S, M::NormalizedPolynomialSpace{S}) where S<:PolynomialSp
     end
 end
 
+function Conversion(L::NormalizedPolynomialSpace{<:PolynomialSpace},
+        M::NormalizedPolynomialSpace{<:PolynomialSpace})
+
+    L == M && return Conversion(L)
+
+    C1 = ConcreteConversion(L, canonicalspace(L))
+    C2 = Conversion(canonicalspace(L), canonicalspace(M))
+    C3 = ConcreteConversion(canonicalspace(M), M)
+    ConversionWrapper(C3 * C2 * C1, L, M)
+end
+
 function Fun(::typeof(identity), S::NormalizedPolynomialSpace)
     C = canonicalspace(S)
     f = Fun(identity, C)
