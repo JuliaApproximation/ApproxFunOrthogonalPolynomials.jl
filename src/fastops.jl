@@ -50,11 +50,19 @@ function BandedMatrix(V::SubOperator{T,ConcreteConversion{Ultraspherical{LT1,DD,
 
     # need to drop columns
 
-
-
-    1-n ≤ dg ≤ m-1 && (ret[band(dg)] .= c./(jr[max(0,dg)+1:min(n+dg,m)] .- 2 .+ λ))
-    1-n ≤ dg+1 ≤ m-1 && (ret[band(dg+1)] .= 0)
-    1-n ≤ dg+2 ≤ m-1 && (ret[band(dg+2)] .= c./(2 .- λ .- jr[max(0,dg+2)+1:min(n+dg+2,m)]))
+    # use dataview to forward the broadcasting to the parent
+    # This may not be necessary in the future if BandedMatrices does this under the hood
+    if 1-n ≤ dg ≤ m-1
+        retv = dataview(view(ret,band(dg)))
+        retv .= c./(jr[max(0,dg)+1:min(n+dg,m)] .- 2 .+ λ)
+    end
+    if 1-n ≤ dg+1 ≤ m-1
+        ret[band(dg+1)] .= 0
+    end
+    if 1-n ≤ dg+2 ≤ m-1
+        retv = dataview(view(ret,band(dg+2)))
+        retv .= c./(2 .- λ .- jr[max(0,dg+2)+1:min(n+dg+2,m)])
+    end
 
     ret
 end
@@ -83,9 +91,11 @@ function BandedMatrix(S::SubOperator{T,ConcreteDerivative{Chebyshev{DD,RR},K,T},
 
     # need to drop columns
 
-
+    # use dataview to forward the broadcasting to the parent
+    # This may not be necessary in the future if BandedMatrices does this under the hood
     if 1-n ≤ dg+k ≤ m-1
-        ret[band(dg+k)] .= C.*(jr[max(0,dg+k)+1:min(n+dg+k,m)] .- one(T))
+        retv = dataview(@view ret[band(dg+k)])
+        retv .= C.*(jr[max(0,dg+k)+1:min(n+dg+k,m)] .- oneunit(T))
     end
 
     ret
