@@ -469,6 +469,8 @@ end
 function Conversion(L::NormalizedPolynomialSpace{<:PolynomialSpace},
         M::NormalizedPolynomialSpace{<:PolynomialSpace})
 
+    L == M && return Conversion(L)
+
     C1 = ConcreteConversion(L, canonicalspace(L))
     C2 = Conversion(canonicalspace(L), canonicalspace(M))
     C3 = ConcreteConversion(canonicalspace(M), M)

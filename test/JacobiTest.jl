@@ -263,9 +263,18 @@ include("testutils.jl")
         end
 
         @testset "NormalizedJacobi and NormalizedUltraspherical" begin
-            C = Conversion(NormalizedUltraspherical(1.5), NormalizedJacobi(1,1))
-            @test isdiag(C)
-            @test C[1:10, 1:10] ≈ I
+            for m in (0,1)
+                C = Conversion(NormalizedUltraspherical(m + 0.5), NormalizedJacobi(m,m))
+                @test isdiag(C)
+                @test C[1:10, 1:10] ≈ I
+            end
+        end
+        @testset "Normalized and Unnormalized" begin
+            C = Conversion(NormalizedUltraspherical(0.5), Legendre())
+            @test C * Fun(x->x^4, NormalizedUltraspherical(0.5)) ≈ Fun(x->x^4, Legendre())
+
+            C = Conversion(Legendre(), NormalizedChebyshev())
+            @test C * Fun(x->x^4, Legendre()) ≈ Fun(x->x^4, NormalizedChebyshev())
         end
     end
 
