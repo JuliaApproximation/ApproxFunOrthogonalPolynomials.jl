@@ -88,10 +88,18 @@ reverseorientation(f::Fun{<:Jacobi}) =
 # p_{n+1} = (A_n x + B_n)p_n - C_n p_{n-1}
 #####
 @inline function jacobirecA(::Type{T},α,β,k)::T where T
-    k==0&&((α+β==0)||(α+β==-1)) ? (α+β)/2+one(T) : (2k+α+β+one(T))*(2k+α+β+2one(T))/(2*(k+one(T))*(k+α+β+one(T)))
+    if k==0 && ((α+β==0)||(α+β==-1))
+        (α+β)/2+one(T)
+    else
+        (2k+α+β+one(T))*(2k+α+β+2one(T))/(2*(k+one(T))*(k+α+β+one(T)))
+    end
 end
 @inline function jacobirecB(::Type{T},α,β,k)::T where T
-    k==0&&((α+β==0)||(α+β==-1)) ? (α-β)*one(T)/2 : (α-β)*(α+β)*(2k+α+β+one(T))/(2*(k+one(T))*(k+α+β+one(T))*(2one(T)*k+α+β))
+    if k==0 && ((α+β==0)||(α+β==-1))
+        (α-β)*one(T)/2
+    else
+        (α-β)*(α+β)*(2k+α+β+one(T))/(2*(k+one(T))*(k+α+β+one(T))*(2one(T)*k+α+β))
+    end
 end
 @inline function jacobirecC(::Type{T},α,β,k)::T where T
     (one(T)*k+α)*(one(T)*k+β)*(2k+α+β+2one(T))/((k+one(T))*(k+α+β+one(T))*(2one(T)*k+α+β))

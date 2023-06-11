@@ -52,9 +52,11 @@ end
     elseif J.a > 0 && J.b > 0   # we have a simple definition
         ConcreteIntegral(J,1)
     else   # convert and then integrate
-        a_max = maximum(J.a:1:(1 + (J.a > 1)))
-        b_max = maximum(J.b:1:(1 + (J.b > 1)))
-        sp=Jacobi(b_max,a_max,domain(J))
+        abmin = min(J.a, J.b)
+        nsteps = length(abmin:0)
+        a = J.a + nsteps
+        b = J.b + nsteps
+        sp=Jacobi(b,a,domain(J))
         C=_conversion_shiftordersbyone(J,sp)
         Qconc=ConcreteIntegral(sp,1)
         IntegralWrapper(TimesOperator(Qconc,C),1,J,rangespace(Qconc))
