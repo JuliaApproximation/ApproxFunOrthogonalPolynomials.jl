@@ -2,10 +2,9 @@ Space(d::IntervalOrSegment) = Chebyshev(d)
 Space(d::FullSpace{<:Real}) = Chebyshev(Line())
 
 # TODO: mode these functions to ApproxFunBase
-# Currently, Space(d::Interval) isn't type-stable, so the spaces are
-# explicitly listed in these calls.
-Fun(::typeof(identity), d::IntervalOrSegment{<:Number}) =
-    Fun(Chebyshev(d), [mean(d), complexlength(d)/2])
+function Fun(::typeof(identity), d::IntervalOrSegment{<:Number})
+    Fun(Space(d), [mean(d), complexlength(d)/2])
+end
 
 # the default domain space is higher to avoid negative ultraspherical spaces
 function Integral(d::IntervalOrSegment, n::Number)
