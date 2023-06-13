@@ -118,6 +118,35 @@ include("testutils.jl")
             @test CC isa Operator{ComplexF64}
             @test CC[1:4, 1:4] ≈ C[1:4, 1:4]
         end
+
+        @testset "three-term product" begin
+            C1 = Conversion(Chebyshev(), Ultraspherical(1))
+            C2 = Conversion(Ultraspherical(1), Ultraspherical(2))
+            C = C2 * 2 * C1
+            f = Fun(x->3x^4, Chebyshev())
+            @test space(C * f) == Ultraspherical(2)
+            @test C * f ≈ 2f
+
+            C1 = Conversion(Chebyshev(), Ultraspherical(1))
+            C2 = Conversion(Ultraspherical(1), Ultraspherical(2))
+            C = C2 * Operator(2I, Ultraspherical(1)) * C1
+            f = Fun(x->3x^4, Chebyshev())
+            @test space(C * f) == Ultraspherical(2)
+            @test C * f ≈ 2f
+
+            M = Multiplication(Fun(), Ultraspherical(1))
+            C = C2 * M * C1
+            @test space(C * f) == Ultraspherical(2)
+            @test C * f ≈ Fun() * f
+
+            C = C2 * (M * C1)
+            @test space(C * f) == Ultraspherical(2)
+            @test C * f ≈ Fun() * f
+
+            C = (C2 * M) * C1
+            @test space(C * f) == Ultraspherical(2)
+            @test C * f ≈ Fun() * f
+        end
     end
 
     @testset "Normalized space" begin
