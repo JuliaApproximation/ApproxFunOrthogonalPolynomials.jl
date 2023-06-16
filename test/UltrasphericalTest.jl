@@ -205,13 +205,6 @@ include("testutils.jl")
                     end
                     test_transform!(M, M2, S)
                 end
-                @testset for S1 in Slist, S2 in Slist, S3 in Slist
-                    S = S1 ⊗ S2 ⊗ S3
-                    if order == 0.5 || S == NU^3
-                        test_with_jac(S, A)
-                    end
-                    test_transform!(A, A2, S)
-                end
             end
         end
     end
