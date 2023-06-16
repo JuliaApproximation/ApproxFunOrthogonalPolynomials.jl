@@ -84,7 +84,7 @@ function _getindex_eval_leftendpoint(op::ConcreteEvaluation{<:Chebyshev{<:Interv
 
     ret = Array{T}(undef, n)
     for (ind, j) in enumerate(k)
-        ret[ind]=(-1)^(p+1)*(-one(T))^j
+        ret[ind] = isodd(p+1+j) ? -1 : 1
     end
 
     for m in 0:p-1
