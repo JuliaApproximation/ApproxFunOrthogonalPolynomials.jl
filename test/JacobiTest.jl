@@ -10,6 +10,7 @@ using ApproxFunBase: maxspace, NoSpace, hasconversion,
 using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
                     testfunctional
 using ApproxFunOrthogonalPolynomials: jacobip
+using BandedMatrices
 using StaticArrays: SVector
 using Static
 using HalfIntegers
