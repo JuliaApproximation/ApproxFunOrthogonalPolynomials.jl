@@ -10,6 +10,7 @@ using ApproxFunBase: maxspace, NoSpace, hasconversion,
 using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
                     testfunctional
 using ApproxFunOrthogonalPolynomials: jacobip
+using BandedMatrices
 using StaticArrays: SVector
 using Static
 using HalfIntegers
@@ -322,7 +323,7 @@ include("testutils.jl")
         end
         @time testbandedoperator(D)
         # only one band should be populated
-        @test bandwidths(D, 1) == -bandwidths(D, 2)
+        @test bandwidth(D, 1) == -bandwidth(D, 2)
 
         @test !isdiag(@inferred Derivative(Legendre()))
         T1 = typeof(Derivative(Legendre()))

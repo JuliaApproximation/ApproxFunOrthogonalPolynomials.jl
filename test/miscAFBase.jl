@@ -284,7 +284,7 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
         P = PartialInverseOperator(C, (0, 6))
         Iapprox = (P * C)[1:10, 1:10]
         @test all(isone, diag(Iapprox))
-        for k in axes(Iapprox,1), j in k + 1:min(k + bandwidths(P,2), size(Iapprox, 2))
+        for k in axes(Iapprox,1), j in k + 1:min(k + bandwidth(P,2), size(Iapprox, 2))
             @test Iapprox[k,j] ≈ 0 atol=eps(eltype(Iapprox))
         end
         B = AbstractMatrix(P[1:10, 1:10])
