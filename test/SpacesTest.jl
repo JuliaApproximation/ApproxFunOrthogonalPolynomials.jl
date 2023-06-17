@@ -36,6 +36,10 @@ using ApproxFunBaseTest: testbandedoperator, testraggedbelowoperator,
 
         @test norm(([B;L]\[[1.,0],0])-([Dirichlet(d);L]\[[1.,0],0])) <10eps()
     end
+    @testset "Bernstein" begin
+        f = Fun(Bernstein{1}())
+        @test Fun(f, Chebyshev()) == Fun(Chebyshev())
+    end
 
     @testset "PiecewiseSpace" begin
         x = Fun(identity,UnionDomain(-1..0, 0..1))

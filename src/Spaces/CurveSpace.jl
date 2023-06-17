@@ -44,8 +44,10 @@ spacescompatible(a::Bernstein{O,T},b::Bernstein{O,T}) where {O,T}=domainscompati
 
 setdomain(S::Bernstein{O},d::Domain) where {O}=Bernstein{O}(d)
 
-Fun(::typeof(identity), B::Bernstein{order,T}) where {order,T} =
+function Fun(::typeof(identity), B::Bernstein{order,D}) where {order,D}
+    T = eltype(domain(B))
     Fun(B,collect(-one(T):2one(T)/order:one(T)))
+end
 
 evaluate(f::AbstractVector,S::Bernstein,z) = decasteljau(f,S,tocanonical(S,z))
 
