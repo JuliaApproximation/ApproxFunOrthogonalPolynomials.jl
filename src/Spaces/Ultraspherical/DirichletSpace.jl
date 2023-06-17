@@ -191,7 +191,7 @@ function _getindex_eval_leftendpoint(B::ConcreteEvaluation{<:ChebyshevDirichlet{
     S = Space(domain(B))
 
     if B.order == 0
-        eltype(B)[k==1 ? 1.0 : -(-1)^k*2.0 for k=kr]
+        eltype(B)[k==1 ? 1.0 : (iseven(k) ? -2.0 : 2.0) for k=kr]
     else
         _getindex_default(B, x, kr)
     end
