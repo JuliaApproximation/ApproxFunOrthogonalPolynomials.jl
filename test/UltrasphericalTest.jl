@@ -168,6 +168,14 @@ include("testutils.jl")
                 end
             end
         end
+
+        @testset "Evaluation" begin
+            S = NormalizedUltraspherical(1)
+            E = Evaluation(S, 0.5)
+            @test reshape(E[1:1, 1:10], 10) ≈ [E[1,i] for i in 1:10]
+            f = Fun(x->x^3, S)
+            @test Number(E * f) ≈ f(0.5)
+        end
     end
 
     @testset "inplace transform" begin
