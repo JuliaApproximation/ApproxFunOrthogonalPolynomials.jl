@@ -174,7 +174,9 @@ include("testutils.jl")
             E = Evaluation(S, 0.5)
             @test reshape(E[1:1, 1:10], 10) ≈ [E[1,i] for i in 1:10]
             f = Fun(x->x^3, S)
-            @test Number(E * f) ≈ f(0.5)
+            @test Number(E * f) ≈ (0.5)^3
+            E = Evaluation(S, 0.5, 2)
+            @test Number(E * f) ≈ 6 * (0.5)
         end
     end
 
