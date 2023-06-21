@@ -529,6 +529,20 @@ function getindex(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R},T},k:
     end
 end
 
+function getindex(op::ConcreteEvaluation{<:NormalizedPolynomialSpace}, k::Integer)
+    S = domainspace(op)
+    ec = Evaluation(canonicalspace(S), op.x, op.order)[k]
+    nrm = ConcreteConversion(S, canonicalspace(S))[k,k]
+    nrm * ec
+end
+function getindex(op::ConcreteEvaluation{<:NormalizedPolynomialSpace}, kr::AbstractRange)
+    S = domainspace(op)
+    ec = Evaluation(canonicalspace(S), op.x, op.order)[kr]
+    C = ConcreteConversion(S, canonicalspace(S))
+    nrm = [C[k,k] for k in kr]
+    nrm .* ec
+end
+
 spacescompatible(a::NormalizedPolynomialSpace,b::NormalizedPolynomialSpace) = spacescompatible(a.space,b.space)
 hasconversion(a::PolynomialSpace,b::NormalizedPolynomialSpace) = hasconversion(a,b.space)
 hasconversion(a::NormalizedPolynomialSpace,b::PolynomialSpace) = hasconversion(a.space,b)
