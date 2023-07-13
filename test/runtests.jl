@@ -81,6 +81,5 @@ include("SpeedODETest.jl"); GC.gc()
 include("SpeedPDETest.jl"); GC.gc()
 include("SpeedOperatorTest.jl"); GC.gc()
 include("showtest.jl"); GC.gc()
-include("miscAFBase.jl"); GC.gc()
 
 end # module
