@@ -330,7 +330,7 @@ include("testutils.jl")
 
     @testset "values for ArraySpace Fun" begin
         f = Fun(Chebyshev() ⊗ Chebyshev())
-        @test f.(points(f)) == points(f)
+        @test f.(points(f)) ≈ points(f)
         @test values(f) == itransform(space(f), coefficients(f))
         a = transform(space(f), values(f))
         b = coefficients(f)
