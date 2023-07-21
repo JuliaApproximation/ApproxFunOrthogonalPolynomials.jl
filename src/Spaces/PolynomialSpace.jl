@@ -26,7 +26,7 @@ function evaluate(f::AbstractVector,S::PolynomialSpace,x)
         end
         return first(f)
     else
-        zero(float(x))
+        zero(float(x) * oneunit(eltype(f)))
     end
 end
 

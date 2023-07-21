@@ -29,6 +29,8 @@ include("testutils.jl")
         @test @inferred(Fun(Chebyshev(), Int[])(Dual(1,1))) == Dual(0,0)
         @test @inferred(Fun(Chebyshev(), Int[1,2])(Dual(1,1))) == Dual(3,2)
 
+        @test @inferred(Fun(Chebyshev(), BigInt[1])(1)) == 1
+
         f = @inferred Fun(ChebyshevInterval(), [1])
         @test f(0.1) == 1
 
