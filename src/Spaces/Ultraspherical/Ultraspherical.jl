@@ -132,8 +132,8 @@ spacescompatible(a::Ultraspherical,b::Ultraspherical) =
 hasfasttransform(::Ultraspherical) = true
 
 # these methods help with type-inference
-hasconversion(C::Chebyshev, U::Ultraspherical{<:Union{Int,StaticInt}}) = domainscompatible(C,U)
-hasconversion(U::Ultraspherical{<:Union{Int,StaticInt}}, C::Chebyshev) = false
+hasconversion(C::Chebyshev, U::Ultraspherical{<:Integer}) = domainscompatible(C,U)
+hasconversion(U::Ultraspherical{<:Integer}, C::Chebyshev) = false
 
 include("UltrasphericalOperators.jl")
 include("DirichletSpace.jl")

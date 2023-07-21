@@ -65,7 +65,7 @@ function _changepolybasis(v::StridedVector{T},
         v = normcheb ? ApproxFunBase.mul_coefficients(ConcreteConversion(C, Cc), v) : v
         vc = ultraconversion(v)
         normultra ? ApproxFunBase.mul_coefficients!(ConcreteConversion(Uc, U), vc) : vc
-    elseif order(U) isa Union{Integer, StaticInt}
+    elseif isinteger(order(U))
         coefficients(v, C, Ultraspherical(1,domain(U)), U)
     else
         cheb2ultra(v, strictconvert(T, order(U)); normcheb, normultra)
@@ -83,7 +83,7 @@ function _changepolybasis(v::StridedVector{T},
         v = normultra ? ApproxFunBase.mul_coefficients(ConcreteConversion(U, Uc), v) : v
         vc = ultraiconversion(v)
         normcheb ? ApproxFunBase.mul_coefficients!(ConcreteConversion(Cc, C), vc) : vc
-    elseif order(U) isa Union{Integer, StaticInt}
+    elseif isinteger(order(U))
         coefficients(v, U, Ultraspherical(1,domain(U)), C)
     else
         ultra2cheb(v, strictconvert(T, order(U)); normultra, normcheb)

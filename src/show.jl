@@ -25,7 +25,7 @@ function show(io::IO,d::Ray)
 end
 
 ## Spaces
-_maybetoint(x::Union{Integer, StaticInt}) = Int(x)
+_maybetoint(x::Integer) = Int(x)
 _maybetoint(x) = x
 
 _spacename(io, ::Chebyshev) = print(io, "Chebyshev(")

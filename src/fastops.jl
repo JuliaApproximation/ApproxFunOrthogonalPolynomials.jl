@@ -10,9 +10,9 @@
 # Conversions
 #####
 
-function BandedMatrix(S::SubOperator{T,ConcreteConversion{Chebyshev{DD,RR},
+function _BandedMatrix(S::SubOperator{T,ConcreteConversion{Chebyshev{DD,RR},
                 Ultraspherical{LT,DD,RR},T},
-            NTuple{2,UnitRange{Int}}}) where {T,LT<:Union{Integer, StaticInt},DD,RR}
+                NTuple{2,UnitRange{Int}}}) where {T,LT,DD,RR}
     # we can assume order is 1
     ret = BandedMatrix{eltype(S)}(undef, size(S), bandwidths(S))
     kr,jr = parentindices(S)
@@ -30,6 +30,12 @@ function BandedMatrix(S::SubOperator{T,ConcreteConversion{Chebyshev{DD,RR},
     end
 
     ret
+end
+
+function BandedMatrix(S::SubOperator{T,ConcreteConversion{Chebyshev{DD,RR},
+                Ultraspherical{LT,DD,RR},T},
+                NTuple{2,UnitRange{Int}}}) where {T,LT<:Integer,DD,RR}
+    _BandedMatrix(S)
 end
 
 function BandedMatrix(V::SubOperator{T,ConcreteConversion{Ultraspherical{LT1,DD,RR},Ultraspherical{LT2,DD,RR},T},
