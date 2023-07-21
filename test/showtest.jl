@@ -3,11 +3,13 @@ module ShowTest
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using Test
+using Static
 
 @testset "show" begin
 	@test repr(Chebyshev()) == "Chebyshev()"
 	@test repr(NormalizedChebyshev()) == "NormalizedChebyshev()"
 	@test repr(Ultraspherical(1)) == "Ultraspherical(1)"
+	@test repr(Ultraspherical(static(1))) == "Ultraspherical(1)"
 	@test repr(Legendre()) == "Legendre()"
 	@test repr(Jacobi(1,2)) == "Jacobi(1,2)"
 	@test repr(Jacobi(1.0,2.0)) == "Jacobi(1.0,2.0)"

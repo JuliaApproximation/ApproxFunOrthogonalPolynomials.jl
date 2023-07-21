@@ -16,7 +16,7 @@ function AFOP.isapproxhalfoddinteger(a::StaticFloat64)
     x == AFOP._onehalf(x) || dynamic(x) ≈ 0.5
 end
 
-AFOP._maybetoint(x::Union{Integer, StaticInt}) = Int(x)
+AFOP._maybetoint(x::StaticInt) = Int(x)
 
 function AFOP.BandedMatrix(S::AFOP.SubOperator{T,AFOP.ConcreteConversion{Chebyshev{DD,RR},
                 Ultraspherical{LT,DD,RR},T},
@@ -29,7 +29,7 @@ AFOP.hasconversion(C::Chebyshev, U::Ultraspherical{<:StaticInt}) = AFOP.domainsc
 AFOP.hasconversion(U::Ultraspherical{<:StaticInt}, C::Chebyshev) = false
 
 @inline function AFOP._Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:StaticInt})
-    if order(sp) == 1
+    if AFOP.order(sp) == 1
         cfs = AFOP.coefficients(f)
         AFOP.MultiplicationWrapper(f,
             AFOP.SpaceOperator(
@@ -68,7 +68,7 @@ function Base.getindex(M::AFOP.ConcreteConversion{U1,U2,T},
             U1<:Ultraspherical{<:Union{Integer, StaticInt},DD,RR},
             U2<:Ultraspherical{<:Union{Integer, StaticInt},DD,RR},T}
     #  we can assume that λ==m+1
-    λ=order(rangespace(M))
+    λ=AFOP.order(AFOP.rangespace(M))
     c=λ-one(T)  # this supports big types
     if k==j
         c/(k - 2 + λ)
@@ -79,9 +79,11 @@ function Base.getindex(M::AFOP.ConcreteConversion{U1,U2,T},
     end
 end
 
-AFOP.bandwidths(C::AFOP.ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:StaticInt}}) = 0,2  # order == 1
-AFOP.bandwidths(C::AFOP.ConcreteConversion{<:Ultraspherical{<:Union{Integer,StaticInt}},<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 0,2
+AFOP.bandwidths(C::AFOP.ConcreteConversion{<:Chebyshev,
+                    <:Ultraspherical{<:StaticInt}}) = 0,2  # order == 1
 
+AFOP.bandwidths(C::AFOP.ConcreteConversion{<:Ultraspherical{<:Union{Integer,StaticInt}},
+                    <:Ultraspherical{<:Union{Integer,StaticInt}}}) = 0,2
 
 Base.stride(C::AFOP.ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:StaticInt}}) = 2
 
@@ -93,7 +95,8 @@ function AFOP.conversion_rule(a::Chebyshev, b::Ultraspherical{<:StaticInt})
     end
 end
 
-AFOP.conversion_rule(a::Ultraspherical{<:StaticInt}, b::Ultraspherical{<:StaticInt}) =
+AFOP.conversion_rule(a::Ultraspherical{<:Union{Integer, StaticInt}},
+        b::Ultraspherical{<:Union{Integer, StaticInt}}) =
     AFOP._conversion_rule(a, b)
 
 
