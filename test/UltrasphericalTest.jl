@@ -32,6 +32,15 @@ include("testutils.jl")
         @test_throws ArgumentError Conversion(Ultraspherical(2), Ultraspherical(1))
         @test_throws ArgumentError Conversion(Ultraspherical(3), Ultraspherical(1.9))
 
+        @test conversion_type(Chebyshev(), Ultraspherical(1)) ==
+            conversion_type(Chebyshev(), Ultraspherical(static(1))) == Chebyshev()
+
+        @test conversion_type(Ultraspherical(1), Ultraspherical(2)) ==
+            conversion_type(Ultraspherical(1), Ultraspherical(static(2))) ==
+            conversion_type(Ultraspherical(static(1)), Ultraspherical(2)) ==
+            conversion_type(Ultraspherical(static(1)), Ultraspherical(static(2))) ==
+            Ultraspherical(1)
+
         # Conversions from Chebyshev to Ultraspherical should lead to a small union of types
         Tallowed = Union{
             typeof(Conversion(Chebyshev(), Ultraspherical(1))),
@@ -74,7 +83,7 @@ include("testutils.jl")
             @inferred (() -> Conversion(Ultraspherical(1.0), Ultraspherical(3.5)))();
         end
 
-        for n in (2,5)
+        for n in (1,2,5)
             C1 = Conversion(Chebyshev(), Ultraspherical(n))
             C2 = Conversion(Chebyshev(), Ultraspherical(static(n)))
             @test C1[1:4, 1:4] == C2[1:4, 1:4]
@@ -86,6 +95,24 @@ include("testutils.jl")
         C1 = Conversion(Chebyshev(), Ultraspherical(1.5))
         C2 = Conversion(Chebyshev(), Ultraspherical(half(Odd(3))))
         @test C1[1:4, 1:4] == C2[1:4, 1:4]
+
+        @test ApproxFunBase.hasconversion(Chebyshev(), Ultraspherical(1))
+        @test ApproxFunBase.hasconversion(Chebyshev(), Ultraspherical(static(1)))
+        @test !ApproxFunBase.hasconversion(Ultraspherical(2), Chebyshev())
+        @test !ApproxFunBase.hasconversion(Ultraspherical(static(2)), Chebyshev())
+        C1 = Conversion(Chebyshev(), Ultraspherical(1))
+        C2 = Conversion(Chebyshev(), Ultraspherical(static(1)))
+        @test bandwidths(C1) == bandwidths(C2) == (0,2)
+        for j in 1:4, i in 1:4
+            @test C1[i,j] == C2[i,j]
+        end
+
+        C1 = Conversion(Ultraspherical(1), Ultraspherical(2))
+        C2 = Conversion(Ultraspherical(1), Ultraspherical(static(2)))
+        @test bandwidths(C1) == bandwidths(C2) == (0,2)
+        for j in 1:4, i in 1:4
+            @test C1[i,j] == C2[i,j]
+        end
 
         f = Fun(x->x^2, Ultraspherical(0.5)) # Legendre
         CLC = Conversion(Ultraspherical(0.5), Chebyshev())
@@ -146,6 +173,14 @@ include("testutils.jl")
             C = (C2 * M) * C1
             @test space(C * f) == Ultraspherical(2)
             @test C * f ≈ Fun() * f
+
+            @testset "static" begin
+                for n in (1,2)
+                    M1 = Multiplication(Fun(), Ultraspherical(n))
+                    M2 = Multiplication(Fun(), Ultraspherical(static(n)))
+                    @test M1[1:4, 1:4] ≈ M2[1:4, 1:4]
+                end
+            end
         end
     end
 

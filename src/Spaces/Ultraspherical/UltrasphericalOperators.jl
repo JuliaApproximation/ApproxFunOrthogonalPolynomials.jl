@@ -29,9 +29,9 @@ Base.stride(M::ConcreteMultiplication{<:Ultraspherical,<:Chebyshev}) =
 Base.stride(M::ConcreteMultiplication{<:Ultraspherical,<:Ultraspherical}) =
     stride(M.f)
 
-@inline function _Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:Union{Integer,StaticInt}})
+@inline function _Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:Integer})
     if order(sp) == 1
-        cfs = f.coefficients
+        cfs = coefficients(f)
         MultiplicationWrapper(f,
             SpaceOperator(
                 SymToeplitzOperator(cfs/2) +
@@ -43,10 +43,10 @@ Base.stride(M::ConcreteMultiplication{<:Ultraspherical,<:Ultraspherical}) =
     end
 end
 @static if VERSION >= v"1.8"
-    Base.@constprop aggressive Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:Union{Integer,StaticInt}}) =
+    Base.@constprop aggressive Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:Integer}) =
         _Multiplication(f, sp)
 else
-    Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:Union{Integer,StaticInt}}) = _Multiplication(f, sp)
+    Multiplication(f::Fun{<:Chebyshev}, sp::Ultraspherical{<:Integer}) = _Multiplication(f, sp)
 end
 
 
@@ -199,7 +199,7 @@ function maxspace_rule(A::Ultraspherical, B::Ultraspherical)
 end
 
 function getindex(M::ConcreteConversion{<:Chebyshev,U,T},
-        k::Integer,j::Integer) where {T, U<:Ultraspherical{<:Union{Integer, StaticInt}}}
+        k::Integer,j::Integer) where {T, U<:Ultraspherical{<:Integer}}
    # order must be 1
     if k==j==1
         one(T)
@@ -215,8 +215,8 @@ end
 
 function getindex(M::ConcreteConversion{U1,U2,T},
         k::Integer,j::Integer) where {DD,RR,
-            U1<:Ultraspherical{<:Union{Integer, StaticInt},DD,RR},
-            U2<:Ultraspherical{<:Union{Integer, StaticInt},DD,RR},T}
+            U1<:Ultraspherical{<:Integer,DD,RR},
+            U2<:Ultraspherical{<:Integer,DD,RR},T}
     #  we can assume that λ==m+1
     λ=order(rangespace(M))
     c=λ-one(T)  # this supports big types
@@ -249,8 +249,8 @@ function getindex(M::ConcreteConversion{U1,U2,T},
 end
 
 
-bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 0,2  # order == 1
-bandwidths(C::ConcreteConversion{<:Ultraspherical{<:Union{Integer,StaticInt}},<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 0,2
+bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:Integer}}) = 0,2  # order == 1
+bandwidths(C::ConcreteConversion{<:Ultraspherical{<:Integer},<:Ultraspherical{<:Integer}}) = 0,2
 
 function bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical})
     orderone = order(rangespace(C)) == 1
@@ -266,7 +266,7 @@ function bandwidths(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical})
     offbyone ? (0,2) : (0,ℵ₀)
 end
 
-Base.stride(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:Union{Integer,StaticInt}}}) = 2
+Base.stride(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:Integer}}) = 2
 Base.stride(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = 2
 
 isdiag(::ConcreteConversion{<:Chebyshev,<:Ultraspherical}) = false
@@ -276,7 +276,7 @@ isdiag(::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = false
 ## coefficients
 
 # return the space that has banded Conversion to the other
-function conversion_rule(a::Chebyshev,b::Ultraspherical{<:Union{Integer,StaticInt}})
+function conversion_rule(a::Chebyshev, b::Ultraspherical{<:Integer})
     if domainscompatible(a,b)
         a
     else
@@ -284,8 +284,6 @@ function conversion_rule(a::Chebyshev,b::Ultraspherical{<:Union{Integer,StaticIn
     end
 end
 
-conversion_rule(a::Ultraspherical{<:StaticInt}, b::Ultraspherical{<:StaticInt}) =
-    _conversion_rule(a, b)
 function conversion_rule(a::Ultraspherical{LT},b::Ultraspherical{LT}) where {LT}
     _conversion_rule(a, b)
 end

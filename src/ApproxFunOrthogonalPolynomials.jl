@@ -1,8 +1,7 @@
 module ApproxFunOrthogonalPolynomials
 using Base, LinearAlgebra, Reexport, BandedMatrices, BlockBandedMatrices,
             BlockArrays, FillArrays, FastTransforms, IntervalSets,
-            DomainSets, Statistics, SpecialFunctions, FastGaussQuadrature,
-            Static
+            DomainSets, Statistics, SpecialFunctions, FastGaussQuadrature
 
 @reexport using ApproxFunBase
 
@@ -142,33 +141,23 @@ const HalfOddInteger{T<:Integer} = Half{Odd{T}}
 
 # return 1/2, possibly preserving types but not being too fussy
 _onehalf(x) = onehalf(x)
-_onehalf(::Union{StaticInt, StaticFloat64}) = static(0.5)
 _onehalf(::Integer) = half(Odd(1))
 
 # return -1/2, possibly preserving types but not being too fussy
 _minonehalf(x) = -onehalf(x)
-_minonehalf(@nospecialize(_::Union{StaticInt, StaticFloat64})) = static(-0.5)
 _minonehalf(::Integer) = half(Odd(-1))
 
 isapproxminhalf(a) = a ≈ _minonehalf(a)
-isapproxminhalf(@nospecialize(a::StaticInt)) = isequalminhalf(a)
 isapproxminhalf(::Integer) = false
 
 isequalminhalf(x) = x == _minonehalf(x)
-isequalminhalf(@nospecialize(a::StaticInt)) = false
 isequalminhalf(::Integer) = false
 
 isequalhalf(x) = x == _onehalf(x)
-isequalhalf(@nospecialize(a::StaticInt)) = false
 isequalhalf(x::Integer) = false
 
 isapproxhalfoddinteger(a) = !isapproxinteger(a) && isapproxinteger(a+_onehalf(a))
 isapproxhalfoddinteger(a::HalfOddInteger) = true
-isapproxhalfoddinteger(@nospecialize(a::StaticInt)) = false
-function isapproxhalfoddinteger(a::StaticFloat64)
-    x = mod(a, static(1))
-    x == _onehalf(x) || dynamic(x) ≈ 0.5
-end
 isapproxhalfoddinteger(::Integer) = false
 
 include("bary.jl")
@@ -181,5 +170,9 @@ include("roots.jl")
 include("specialfunctions.jl")
 include("fastops.jl")
 include("show.jl")
+
+if !isdefined(Base, :get_extension)
+    include("../ext/ApproxFunOrthogonalPolynomialsStaticExt.jl")
+end
 
 end
