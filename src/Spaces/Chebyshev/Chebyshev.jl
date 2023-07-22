@@ -59,12 +59,16 @@ ones(S::Chebyshev) = Fun(S,fill(1.0,1))
 
 function first(f::Fun{<:Chebyshev})
     n = ncoefficients(f)
-    n == 0 && return zero(cfstype(f))
-    n == 1 && return f.coefficients[1]
-    foldr(-,coefficients(f))
+    T = rangetype(space(f))
+    n == 0 && return zero(cfstype(f)) * oneunit(T)
+    n == 1 && return f.coefficients[1] * oneunit(T)
+    foldr(-,coefficients(f)) * oneunit(T)
 end
 
-last(f::Fun{<:Chebyshev}) = reduce(+,coefficients(f))
+function last(f::Fun{<:Chebyshev})
+    T = rangetype(space(f))
+    reduce(+,coefficients(f)) * oneunit(T)
+end
 
 spacescompatible(a::Chebyshev,b::Chebyshev) = domainscompatible(a,b)
 hasfasttransform(::Chebyshev) = true

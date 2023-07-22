@@ -56,6 +56,12 @@ include("testutils.jl")
         @test contains(summary(p), "ShiftedChebyshevGrid{Float64}")
     end
 
+    @testset "first/last" begin
+        f = Fun(Chebyshev(), [1,2])
+        @test @inferred(first(f)) === f(-1)
+        @test @inferred(last(f)) === f(1)
+    end
+
     @testset "inference in Space(::Interval)" begin
         S = @inferred Space(0..1)
         f = Fun(S)
