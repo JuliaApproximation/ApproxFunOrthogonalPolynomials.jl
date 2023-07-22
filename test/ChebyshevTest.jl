@@ -2,6 +2,7 @@ module ChebyshevTest
 
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
+using DualNumbers
 using LinearAlgebra
 using Test
 using ApproxFunBase: transform!, itransform!
@@ -23,6 +24,12 @@ include("testutils.jl")
         @test @inferred(Fun(x->4, Chebyshev(), 1)).coefficients == [4.0]
         @test Fun(x->4).coefficients == [4.0]
         @test @inferred(Fun(4)).coefficients == [4.0]
+
+        @test @inferred(Fun(Chebyshev(), [1])(1)) == 1.0
+        @test @inferred(Fun(Chebyshev(), Int[])(Dual(1,1))) == Dual(0,0)
+        @test @inferred(Fun(Chebyshev(), Int[1,2])(Dual(1,1))) == Dual(3,2)
+
+        @test @inferred(Fun(Chebyshev(), BigInt[1])(1)) == 1
 
         f = @inferred Fun(ChebyshevInterval(), [1])
         @test f(0.1) == 1
