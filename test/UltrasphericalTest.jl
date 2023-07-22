@@ -27,6 +27,11 @@ include("testutils.jl")
             @test f(xm) ≈ xm
         end
     end
+    @testset "first/last" begin
+        f = Fun(Ultraspherical(2), [1,2])
+        @test @inferred(first(f)) === f(-1)
+        @test @inferred(last(f)) === f(1)
+    end
     @testset "Conversion" begin
         # Tests whether invalid/unimplemented arguments correctly throws ArgumentError
         @test_throws ArgumentError Conversion(Ultraspherical(2), Ultraspherical(1))
