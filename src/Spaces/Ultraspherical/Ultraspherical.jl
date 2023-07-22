@@ -100,21 +100,6 @@ ones(::Type{T},S::Ultraspherical) where {T<:Number} = Fun(S,fill(one(T),1))
 ones(S::Ultraspherical) = ones(Float64, S)
 
 
-
-## Fast evaluation
-
-function first(f::Fun{<:Ultraspherical{Int}})
-    n = length(f.coefficients)
-    n == 0 && return zero(cfstype(f))
-    n == 1 && return first(f.coefficients)
-    foldr(-,coefficients(f,Chebyshev))
-end
-
-last(f::Fun{<:Ultraspherical{Int}}) = reduce(+,coefficients(f,Chebyshev))
-
-first(f::Fun{<:Ultraspherical}) = f(leftendpoint(domain(f)))
-last(f::Fun{<:Ultraspherical}) = f(rightendpoint(domain(f)))
-
 function Fun(::typeof(identity), s::Ultraspherical)
     d = domain(s)
     m = order(s)

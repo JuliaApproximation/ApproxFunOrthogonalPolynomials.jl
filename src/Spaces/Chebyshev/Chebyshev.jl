@@ -60,14 +60,16 @@ ones(S::Chebyshev) = Fun(S,fill(1.0,1))
 function first(f::Fun{<:Chebyshev})
     n = ncoefficients(f)
     T = rangetype(space(f))
-    n == 0 && return zero(cfstype(f)) * oneunit(T)
-    n == 1 && return f.coefficients[1] * oneunit(T)
-    foldr(-,coefficients(f)) * oneunit(T)
+    oneel = oneunit(T)
+    n == 0 && return zero(cfstype(f)) * oneel
+    n == 1 && return f.coefficients[1] * oneel
+    foldr(-,coefficients(f)) * oneel
 end
 
 function last(f::Fun{<:Chebyshev})
     T = rangetype(space(f))
-    reduce(+,coefficients(f)) * oneunit(T)
+    oneel = oneunit(T)
+    reduce(+,coefficients(f)) * oneel
 end
 
 spacescompatible(a::Chebyshev,b::Chebyshev) = domainscompatible(a,b)
