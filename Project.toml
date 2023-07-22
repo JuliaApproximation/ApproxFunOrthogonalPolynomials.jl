@@ -28,7 +28,7 @@ Static = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
 ApproxFunOrthogonalPolynomialsStaticExt = "Static"
 
 [compat]
-ApproxFunBase = "0.8.30"
+ApproxFunBase = "0.8.39"
 ApproxFunBaseTest = "0.1"
 Aqua = "0.6"
 BandedMatrices = "0.16, 0.17"
