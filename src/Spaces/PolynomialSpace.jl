@@ -17,16 +17,20 @@ rangespace(M::ConcreteMultiplication{U,V}) where {U<:PolynomialSpace,V<:Polynomi
 ## Evaluation
 
 function evaluate(f::AbstractVector,S::PolynomialSpace,x)
+    # We call clenshaw in each branch to obtain type-stability
+    y = tocanonical(S,x)
     if x in domain(S)
-        clenshaw(S,f,tocanonical(S,x))
+        clenshaw(S,f,y)
     elseif isambiguous(domain(S))
-        length(f) == 0 && return zero(eltype(f))
+        length(f) == 0 && return clenshaw(S, SVector{0,eltype(f)}(),y)
         for k = 2:length(f)
             iszero(f[k]) || throw(ArgumentError("Ambiguous domains only work with constants"))
         end
-        return first(f)
+        # type-stable way to evaluate the first element of the series
+        return clenshaw(S, SVector{1}(f[1]),y)
     else
-        zero(float(x) * oneunit(eltype(f)))
+        # type-stable way to obtain the zero element
+        clenshaw(S, SVector{0,eltype(f)}(),y)
     end
 end
 

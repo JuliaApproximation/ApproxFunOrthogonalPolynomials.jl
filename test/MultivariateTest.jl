@@ -2,6 +2,7 @@ module MultivariateTest
 
 using ApproxFunBase
 using ApproxFunOrthogonalPolynomials
+using DualNumbers
 using LinearAlgebra
 using SpecialFunctions
 using BlockBandedMatrices
@@ -235,6 +236,8 @@ include("testutils.jl")
         f=Fun(xy->exp(-xy[1]-2cos(xy[2])),d)
         @test f(0.5,0.5) ≈ exp(-0.5-2cos(0.5))
         @test f(SVector(0.5,0.5)) ≈ exp(-0.5-2cos(0.5))
+        @test @inferred(first(f)) ≈ f(0,0)
+        @test @inferred(last(f)) ≈ f(1,1)
 
         f=Fun(xy->exp(-xy[1]-2cos(xy[2])),d,20)
         @test f(0.5,0.5) ≈ exp(-0.5-2cos(0.5))
@@ -405,8 +408,9 @@ include("testutils.jl")
 
     @testset "off domain evaluate" begin
         g = Fun(1, Segment(SVector(0,-1) , SVector(π,-1)))
-        @test g(0.1,-1) ≈ 1
-        @test g(0.1,1) ≈ 0
+        @test @inferred(g(0.1,-1)) ≈ 1
+        @test @inferred(g(Dual(1,1),-1)) == Dual(1,0)
+        @test @inferred(g(0.1,1)) ≈ 0
     end
 
     @testset "Dirichlet" begin
