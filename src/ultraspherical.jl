@@ -4,12 +4,13 @@ export ultraconversion!,ultraint!
 
 # diff from T -> U
 function ultradiff(v::AbstractVector{T}) where T<:Number
+    Base.require_one_based_indexing(v)
     #polynomial is p(x) = sum ( v[i] * x^(i-1) )
     if length(v)≤1
         w = zeros(T,1)
     else
         w = Array{T}(undef, length(v)-1)
-        for k=1:length(v)-1
+        for k in eachindex(w)
             @inbounds w[k] = k*v[k+1]
         end
     end
@@ -21,13 +22,13 @@ end
 
 #TODO: what about missing truncation?
 function ultraint!(v::AbstractMatrix{T}) where T<:Number
-    for k=size(v,1):-1:2
-        for j=1:size(v,2)
+    for j in axes(v,2)
+        for k in reverse(axes(v,1)[firstindex(v,1)+1:end])
             @inbounds v[k,j] = v[k-1,j]/(k-1)
         end
     end
 
-    @simd for j=1:size(v)[2]
+    @simd for j in axes(v,2)
         @inbounds v[1,j] = zero(T)
     end
 
@@ -36,17 +37,18 @@ end
 
 function ultraint!(v::AbstractVector{T}) where T<:Number
     resize!(v,length(v)+1)
-    @simd for k=length(v):-1:2
+    @simd for k in reverse(eachindex(v)[firstindex(v)+1:end])
         @inbounds v[k] = v[k-1]/(k-1)
     end
 
-    @inbounds v[1] = zero(T)
+    @inbounds v[firstindex(v)] = zero(T)
 
     v
 end
 
 # Convert from U -> T
 function ultraiconversion(v::AbstractVector{T}) where T<:Number
+    Base.require_one_based_indexing(v)
     n = length(v)
     w = Array{T}(undef, n)
 
@@ -71,37 +73,17 @@ end
 
 
 # Convert T -> U
-function ultraconversion(v::AbstractVector{T}) where T<:Number
-    n = length(v)
-    w = Array{T}(undef, n)
-
-    if n == 1
-        w[1] = v[1]
-    elseif n == 2
-        w[1] = v[1]
-        w[2] = .5v[2]
-    elseif n ≥ 3
-        w[1] = v[1] - .5v[3]
-
-        @simd for j=2:n-2
-            @inbounds w[j] = .5*(v[j] - v[j+2])
-        end
-
-        w[n-1] = .5v[n-1]
-        w[n] = .5v[n]
-    end
-
-    w
+function ultraconversion(v::AbstractVector{<:Number})
+    ultraconversion!(float.(v))
 end
 
-function ultraconversion!(v::AbstractVector{T}) where T<:Number
+function ultraconversion!(v::AbstractVector{<:Number})
+    Base.require_one_based_indexing(v)
     n = length(v) #number of coefficients
 
-    if n ≤ 1
-        #do nothing
-    elseif n == 2
+    if n == 2
         @inbounds v[2] /= 2
-    else
+    elseif n > 2
         @inbounds v[1] -= v[3]/2
 
         for j=2:n-2
@@ -115,6 +97,7 @@ function ultraconversion!(v::AbstractVector{T}) where T<:Number
 end
 
 function ultraconversion!(v::AbstractMatrix{T}) where T<:Number
+    Base.require_one_based_indexing(v)
     n = size(v)[1] #number of coefficients
     m = size(v)[2] #number of funs
 
