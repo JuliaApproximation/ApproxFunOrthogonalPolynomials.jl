@@ -100,6 +100,7 @@ clenshaw(c::AbstractVector,x::AbstractVector,plan::ClenshawPlan{S,V}) where {S<:
 clenshaw(c::AbstractVector,x::Vector,plan::ClenshawPlan{<:Chebyshev}) = chebyshev_clenshaw(c,x,plan)
 
 function clenshaw(c::AbstractMatrix{T},x::T,plan::ClenshawPlan{S,T}) where {S<:Chebyshev,T<:Number}
+    Base.require_one_based_indexing(x, c)
     bk=plan.bk
     bk1=plan.bk1
     bk2=plan.bk2
@@ -130,6 +131,7 @@ function clenshaw(c::AbstractMatrix{T},x::T,plan::ClenshawPlan{S,T}) where {S<:C
 end
 
 function clenshaw(c::AbstractMatrix{T},x::AbstractVector{T},plan::ClenshawPlan{S,T}) where {S<:Chebyshev,T<:Number}
+    Base.require_one_based_indexing(x, c)
     bk=plan.bk
     bk1=plan.bk1
     bk2=plan.bk2
@@ -163,6 +165,7 @@ end
 # overwrite x
 
 function clenshaw!(c::AbstractVector,x::AbstractVector,plan::ClenshawPlan{S,V}) where {S<:Chebyshev,V}
+    Base.require_one_based_indexing(x, c)
     N,n = length(c),length(x)
 
     if isempty(c)
@@ -201,11 +204,19 @@ end
 
 
 # diff T -> U, then convert U -> T
-integrate(f::Fun{Chebyshev{D,R}}) where {D<:IntervalOrSegment,R} =
-    Fun(f.space,fromcanonicalD(f,0)*ultraint!(ultraconversion(f.coefficients)))
-differentiate(f::Fun{Chebyshev{D,R}}) where {D<:IntervalOrSegment,R} =
-    Fun(f.space,1/fromcanonicalD(f,0)*ultraiconversion(ultradiff(f.coefficients)))
-
+function integrate(f::Fun{Chebyshev{D,R}}) where {D<:IntervalOrSegment,R}
+    cfs = coefficients(f)
+    z = fromcanonicalD(f,0)
+    v = z .* float.(cfs)
+    ultraint!(ultraconversion!(v))
+    Fun(f.space, v)
+end
+function differentiate(f::Fun{Chebyshev{D,R}}) where {D<:IntervalOrSegment,R}
+    cfs = coefficients(f)
+    z = fromcanonicalD(f,0)
+    v = ultraiconversion(ultradiff(cfs)) ./ z
+    Fun(f.space, v)
+end
 
 
 
@@ -220,7 +231,7 @@ function squarepoints(::Type{T}, N) where T
     pts = paduapoints(T, _padua_length(N))
     n = size(pts,1)
     ret = Array{SVector{2,T}}(undef, n)
-    @inbounds for k=1:n
+    @inbounds for k in eachindex(ret)
         ret[k] = SVector{2,T}(pts[k,1],pts[k,2])
     end
     ret
