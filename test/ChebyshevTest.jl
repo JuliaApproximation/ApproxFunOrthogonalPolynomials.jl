@@ -117,6 +117,12 @@ include("testutils.jl")
 
         @test @inferred(sum(ef))  ≈ 2.3504023872876028
         @test @inferred(norm(ef))  ≈ 1.90443178083307
+
+        @testset "edge cases" begin
+            @test Fun(Chebyshev(), [1.0])' ≈ 0
+            @test Fun(Chebyshev(), Float64[])' ≈ 0
+            @test Fun(x->x^3, Chebyshev(2..5))' ≈ Fun(x->3x^2, Chebyshev(2..5))
+        end
     end
 
     @testset "other domains" begin

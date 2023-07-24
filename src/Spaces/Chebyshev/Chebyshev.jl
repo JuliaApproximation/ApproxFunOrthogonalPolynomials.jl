@@ -204,17 +204,18 @@ end
 
 
 # diff T -> U, then convert U -> T
-function integrate(f::Fun{Chebyshev{D,R}}) where {D<:IntervalOrSegment,R}
+function integrate(f::Fun{<:Chebyshev{<:IntervalOrSegment}})
     cfs = coefficients(f)
     z = fromcanonicalD(f,0)
     v = z .* float.(cfs)
     ultraint!(ultraconversion!(v))
     Fun(f.space, v)
 end
-function differentiate(f::Fun{Chebyshev{D,R}}) where {D<:IntervalOrSegment,R}
+function differentiate(f::Fun{<:Chebyshev{<:IntervalOrSegment}})
     cfs = coefficients(f)
     z = fromcanonicalD(f,0)
-    v = ultraiconversion(ultradiff(cfs)) ./ z
+    w = float.(cfs) ./ z
+    v = ultraiconversion!(ultradiff!(w))
     Fun(f.space, v)
 end
 
