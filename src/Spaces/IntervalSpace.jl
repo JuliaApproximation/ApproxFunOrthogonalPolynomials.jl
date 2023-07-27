@@ -1,7 +1,7 @@
 Space(d::IntervalOrSegment) = Chebyshev(d)
 Space(d::FullSpace{<:Real}) = Chebyshev(Line())
 
-# TODO: mode these functions to ApproxFunBase
+# TODO: move these functions to ApproxFunBase
 function Fun(::typeof(identity), d::IntervalOrSegment{<:Number})
     Fun(Space(d), [mean(d), complexlength(d)/2])
 end

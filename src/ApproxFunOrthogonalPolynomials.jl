@@ -1,7 +1,7 @@
 module ApproxFunOrthogonalPolynomials
 using Base, LinearAlgebra, Reexport, BandedMatrices, BlockBandedMatrices,
             BlockArrays, FillArrays, FastTransforms, IntervalSets,
-            DomainSets, Statistics, SpecialFunctions, FastGaussQuadrature
+            DomainSets, SpecialFunctions, FastGaussQuadrature
 
 @reexport using ApproxFunBase
 
@@ -44,7 +44,8 @@ import ApproxFunBase: Fun, SubSpace, WeightSpace, NoSpace, HeavisideSpace,
                     assert_integer, supportsinplacetransform, ContinuousSpace, SpecialEvalPtType,
                     isleftendpoint, isrightendpoint, evaluation_point, boundaryfn, ldiffbc, rdiffbc,
                     LeftEndPoint, RightEndPoint, normalizedspace, promotedomainspace,
-                    bandmatrices_eigen, SymmetricEigensystem, SkewSymmetricEigensystem
+                    bandmatrices_eigen, SymmetricEigensystem, SkewSymmetricEigensystem,
+                    mean # differs from Statistics.mean after https://github.com/JuliaApproximation/ApproxFunBase.jl/pull/506
 
 import DomainSets: Domain, indomain, UnionDomain, FullSpace, Point,
             Interval, ChebyshevInterval, boundary, rightendpoint, leftendpoint,
