@@ -57,6 +57,7 @@ include("testutils.jl")
 end
 
 include("ClenshawTest.jl"); GC.gc()
+include("MiscAFBTest.jl"); GC.gc()
 include("ChebyshevTest.jl"); GC.gc()
 # There are weird non-deterministic `ReadOnlyMemoryError`s on Windows,
 # so this test is disabled for now
