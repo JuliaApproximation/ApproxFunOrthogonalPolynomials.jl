@@ -1,7 +1,18 @@
 module ApproxFunOrthogonalPolynomials
-using Base, LinearAlgebra, Reexport, BandedMatrices, BlockBandedMatrices,
-            BlockArrays, FillArrays, FastTransforms, IntervalSets,
-            DomainSets, SpecialFunctions, FastGaussQuadrature
+
+using BandedMatrices
+using BlockArrays
+using BlockBandedMatrices
+using DomainSets
+using FastGaussQuadrature
+using FastTransforms
+using FillArrays
+using HalfIntegers
+using IntervalSets
+using LinearAlgebra
+using OddEvenIntegers
+using Reexport
+using SpecialFunctions
 
 @reexport using ApproxFunBase
 
@@ -84,9 +95,6 @@ import SpecialFunctions: erfcx, dawson,
 using StaticArrays: SVector
 
 import LinearAlgebra: isdiag, eigvals, eigen
-
-using OddEvenIntegers
-using HalfIntegers
 
 export bandmatrices_eigen, SymmetricEigensystem, SkewSymmetricEigensystem
 
