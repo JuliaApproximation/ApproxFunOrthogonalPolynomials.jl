@@ -18,8 +18,8 @@ end
 ^(f::Fun{Jacobi},k::Integer) = intpow(f,k)
 ^(f::Fun{Jacobi},k::Real) = Fun(f,Chebyshev)^k
 
-log(f::Fun{<:PolynomialSpace{<:ChebyshevInterval}}) = invoke(log, Tuple{Fun}, f)
 function log(f::Fun{<:PolynomialSpace{<:IntervalOrSegment}})
+    # log for ChebyshevInterval is Defined in ApproxFunSingularities
     g = log(setdomain(f, ChebyshevInterval()))
     setdomain(g, domain(f))
 end

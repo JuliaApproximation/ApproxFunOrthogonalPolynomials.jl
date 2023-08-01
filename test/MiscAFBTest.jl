@@ -439,10 +439,10 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
     @testset "Special Functions" begin
         g = Fun(x ->x^2, 0.5..1)
         @testset for f in [
-                sinpi, cospi, sin, cos, cosh, exp2, exp10, log2, log10, csc, sec,
+                sinpi, cospi, sin, cos, cosh, exp2, exp10, csc, sec,
                   cot, acot, sinh, csch, asinh, acsch,
                   sech, tanh, coth,
-                  sinc, cosc, log1p, log, expm1, tan,
+                  sinc, cosc, expm1, tan,
                   cbrt, sqrt, abs, abs2, sign, inv,
                   angle]
 
