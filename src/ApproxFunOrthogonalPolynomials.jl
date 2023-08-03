@@ -56,7 +56,8 @@ import ApproxFunBase: Fun, SubSpace, WeightSpace, NoSpace, HeavisideSpace,
                     isleftendpoint, isrightendpoint, evaluation_point, boundaryfn, ldiffbc, rdiffbc,
                     LeftEndPoint, RightEndPoint, normalizedspace, promotedomainspace,
                     bandmatrices_eigen, SymmetricEigensystem, SkewSymmetricEigensystem,
-                    mean # differs from Statistics.mean after https://github.com/JuliaApproximation/ApproxFunBase.jl/pull/506
+                    mean, # differs from Statistics.mean after https://github.com/JuliaApproximation/ApproxFunBase.jl/pull/506
+                    israggedbelow
 
 import DomainSets: Domain, indomain, UnionDomain, FullSpace, Point,
             Interval, ChebyshevInterval, boundary, rightendpoint, leftendpoint,

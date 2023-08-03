@@ -192,7 +192,14 @@ end
 
 bandwidths(::ConcreteConversion{<:Jacobi,<:Jacobi}) = (0,1)
 
+# These methods help with constant propagating the bandwidths of a KroneckerOperator
+isdiag(::ConversionWrapper{<:Chebyshev,<:Jacobi}) = false
+isdiag(::ConversionWrapper{<:Jacobi,<:Jacobi,<:Any,<:ConstantOperator}) = true
+isdiag(::ConversionWrapper{<:Union{Ultraspherical,Jacobi},<:Union{Ultraspherical,Jacobi}}) = false
 
+# These operators are banded and UpperTriangular
+israggedbelow(::ConversionWrapper{<:Chebyshev,<:Jacobi}) = true
+israggedbelow(::ConversionWrapper{<:Union{Ultraspherical,Jacobi},<:Union{Ultraspherical,Jacobi}}) = true
 
 function getindex(C::ConcreteConversion{<:Jacobi,<:Jacobi,T},k::Integer,j::Integer) where {T}
     L=C.domainspace

@@ -213,10 +213,10 @@ function getindex(M::ConcreteConversion{<:Chebyshev,U,T},
 end
 
 
-function getindex(M::ConcreteConversion{U1,U2,T},
-        k::Integer,j::Integer) where {DD,RR,
-            U1<:Ultraspherical{<:Integer,DD,RR},
-            U2<:Ultraspherical{<:Integer,DD,RR},T}
+function _getindex(M::ConcreteConversion{U1,U2,T}, k, j) where {DD,RR,
+            OT<:Union{Integer, HalfOddInteger},
+            U1<:Ultraspherical{<:OT,DD,RR},
+            U2<:Ultraspherical{<:OT,DD,RR},T}
     #  we can assume that λ==m+1
     λ=order(rangespace(M))
     c=λ-one(T)  # this supports big types
@@ -227,6 +227,17 @@ function getindex(M::ConcreteConversion{U1,U2,T},
     else
         zero(T)
     end
+end
+
+function getindex(M::ConcreteConversion{U1,U2,T}, k::Integer, j::Integer) where {DD,RR,
+            U1<:Ultraspherical{<:Integer,DD,RR},
+            U2<:Ultraspherical{<:Integer,DD,RR},T}
+    _getindex(M, k, j)
+end
+function getindex(M::ConcreteConversion{U1,U2,T}, k::Integer, j::Integer) where {DD,RR,
+            U1<:Ultraspherical{<:HalfOddInteger,DD,RR},
+            U2<:Ultraspherical{<:HalfOddInteger,DD,RR},T}
+    _getindex(M, k, j)
 end
 
 function getindex(M::ConcreteConversion{U1,U2,T},
@@ -272,6 +283,13 @@ Base.stride(C::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = 2
 isdiag(::ConcreteConversion{<:Chebyshev,<:Ultraspherical}) = false
 isdiag(::ConcreteConversion{<:Ultraspherical,<:Chebyshev}) = false
 isdiag(::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = false
+
+# These methods help with constant propagating the bandwidths of a KroneckerOperator
+isdiag(::ConversionWrapper{<:Chebyshev,<:Ultraspherical}) = false
+isdiag(::ConversionWrapper{<:Ultraspherical,<:Ultraspherical, <:Any, <:ConstantOperator}) = true
+
+# These operators are banded and UpperTriangular
+israggedbelow(::ConversionWrapper{<:Chebyshev,<:Ultraspherical}) = true
 
 ## coefficients
 
@@ -381,7 +399,7 @@ function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},
             zero(T)
         end
     else
-        error("Not implemented")
+        error("Not implemented for $M")
     end
 end
 

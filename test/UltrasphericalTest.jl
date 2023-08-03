@@ -2,12 +2,13 @@ module UltrasphericalTest
 
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
-using Test
-using SpecialFunctions
-using LinearAlgebra
-using Static
-using OddEvenIntegers
+using BandedMatrices
 using HalfIntegers
+using LinearAlgebra
+using OddEvenIntegers
+using SpecialFunctions
+using Static
+using Test
 
 include("testutils.jl")
 
@@ -184,6 +185,45 @@ include("testutils.jl")
                     M1 = Multiplication(Fun(), Ultraspherical(n))
                     M2 = Multiplication(Fun(), Ultraspherical(static(n)))
                     @test M1[1:4, 1:4] ≈ M2[1:4, 1:4]
+                end
+            end
+        end
+
+        @testset "isbanded for KroneckerOperator" begin
+            function testspaces(d1, d2, r1, r2, res = Val(false))
+                K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+                @test (@inferred (K -> Val(isbanded(K)))(K)) == res
+                @test (@inferred (K -> Val(ApproxFunBase.israggedbelow(K)))(K)) == Val(true)
+                f = Fun((x,y)->x*y, d1*d2)
+                g = Fun((x,y)->x*y, r1*r2)
+                @test K * f ≈ g
+            end
+            d1, r1 = Chebyshev(), Ultraspherical(1)
+            d2, r2 = Chebyshev(), Chebyshev()
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Chebyshev(), Ultraspherical(2)
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Ultraspherical(1), Ultraspherical(1)
+            testspaces(d1, d2, r1, r2, Val(true))
+
+            d1, r1 = Ultraspherical(1), Ultraspherical(2)
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Ultraspherical(1), Ultraspherical(3)
+            testspaces(d1, d2, r1, r2)
+        end
+
+        @testset "ConcreteConversion indexing" begin
+            for (s1, s2) in ((Ultraspherical(Legendre()), Ultraspherical(Jacobi(1,1))),
+                            (Ultraspherical(1), Ultraspherical(2)),
+                            (Ultraspherical(static(1)), Ultraspherical(static(2))),
+                            )
+                C = Conversion(s1, s2)
+                M = C[1:4, 1:4]
+                for ind in CartesianIndices(M)
+                    @test C[ind] ≈ M[ind]
                 end
             end
         end
