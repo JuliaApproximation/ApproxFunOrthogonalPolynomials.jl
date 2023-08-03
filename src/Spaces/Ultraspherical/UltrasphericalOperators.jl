@@ -215,8 +215,9 @@ end
 
 function getindex(M::ConcreteConversion{U1,U2,T},
         k::Integer,j::Integer) where {DD,RR,
-            U1<:Ultraspherical{<:Integer,DD,RR},
-            U2<:Ultraspherical{<:Integer,DD,RR},T}
+            OT<:Union{Integer, HalfOddInteger},
+            U1<:Ultraspherical{<:OT,DD,RR},
+            U2<:Ultraspherical{<:OT,DD,RR},T}
     #  we can assume that λ==m+1
     λ=order(rangespace(M))
     c=λ-one(T)  # this supports big types
@@ -388,7 +389,7 @@ function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},
             zero(T)
         end
     else
-        M[k:k, j:j][1,1]
+        error("Not implemented for $M")
     end
 end
 
