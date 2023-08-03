@@ -11,6 +11,8 @@ using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace,
                     testfunctional
 using ApproxFunOrthogonalPolynomials: jacobip
 using BandedMatrices
+using BlockArrays
+using BlockBandedMatrices
 using StaticArrays: SVector
 using Static
 using HalfIntegers
@@ -841,12 +843,17 @@ include("testutils.jl")
             testspaces(d1, d2, r1, r2)
         end
 
-        d1, r1 = Legendre(), Jacobi(2,2)
-        d2, r2 = Chebyshev(), Chebyshev()
-        K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 ⊗ r2)
-        M = K[1:20, 1:20]
-        for ind in CartesianIndices(M)
-            @test K[ind] ≈ M[ind]
+        @testset "Indexing" begin
+            d1, r1 = Legendre(), Jacobi(2,2)
+            d2, r2 = Chebyshev(), Chebyshev()
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 ⊗ r2)
+            M = @inferred K[1:20, 1:20]
+            for ind in CartesianIndices(M)
+                @test K[ind] ≈ M[ind]
+            end
+            Kv = view(K, Block(1):Block(1), Block(1):Block(1))
+            Y = @inferred BandedBlockBandedMatrix(Kv)
+            @test Y == reshape([K[1,1]], 1, 1)
         end
     end
 end
