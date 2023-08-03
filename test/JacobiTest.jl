@@ -279,41 +279,51 @@ include("testutils.jl")
         end
 
         @testset "!isbanded for KroneckerOperator" begin
+            function testspaces(d1, d2, r1, r2, res = Val(false))
+                K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+                @test (@inferred (K -> Val(isbanded(K)))(K)) == res
+                f = Fun((x,y)->x*y, d1*d2)
+                g = Fun((x,y)->x*y, r1*r2)
+                @test K * f ≈ g
+            end
+
             d1, r1 = Chebyshev(), Legendre()
             d2, r2 = Chebyshev(), Chebyshev()
-            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+            testspaces(d1, d2, r1, r2)
 
             d1, r1 = Legendre(), Chebyshev()
-            d2, r2 = Chebyshev(), Chebyshev()
-            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+            testspaces(d1, d2, r1, r2)
 
             d1, r1 = Chebyshev(), Jacobi(1,1)
-            d2, r2 = Chebyshev(), Chebyshev()
-            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+            testspaces(d1, d2, r1, r2)
 
             d1, r1 = Chebyshev(), Jacobi(Ultraspherical(1))
             d2, r2 = Chebyshev(), Chebyshev()
-            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+            testspaces(d1, d2, r1, r2)
 
             d1, r1 = Chebyshev(), Jacobi(Ultraspherical(2))
-            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+            testspaces(d1, d2, r1, r2)
 
             d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(1))
-            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(true)
+            testspaces(d1, d2, r1, r2, Val(true))
 
             d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(2))
-            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Ultraspherical(2)
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Ultraspherical(1), Jacobi(Ultraspherical(2))
+            testspaces(d1, d2, r1, r2)
 
             d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(3))
-            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(2,2)
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Ultraspherical(1), Jacobi(2,2)
+            testspaces(d1, d2, r1, r2)
         end
     end
 

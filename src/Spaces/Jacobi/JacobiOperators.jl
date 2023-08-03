@@ -195,6 +195,8 @@ bandwidths(::ConcreteConversion{<:Jacobi,<:Jacobi}) = (0,1)
 # These methods help with constant propagating the bandwidths of a KroneckerOperator
 isdiag(::ConversionWrapper{<:Chebyshev,<:Jacobi}) = false
 isdiag(::ConversionWrapper{<:Jacobi,<:Jacobi,<:Any,<:ConstantOperator}) = true
+isdiag(::ConversionWrapper{<:Jacobi,<:Ultraspherical}) = false
+isdiag(::ConversionWrapper{<:Ultraspherical,<:Jacobi}) = false
 isdiag(::ConversionWrapper{<:Jacobi,<:Jacobi}) = false
 
 function getindex(C::ConcreteConversion{<:Jacobi,<:Jacobi,T},k::Integer,j::Integer) where {T}
