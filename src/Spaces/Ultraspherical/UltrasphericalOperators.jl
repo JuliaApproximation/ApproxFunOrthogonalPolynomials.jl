@@ -276,7 +276,9 @@ isdiag(::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = false
 # These methods help with constant propagating the bandwidths of a KroneckerOperator
 isdiag(::ConversionWrapper{<:Chebyshev,<:Ultraspherical}) = false
 isdiag(::ConversionWrapper{<:Ultraspherical,<:Ultraspherical, <:Any, <:ConstantOperator}) = true
-isdiag(::ConversionWrapper{<:Ultraspherical,<:Ultraspherical}) = false
+
+# These operators are banded and UpperTriangular
+israggedbelow(::ConversionWrapper{<:Chebyshev,<:Ultraspherical}) = true
 
 ## coefficients
 
@@ -386,7 +388,7 @@ function getindex(M::ConcreteConversion{Ultraspherical{LT,DD,RR},
             zero(T)
         end
     else
-        error("Not implemented")
+        M[k:k, j:j][1,1]
     end
 end
 

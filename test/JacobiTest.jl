@@ -278,10 +278,11 @@ include("testutils.jl")
             @test C * Fun(x->x^4, Legendre()) ≈ Fun(x->x^4, NormalizedChebyshev())
         end
 
-        @testset "!isbanded for KroneckerOperator" begin
+        @testset "isbanded and israggedbelow for KroneckerOperator" begin
             function testspaces(d1, d2, r1, r2, res = Val(false))
                 K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
                 @test (@inferred (K -> Val(isbanded(K)))(K)) == res
+                @test (@inferred (K -> Val(ApproxFunBase.israggedbelow(K)))(K)) == Val(true)
                 f = Fun((x,y)->x*y, d1*d2)
                 g = Fun((x,y)->x*y, r1*r2)
                 @test K * f ≈ g
@@ -324,6 +325,14 @@ include("testutils.jl")
 
             d1, r1 = Ultraspherical(1), Jacobi(2,2)
             testspaces(d1, d2, r1, r2)
+        end
+
+        d1, r1 = Legendre(), Jacobi(2,2)
+        d2, r2 = Chebyshev(), Chebyshev()
+        K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 ⊗ r2)
+        M = K[1:20, 1:20]
+        for ind in CartesianIndices(M)
+            @test K[ind] ≈ M[ind]
         end
     end
 
