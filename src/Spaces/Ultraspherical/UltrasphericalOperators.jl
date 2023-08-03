@@ -273,6 +273,11 @@ isdiag(::ConcreteConversion{<:Chebyshev,<:Ultraspherical}) = false
 isdiag(::ConcreteConversion{<:Ultraspherical,<:Chebyshev}) = false
 isdiag(::ConcreteConversion{<:Ultraspherical,<:Ultraspherical}) = false
 
+# These methods help with constant propagating the bandwidths of a KroneckerOperator
+isdiag(::ConversionWrapper{<:Chebyshev,<:Ultraspherical}) = false
+isdiag(::ConversionWrapper{<:Ultraspherical,<:Ultraspherical, <:Any, <:ConstantOperator}) = true
+isdiag(::ConversionWrapper{<:Ultraspherical,<:Ultraspherical}) = false
+
 ## coefficients
 
 # return the space that has banded Conversion to the other
