@@ -12,6 +12,7 @@ using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace,
 using ApproxFunOrthogonalPolynomials: jacobip
 using BandedMatrices
 using BlockArrays
+using BlockBandedMatrices
 using StaticArrays: SVector
 using Static
 using HalfIntegers
