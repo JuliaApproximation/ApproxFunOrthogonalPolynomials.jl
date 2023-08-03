@@ -277,63 +277,6 @@ include("testutils.jl")
             C = Conversion(Legendre(), NormalizedChebyshev())
             @test C * Fun(x->x^4, Legendre()) ≈ Fun(x->x^4, NormalizedChebyshev())
         end
-
-        @testset "isbanded and israggedbelow for KroneckerOperator" begin
-            function testspaces(d1, d2, r1, r2, res = Val(false))
-                K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-                @test (@inferred (K -> Val(isbanded(K)))(K)) == res
-                @test (@inferred (K -> Val(ApproxFunBase.israggedbelow(K)))(K)) == Val(true)
-                f = Fun((x,y)->x*y, d1*d2)
-                g = Fun((x,y)->x*y, r1*r2)
-                @test K * f ≈ g
-            end
-
-            d1, r1 = Chebyshev(), Legendre()
-            d2, r2 = Chebyshev(), Chebyshev()
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Legendre(), Chebyshev()
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Chebyshev(), Jacobi(1,1)
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Chebyshev(), Jacobi(Ultraspherical(1))
-            d2, r2 = Chebyshev(), Chebyshev()
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Chebyshev(), Jacobi(Ultraspherical(2))
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(1))
-            testspaces(d1, d2, r1, r2, Val(true))
-
-            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(2))
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Jacobi(Ultraspherical(1)), Ultraspherical(2)
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Ultraspherical(1), Jacobi(Ultraspherical(2))
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(3))
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(2,2)
-            testspaces(d1, d2, r1, r2)
-
-            d1, r1 = Ultraspherical(1), Jacobi(2,2)
-            testspaces(d1, d2, r1, r2)
-        end
-
-        d1, r1 = Legendre(), Jacobi(2,2)
-        d2, r2 = Chebyshev(), Chebyshev()
-        K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 ⊗ r2)
-        M = K[1:20, 1:20]
-        for ind in CartesianIndices(M)
-            @test K[ind] ≈ M[ind]
-        end
     end
 
     @testset "inplace transform" begin
@@ -848,6 +791,63 @@ include("testutils.jl")
         @test ApproxFunBase.hasconversion(NormalizedChebyshev()*Legendre(), Chebyshev()*Legendre())
         @test ApproxFunBase.hasconversion(NormalizedChebyshev()*NormalizedLegendre(), Chebyshev()*Legendre())
         @test ApproxFunBase.hasconversion(Chebyshev()*Legendre(), NormalizedChebyshev()*NormalizedLegendre())
+
+        @testset "isbanded and israggedbelow for KroneckerOperator" begin
+            function testspaces(d1, d2, r1, r2, res = Val(false))
+                K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+                @test (@inferred (K -> Val(isbanded(K)))(K)) == res
+                @test (@inferred (K -> Val(ApproxFunBase.israggedbelow(K)))(K)) == Val(true)
+                f = Fun((x,y)->x*y, d1*d2)
+                g = Fun((x,y)->x*y, r1*r2)
+                @test K * f ≈ g
+            end
+
+            d1, r1 = Chebyshev(), Legendre()
+            d2, r2 = Chebyshev(), Chebyshev()
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Legendre(), Chebyshev()
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Chebyshev(), Jacobi(1,1)
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Chebyshev(), Jacobi(Ultraspherical(1))
+            d2, r2 = Chebyshev(), Chebyshev()
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Chebyshev(), Jacobi(Ultraspherical(2))
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(1))
+            testspaces(d1, d2, r1, r2, Val(true))
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(2))
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Ultraspherical(2)
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Ultraspherical(1), Jacobi(Ultraspherical(2))
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(3))
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(2,2)
+            testspaces(d1, d2, r1, r2)
+
+            d1, r1 = Ultraspherical(1), Jacobi(2,2)
+            testspaces(d1, d2, r1, r2)
+        end
+
+        d1, r1 = Legendre(), Jacobi(2,2)
+        d2, r2 = Chebyshev(), Chebyshev()
+        K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 ⊗ r2)
+        M = K[1:20, 1:20]
+        for ind in CartesianIndices(M)
+            @test K[ind] ≈ M[ind]
+        end
     end
 end
 

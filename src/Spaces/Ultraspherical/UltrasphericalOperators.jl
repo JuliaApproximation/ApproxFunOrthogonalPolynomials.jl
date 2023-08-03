@@ -213,8 +213,7 @@ function getindex(M::ConcreteConversion{<:Chebyshev,U,T},
 end
 
 
-function getindex(M::ConcreteConversion{U1,U2,T},
-        k::Integer,j::Integer) where {DD,RR,
+function _getindex(M::ConcreteConversion{U1,U2,T}, k, j) where {DD,RR,
             OT<:Union{Integer, HalfOddInteger},
             U1<:Ultraspherical{<:OT,DD,RR},
             U2<:Ultraspherical{<:OT,DD,RR},T}
@@ -228,6 +227,17 @@ function getindex(M::ConcreteConversion{U1,U2,T},
     else
         zero(T)
     end
+end
+
+function getindex(M::ConcreteConversion{U1,U2,T}, k::Integer, j::Integer) where {DD,RR,
+            U1<:Ultraspherical{<:Integer,DD,RR},
+            U2<:Ultraspherical{<:Integer,DD,RR},T}
+    _getindex(M, k, j)
+end
+function getindex(M::ConcreteConversion{U1,U2,T}, k::Integer, j::Integer) where {DD,RR,
+            U1<:Ultraspherical{<:HalfOddInteger,DD,RR},
+            U2<:Ultraspherical{<:HalfOddInteger,DD,RR},T}
+    _getindex(M, k, j)
 end
 
 function getindex(M::ConcreteConversion{U1,U2,T},

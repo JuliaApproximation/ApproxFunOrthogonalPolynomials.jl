@@ -214,6 +214,19 @@ include("testutils.jl")
             d1, r1 = Ultraspherical(1), Ultraspherical(3)
             testspaces(d1, d2, r1, r2)
         end
+
+        @testset "ConcreteConversion indexing" begin
+            for (s1, s2) in ((Ultraspherical(Legendre()), Ultraspherical(Jacobi(1,1))),
+                            (Ultraspherical(1), Ultraspherical(2)),
+                            (Ultraspherical(static(1)), Ultraspherical(static(2))),
+                            )
+                C = Conversion(s1, s2)
+                M = C[1:4, 1:4]
+                for ind in CartesianIndices(M)
+                    @test C[ind] ≈ M[ind]
+                end
+            end
+        end
     end
 
     @testset "Normalized space" begin
