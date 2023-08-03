@@ -192,24 +192,24 @@ include("testutils.jl")
         @testset "!isbanded for KroneckerOperator" begin
             d1, r1 = Chebyshev(), Ultraspherical(1)
             d2, r2 = Chebyshev(), Chebyshev()
-            K1 = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K1)) == Val(false)
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
 
             d1, r1 = Chebyshev(), Ultraspherical(2)
-            K2 = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K2)) == Val(false)
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
 
             d1, r1 = Ultraspherical(1), Ultraspherical(1)
-            K3 = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K3)) == Val(true)
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(true)
 
             d1, r1 = Ultraspherical(1), Ultraspherical(2)
-            K4 = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K4)) == Val(false)
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
 
             d1, r1 = Ultraspherical(1), Ultraspherical(3)
-            K4 = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
-            @test (@inferred (K -> Val(isbanded(K)))(K4)) == Val(false)
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
         end
     end
 

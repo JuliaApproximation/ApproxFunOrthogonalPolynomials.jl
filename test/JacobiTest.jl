@@ -277,6 +277,44 @@ include("testutils.jl")
             C = Conversion(Legendre(), NormalizedChebyshev())
             @test C * Fun(x->x^4, Legendre()) ≈ Fun(x->x^4, NormalizedChebyshev())
         end
+
+        @testset "!isbanded for KroneckerOperator" begin
+            d1, r1 = Chebyshev(), Legendre()
+            d2, r2 = Chebyshev(), Chebyshev()
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+
+            d1, r1 = Legendre(), Chebyshev()
+            d2, r2 = Chebyshev(), Chebyshev()
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+
+            d1, r1 = Chebyshev(), Jacobi(1,1)
+            d2, r2 = Chebyshev(), Chebyshev()
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+
+            d1, r1 = Chebyshev(), Jacobi(Ultraspherical(1))
+            d2, r2 = Chebyshev(), Chebyshev()
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+
+            d1, r1 = Chebyshev(), Jacobi(Ultraspherical(2))
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(1))
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(true)
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(2))
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+
+            d1, r1 = Jacobi(Ultraspherical(1)), Jacobi(Ultraspherical(3))
+            K = (Operator(I, d1) ⊗ Operator(I, d2)) → (r1 * r2)
+            @test (@inferred (K -> Val(isbanded(K)))(K)) == Val(false)
+        end
     end
 
     @testset "inplace transform" begin
