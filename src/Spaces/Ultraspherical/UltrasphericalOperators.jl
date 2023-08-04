@@ -213,12 +213,8 @@ function getindex(M::ConcreteConversion{<:Chebyshev,U,T},
 end
 
 
-function _getindex(M::ConcreteConversion{U1,U2,T}, k, j) where {DD,RR,
-            OT<:Union{Integer, HalfOddInteger},
-            U1<:Ultraspherical{<:OT,DD,RR},
-            U2<:Ultraspherical{<:OT,DD,RR},T}
-    #  we can assume that λ==m+1
-    λ=order(rangespace(M))
+function _getindex(::Type{T}, λ, k, j) where {T}
+    # we assume order(domainspace(M))+1==order(rangespace(M))
     c=λ-one(T)  # this supports big types
     if k==j
         c/(k - 2 + λ)
@@ -232,12 +228,12 @@ end
 function getindex(M::ConcreteConversion{U1,U2,T}, k::Integer, j::Integer) where {DD,RR,
             U1<:Ultraspherical{<:Integer,DD,RR},
             U2<:Ultraspherical{<:Integer,DD,RR},T}
-    _getindex(M, k, j)
+    _getindex(T, order(rangespace(M)), k, j)
 end
 function getindex(M::ConcreteConversion{U1,U2,T}, k::Integer, j::Integer) where {DD,RR,
             U1<:Ultraspherical{<:HalfOddInteger,DD,RR},
             U2<:Ultraspherical{<:HalfOddInteger,DD,RR},T}
-    _getindex(M, k, j)
+    _getindex(T, order(rangespace(M)), k, j)
 end
 
 function getindex(M::ConcreteConversion{U1,U2,T},
@@ -246,14 +242,7 @@ function getindex(M::ConcreteConversion{U1,U2,T},
             U2<:Ultraspherical{<:Any,DD,RR},T}
     λ=order(rangespace(M))
     if order(domainspace(M))+1==λ
-        c=λ-one(T)  # this supports big types
-        if k==j
-            c/(k - 2 + λ)
-        elseif j==k+2
-            -c/(k + λ)
-        else
-            zero(T)
-        end
+        _getindex(T, λ, k, j)
     else
         error("Not implemented")
     end
