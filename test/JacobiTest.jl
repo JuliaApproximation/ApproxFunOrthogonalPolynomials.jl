@@ -362,6 +362,9 @@ include("testutils.jl")
 
         D = Derivative(NormalizedLegendre(), 2)
         @test (@inferred rangespace(D)) == Jacobi(2,2)
+
+        D = @inferred (S -> Derivative(S, 2))(NormalizedLegendre(0..1))
+        @test D * Fun(x->x^3, Legendre(0..1)) ≈ Fun(x->6x, Legendre(0..1))
     end
 
     @testset "identity Fun for interval domains" begin
