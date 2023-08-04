@@ -18,6 +18,9 @@ using Test
             L = -Derivative(S, 2)
             B = Neumann(S)
 
+            QS = QuotientSpace(B)
+            @inferred (QS -> QS.F)(QS)
+
             n = 50
             Seig = SymmetricEigensystem(L, B)
             SA, SB = bandmatrices_eigen(Seig, n)
