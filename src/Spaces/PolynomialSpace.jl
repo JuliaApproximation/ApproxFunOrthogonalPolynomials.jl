@@ -322,11 +322,11 @@ end
 
 
 
-## All polynomial spaces can be converted provided spaces match
+## All polynomial spaces can be converted provided domains match
 
-isconvertible(a::PolynomialSpace,b::PolynomialSpace) = domain(a) == domain(b)
-union_rule(a::PolynomialSpace{D},b::PolynomialSpace{D}) where {D} =
-    domainscompatible(a,b) ? (a < b ? a : b) : NoSpace()   # the union of two polys is always a poly
+isconvertible(a::PolynomialSpace, b::PolynomialSpace) = domain(a) == domain(b)
+union_rule(a::PolynomialSpace{D}, b::PolynomialSpace{D}) where {D} =
+    conversion_type(a, b)
 
 
 

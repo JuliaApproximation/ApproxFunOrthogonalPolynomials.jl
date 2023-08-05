@@ -15,6 +15,9 @@ include("testutils.jl")
 @verbose @testset "Ultraspherical" begin
     @testset "promotion" begin
         @inferred (() -> [Ultraspherical(1), Ultraspherical(2.0)])()
+        f = Fun(Chebyshev())
+        g = Fun(Ultraspherical(1))
+        @test @inferred(f + g) ≈ 2f
     end
     @testset "identity fun" begin
         for d in (ChebyshevInterval(), 3..4, Segment(2, 5), Segment(1, 4im)), order in (1, 2, 0.5)
