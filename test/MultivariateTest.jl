@@ -531,6 +531,12 @@ include("testutils.jl")
             b = ((P * KroneckerOperator(A)) * P)(xi, yi)
             @test a ≈ b
         end
+
+        @testset "coefficients" begin
+            local P = ProductFun((x,y) -> x*y, Chebyshev()^2)
+            @test coefficients(P, space(P)) == coefficients(P)
+            @test Fun(ProductFun(P, Ultraspherical(1)^2)) ≈ Fun(P)
+        end
     end
 
     @testset "Functional*Fun" begin
