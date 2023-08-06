@@ -148,6 +148,29 @@ include("testutils.jl")
             end
         end
 
+        @testset "Normalized" begin
+            Tallowed = Union{
+                typeof(Conversion(Ultraspherical(1), NormalizedUltraspherical(1))),
+                typeof(Conversion(Ultraspherical(1), NormalizedUltraspherical(2)))
+            }
+            C = @inferred Tallowed Conversion(Ultraspherical(1), NormalizedUltraspherical(1))
+            @test C * Fun(Ultraspherical(1)) ≈ Fun(NormalizedUltraspherical(1))
+
+            Tallowed = Union{
+                typeof(Conversion(NormalizedUltraspherical(1), Ultraspherical(1))),
+                typeof(Conversion(NormalizedUltraspherical(1), Ultraspherical(2)))
+            }
+            C = @inferred Tallowed Conversion(NormalizedUltraspherical(1), Ultraspherical(1))
+            @test C * Fun(NormalizedUltraspherical(1)) ≈ Fun(Ultraspherical(1))
+
+            Tallowed = Union{
+                typeof(Conversion(NormalizedUltraspherical(1), NormalizedUltraspherical(1))),
+                typeof(Conversion(NormalizedUltraspherical(1), NormalizedUltraspherical(2)))
+            }
+            C = @inferred Tallowed Conversion(NormalizedUltraspherical(1), NormalizedUltraspherical(1))
+            @test C * Fun(NormalizedUltraspherical(1)) ≈ Fun(NormalizedUltraspherical(1))
+        end
+
         @testset "complex normalization" begin
             C = Conversion(NormalizedUltraspherical(NormalizedLegendre()), Ultraspherical(Legendre()))
             CC = convert(Operator{ComplexF64}, C)

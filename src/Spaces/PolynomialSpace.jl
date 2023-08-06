@@ -457,7 +457,10 @@ function Conversion(L::NormalizedPolynomialSpace{S}, M::S) where S<:PolynomialSp
         ConcreteConversion(L, M)
     else
         sp = L.space
-        ConversionWrapper(TimesOperator(Conversion(sp, M), ConcreteConversion(L, sp)))
+        ConversionWrapper(
+            TimesOperator(Conversion(sp, M), ConcreteConversion(L, sp)),
+            L, M,
+        )
     end
 end
 
@@ -466,7 +469,10 @@ function Conversion(L::S, M::NormalizedPolynomialSpace{S}) where S<:PolynomialSp
         ConcreteConversion(L, M)
     else
         sp = M.space
-        ConversionWrapper(TimesOperator(ConcreteConversion(sp, M), Conversion(L, sp)))
+        ConversionWrapper(
+            TimesOperator(ConcreteConversion(sp, M), Conversion(L, sp)),
+            L, M,
+        )
     end
 end
 

@@ -145,7 +145,7 @@ function _conversion_shiftordersbyone(L::Jacobi, M::Jacobi)
     CLJ = [ConcreteConversion(Jacobi(b-1,L.a,dm), Jacobi(b, L.a, dm)) for b in M.b:-1:L.b+1]
     CJM = [ConcreteConversion(Jacobi(M.b,a-1,dm), Jacobi(M.b, a, dm)) for a in M.a:-1:L.a+1]
     C = [CJM; CLJ]
-    return ConversionWrapper(TimesOperator(C))
+    return ConversionWrapper(TimesOperator(C), L, M)
 end
 
 ## Conversion
