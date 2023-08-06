@@ -452,21 +452,27 @@ normalizedspace(S::NormalizedPolynomialSpace) = S
 
 supportsinplacetransform(N::NormalizedPolynomialSpace) = supportsinplacetransform(N.space)
 
-function Conversion(L::NormalizedPolynomialSpace{S}, M::S) where S<:PolynomialSpace
+function Conversion(L::NormalizedPolynomialSpace, M::PolynomialSpace)
     if L.space == M
         ConcreteConversion(L, M)
     else
         sp = L.space
-        ConversionWrapper(TimesOperator(Conversion(sp, M), ConcreteConversion(L, sp)))
+        ConversionWrapper(
+            TimesOperator(Conversion(sp, M), ConcreteConversion(L, sp)),
+            L, M,
+        )
     end
 end
 
-function Conversion(L::S, M::NormalizedPolynomialSpace{S}) where S<:PolynomialSpace
+function Conversion(L::PolynomialSpace, M::NormalizedPolynomialSpace)
     if M.space == L
         ConcreteConversion(L, M)
     else
         sp = M.space
-        ConversionWrapper(TimesOperator(ConcreteConversion(sp, M), Conversion(L, sp)))
+        ConversionWrapper(
+            TimesOperator(ConcreteConversion(sp, M), Conversion(L, sp)),
+            L, M,
+        )
     end
 end
 
@@ -490,11 +496,11 @@ function Fun(::typeof(identity), S::NormalizedPolynomialSpace)
     Fun(S, coeffs)
 end
 
-function conversion_rule(a::NormalizedPolynomialSpace{S}, b::S) where S<:PolynomialSpace
+function conversion_rule(a::NormalizedPolynomialSpace, b::PolynomialSpace)
     conversion_type(a.space, b)
 end
 
-function maxspace_rule(a::NormalizedPolynomialSpace{S}, b::S) where S<:PolynomialSpace
+function maxspace_rule(a::NormalizedPolynomialSpace, b::PolynomialSpace)
     maxspace(a.space, b)
 end
 
