@@ -274,7 +274,16 @@ include("testutils.jl")
         end
         @testset "Normalized and Unnormalized" begin
             C = Conversion(NormalizedUltraspherical(0.5), Legendre())
-            @test C * Fun(x->x^4, NormalizedUltraspherical(0.5)) ≈ Fun(x->x^4, Legendre())
+            @test isdiag(C)
+            g = C * Fun(x->x^4, NormalizedUltraspherical(0.5))
+            @test space(g) == Legendre()
+            @test g ≈ Fun(x->x^4, Legendre())
+
+            C = Conversion(Ultraspherical(0.5), NormalizedLegendre())
+            @test isdiag(C)
+            g = C * Fun(x->x^4, Ultraspherical(0.5))
+            @test space(g) == NormalizedLegendre()
+            @test g ≈ Fun(x->x^4, NormalizedLegendre())
 
             C = Conversion(Legendre(), NormalizedChebyshev())
             @test C * Fun(x->x^4, Legendre()) ≈ Fun(x->x^4, NormalizedChebyshev())
