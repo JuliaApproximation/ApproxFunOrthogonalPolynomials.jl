@@ -465,7 +465,9 @@ include("testutils.jl")
 
         @test F(1.5,1.5im) ≈ hankelh1(0,10abs(1.5im-1.5))
 
-        P = ProductFun((x,y)->x^2*y^3, Chebyshev() ⊗ Chebyshev())
+        pf = (x,y)->x^2*y^3
+        P = ProductFun(pf, Chebyshev() ⊗ Chebyshev())
+        @test P(0.1, 0.2) ≈ pf(0.1, 0.2)
         @test (Derivative() * P)(0.1, 0.2) ≈ ProductFun((x,y)->2x*y^3)(0.1, 0.2)
         @test (P * Derivative())(0.1, 0.2) ≈ ProductFun((x,y)->x^2*3y^2)(0.1, 0.2)
 
