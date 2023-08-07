@@ -221,6 +221,15 @@ include("testutils.jl")
 
                 @test (@inferred (() ->
                     conversion_type(NormalizedLegendre(0..1), Legendre(0..1)))()) == Legendre(0..1)
+
+                @test @inferred(conversion_type(NormalizedLegendre(), NormalizedLegendre())) ==
+                            NormalizedLegendre()
+                @test @inferred(conversion_type(NormalizedLegendre(), NormalizedJacobi(1,1))) ==
+                            NormalizedLegendre()
+                @test @inferred(conversion_type(NormalizedLegendre(), NormalizedUltraspherical(Legendre()))) ==
+                            NormalizedLegendre()
+                @test @inferred(conversion_type(NormalizedJacobi(Ultraspherical(1)), NormalizedChebyshev())) ==
+                            NormalizedJacobi(Chebyshev())
             end
 
             @testset "NormalizedPolynomialSpace constructor" begin
@@ -692,6 +701,15 @@ include("testutils.jl")
         @testset "inference in maxspace/conversion_type" begin
             @inferred maxspace(NormalizedLegendre(), Legendre())
             @inferred (()->maxspace(NormalizedLegendre(0..1), Legendre(0..1)))()
+
+            S = @inferred(maxspace(NormalizedLegendre(), NormalizedUltraspherical(Legendre())))
+            @test S == NormalizedLegendre()
+            S = @inferred(maxspace(NormalizedLegendre(), NormalizedLegendre()))
+            @test S == NormalizedLegendre()
+            S = @inferred maxspace(NormalizedUltraspherical(1), NormalizedJacobi(Ultraspherical(2)))
+            @test S == NormalizedJacobi(Ultraspherical(2))
+            S = @inferred maxspace(NormalizedChebyshev(), NormalizedJacobi(Ultraspherical(2)))
+            @test S == NormalizedJacobi(Ultraspherical(2))
         end
     end
 
@@ -795,6 +813,14 @@ include("testutils.jl")
 
         x = @inferred ApproxFunBase.conversion_rule(Jacobi(1,1), Jacobi(2,2))
         @test x == Jacobi(1,1)
+
+        sps = (Legendre(), Jacobi(1,1), Ultraspherical(1), Chebyshev())
+        for S1 in sps, S1n in (S1, NormalizedPolynomialSpace(S1)),
+            S2 in sps, S2n in (S2, NormalizedPolynomialSpace(S2)),
+
+            f = @inferred Fun(S1n) + Fun(S2n)
+            @test f ≈ 2Fun()
+        end
     end
 
     @testset "Tensor space conversions" begin

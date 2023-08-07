@@ -511,25 +511,21 @@ end
 
 for (OPrule,OP) in ((:conversion_rule,:conversion_type), (:maxspace_rule,:maxspace))
     @eval begin
-        function $OPrule(A::Chebyshev,B::Jacobi)
+        function $OPrule(A::Chebyshev, B::Jacobi)
             if isapproxminhalf(B.a) && isapproxminhalf(B.b)
                 # the spaces are the same
-                A
-            elseif isapproxhalfoddinteger(B.a) && isapproxhalfoddinteger(B.b)
-                $OP(Jacobi(A),B)
+                B # return the Jacobi for type-stability
             else
-                NoSpace()
+                $OP(Jacobi(A),B)
             end
         end
-        function $OPrule(A::Ultraspherical,B::Jacobi)
+        function $OPrule(A::Ultraspherical, B::Jacobi)
             m = order(A)
             if isapproxminhalf(B.a - m) && isapproxminhalf(B.b - m)
                 # the spaces are the same
-                A
-            elseif isapproxhalfoddinteger(B.a) && isapproxhalfoddinteger(B.b)
-                $OP(Jacobi(A),B)
+                B # return the Jacobi for type-stability
             else
-                NoSpace()
+                $OP(Jacobi(A), B)
             end
         end
     end

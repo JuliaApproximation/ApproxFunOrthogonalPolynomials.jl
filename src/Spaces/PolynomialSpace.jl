@@ -319,17 +319,6 @@ function BandedMatrix(S::SubOperator{T,ConcreteMultiplication{C,PS,T},
     BandedMatrix(view(Bk2,kr2,jr2))
 end
 
-
-
-
-## All polynomial spaces can be converted provided domains match
-
-isconvertible(a::PolynomialSpace, b::PolynomialSpace) = domain(a) == domain(b)
-union_rule(a::PolynomialSpace{D}, b::PolynomialSpace{D}) where {D} =
-    conversion_type(a, b)
-
-
-
 ## General clenshaw
 clenshaw(sp::PolynomialSpace,c::AbstractVector,x::AbstractArray) = clenshaw(c,x,
                                             ClenshawPlan(promote_type(eltype(c),eltype(x)),sp,length(c),length(x)))
@@ -504,6 +493,16 @@ function maxspace_rule(a::NormalizedPolynomialSpace, b::PolynomialSpace)
     maxspace(a.space, b)
 end
 
+function conversion_rule(a::NormalizedPolynomialSpace, b::NormalizedPolynomialSpace)
+    S = conversion_type(a.space, b.space)
+    S isa NoSpace ? S : NormalizedPolynomialSpace(S)
+end
+
+function maxspace_rule(a::NormalizedPolynomialSpace, b::NormalizedPolynomialSpace)
+    S = maxspace(a.space, b.space)
+    S isa NoSpace ? S : NormalizedPolynomialSpace(S)
+end
+
 bandwidths(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S}) where {S,D,R} = (0, 0)
 bandwidths(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R}}) where {S,D,R} = (0, 0)
 
@@ -583,6 +582,12 @@ function hasconversion(A::MaybeNormalizedTensorSpace{<:P1, <:P2},
     _hasconversion_tensor(factors(A), factors(B))
 end
 
+## All polynomial spaces can be converted provided domains match
+
+isconvertible(a::MaybeNormalized, b::MaybeNormalized) = domain(a) == domain(b)
+union_rule(a::MaybeNormalized{<:PolynomialSpace{D}},
+            b::MaybeNormalized{<:PolynomialSpace{D}}) where {D} =
+    conversion_type(a, b)
 
 function Multiplication(f::Fun{<:PolynomialSpace}, sp::NormalizedPolynomialSpace)
     unnorm_sp = canonicalspace(sp)
