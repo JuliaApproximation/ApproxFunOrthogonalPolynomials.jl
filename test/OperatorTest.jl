@@ -46,6 +46,20 @@ include("testutils.jl")
         @test norm(A\Fun(x.*f,rangespace(A))-(x.*f)) < 100eps()
 
         @test (I : Chebyshev() → Chebyshev()) * Fun() ≈ Fun()
+
+        @testset "QuotientSpace" begin
+            C = Dirichlet(Chebyshev())
+            Q = QuotientSpace(Chebyshev(), C)
+            Z = Conversion(Q, Chebyshev())
+            @test isapprox((C * Z)[:, 1:5], zeros(size(C,1), 5), atol=1e-14)
+            @test isapprox((C * Z)[:, 1:5], C[:,1:7] * Z[1:7, 1:5], atol=1e-14)
+
+            C = [Dirichlet(Chebyshev()); Dirichlet(Chebyshev(),1)]
+            Q = QuotientSpace(Chebyshev(), C)
+            Z = Conversion(Q, Chebyshev())
+            @test isapprox((C * Z)[:, 1:5], zeros(size(C,1), 5), atol=1e-14)
+            @test isapprox((C * Z)[:, 1:5], C[:,1:9] * Z[1:9, 1:5], atol=1e-14)
+        end
     end
 
     @testset "Derivative" begin
