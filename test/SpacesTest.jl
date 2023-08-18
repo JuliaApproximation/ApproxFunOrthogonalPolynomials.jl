@@ -72,6 +72,14 @@ using ApproxFunBaseTest: testbandedoperator, testraggedbelowoperator,
         @test norm(sc-(c+s))<100eps()
 
         @test sc * sc == sc^2
+
+        @testset "ApproxFun.jl issue #905" begin
+            x = Fun()
+            y = cumsum(sign(x))
+            @test y(-1) ≈ 0 atol=eps()
+            @test y(0) ≈ -1
+            @test y(1) ≈ 0 atol=eps()
+        end
     end
 
     @testset "max/min creates breakpoints" begin
