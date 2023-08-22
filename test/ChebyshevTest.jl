@@ -220,6 +220,8 @@ include("testutils.jl")
         x=Fun()
         @test minimum(x) == -1
         @test maximum(x) == 1
+
+        @test maximum(abs, x - abs(x)) == maximum(abs, abs(x) - x) == 2
     end
 
     @testset "Do not overresolve #7" begin
