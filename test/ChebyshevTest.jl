@@ -474,7 +474,7 @@ include("testutils.jl")
         S = PiecewiseSpace(Chebyshev.(components(d)))
         NS = normalizedspace(S)
         @test domain(NS) == domain(S)
-        @test NS isa PiecewiseSpace{<:NTuple{<:Any,NormalizedChebyshev}}
+        @test NS isa PiecewiseSpace{<:Union{NTuple{<:Any,NormalizedChebyshev}, Vector{<:NormalizedChebyshev}}}
         f = Fun(S)
         g = Conversion(S, NS) * f
         @test g(0.4) ≈ 0.4
