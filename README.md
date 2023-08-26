@@ -8,6 +8,7 @@ Support for orthogonal polynomial-based spaces in ApproxFun
 [![codecov](https://codecov.io/gh/JuliaApproximation/ApproxFunOrthogonalPolynomials.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaApproximation/ApproxFunOrthogonalPolynomials.jl)
 [![deps](https://juliahub.com/docs/ApproxFunOrthogonalPolynomials/deps.svg)](https://juliahub.com/ui/Packages/ApproxFunOrthogonalPolynomials/bk9eW?t=2)
 [![version](https://juliahub.com/docs/ApproxFunOrthogonalPolynomials/version.svg)](https://juliahub.com/ui/Packages/ApproxFunOrthogonalPolynomials/bk9eW)
+[![pkgeval](https://juliahub.com/docs/General/ApproxFunOrthogonalPolynomials/stable/pkgeval.svg)](https://juliahub.com/ui/Packages/General/ApproxFunOrthogonalPolynomials)
 [![Join the chat at https://gitter.im/JuliaApproximation/ApproxFun.jl](https://badges.gitter.im/JuliaApproximation/ApproxFun.jl.svg)](https://gitter.im/JuliaApproximation/ApproxFun.jl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
