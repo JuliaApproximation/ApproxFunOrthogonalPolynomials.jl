@@ -489,6 +489,8 @@ include("testutils.jl")
         f = Fun(C, Chebyshev())
         @test Polynomials.coeffs(C) == coefficients(f)
         @test C(0.2) ≈ f(0.2)
+        C2 = Polynomials.ChebyshevT(f)
+        @test C == C2
     end
 end
 
