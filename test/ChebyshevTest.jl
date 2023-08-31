@@ -8,6 +8,7 @@ using Test
 using ApproxFunBase: transform!, itransform!
 using ApproxFunBaseTest: testspace
 using ApproxFunOrthogonalPolynomials: forwardrecurrence
+import Polynomials 
 
 include("testutils.jl")
 
@@ -481,6 +482,13 @@ include("testutils.jl")
         @test g(-0.4) ≈ -0.4
 
         @test normalizedspace(NS) == NS
+    end
+
+    @testset "Polynomials" begin
+        C = Polynomials.ChebyshevT(Float64[1,2,3])
+        f = Fun(C, Chebyshev())
+        @test Polynomials.coeffs(C) == coefficients(f)
+        @test C(0.2) ≈ f(0.2)
     end
 end
 
