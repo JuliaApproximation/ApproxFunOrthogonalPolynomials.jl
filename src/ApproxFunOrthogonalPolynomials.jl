@@ -183,6 +183,7 @@ include("show.jl")
 
 if !isdefined(Base, :get_extension)
     include("../ext/ApproxFunOrthogonalPolynomialsStaticExt.jl")
+    include("../ext/ApproxFunOrthogonalPolynomialsPolynomialsExt.jl")
 end
 
 end
