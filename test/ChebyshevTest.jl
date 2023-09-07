@@ -8,7 +8,7 @@ using Test
 using ApproxFunBase: transform!, itransform!
 using ApproxFunBaseTest: testspace
 using ApproxFunOrthogonalPolynomials: forwardrecurrence
-import Polynomials 
+import Polynomials
 
 include("testutils.jl")
 

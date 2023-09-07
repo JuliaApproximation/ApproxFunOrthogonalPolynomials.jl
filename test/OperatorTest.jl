@@ -111,6 +111,11 @@ include("testutils.jl")
         @time testbandedoperator(A)
 
         @test norm((mul_coefficients(A,f.coefficients))-coefficients(x.*f,rangespace(A))) < 100eps()
+
+        M = Multiplication(Fun(),Chebyshev());
+        @test @inferred(M * M * M) * Fun() ≈ Fun(x->x^4, Chebyshev())
+        M1 = Multiplication(Fun());
+        @test @inferred(M1 * (M * M)) * Fun() ≈ Fun(x->x^4, Chebyshev())
     end
 
     @testset "Integral" begin
