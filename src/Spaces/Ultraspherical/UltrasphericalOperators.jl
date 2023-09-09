@@ -174,7 +174,7 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
     if b==a
         return ConversionWrapper(Operator(I,A))
     elseif isapproxinteger(b-a) || isapproxhalfoddinteger(b-a)
-        if -1 ≤ b-a ≤ 1 && (a,b) ≠ (2,1)
+        if -0.5 ≤ b-a ≤ 1 # -0.5, 0.5 or 1
             return ConcreteConversion(A,B)
         elseif b-a > 1
             r = b:-1:a+1
@@ -251,6 +251,7 @@ end
 
 bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical{<:Integer}}) = 0,2  # order == 1
 bandwidths(C::ConcreteConversion{<:Ultraspherical{<:Integer},<:Ultraspherical{<:Integer}}) = 0,2
+bandwidths(C::ConcreteConversion{<:Ultraspherical{<:HalfOddInteger},<:Ultraspherical{<:HalfOddInteger}}) = 0,2
 
 function bandwidths(C::ConcreteConversion{<:Chebyshev,<:Ultraspherical})
     orderone = order(rangespace(C)) == 1

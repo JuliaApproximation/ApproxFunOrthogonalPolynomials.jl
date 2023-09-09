@@ -38,6 +38,7 @@ include("testutils.jl")
     end
     @testset "Conversion" begin
         # Tests whether invalid/unimplemented arguments correctly throws ArgumentError
+        @test_throws ArgumentError Conversion(Ultraspherical(3), Ultraspherical(2))
         @test_throws ArgumentError Conversion(Ultraspherical(2), Ultraspherical(1))
         @test_throws ArgumentError Conversion(Ultraspherical(3), Ultraspherical(1.9))
 
@@ -144,7 +145,16 @@ include("testutils.jl")
                 CLU = Conversion(Ultraspherical(n1), Ultraspherical(n2))
                 @test !isdiag(CLU)
                 g = CLU * f
-                @test g ≈ Fun(ff, Ultraspherical(n1))
+                @test g ≈ Fun(ff, Ultraspherical(n2))
+            end
+        end
+
+        for n1 in (0.5, 1)
+            f = Fun(ff, Ultraspherical(n1))
+            for n2 in (1, 0.5)
+                CLU = Conversion(Ultraspherical(n1), Ultraspherical(n2))
+                g = CLU * f
+                @test g ≈ Fun(ff, Ultraspherical(n2))
             end
         end
 
