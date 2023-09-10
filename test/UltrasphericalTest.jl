@@ -141,7 +141,7 @@ include("testutils.jl")
         ff = x->x^2 +2x^3 + 3x^4
         for n1 in (0.5, 1)
             f = Fun(ff, Ultraspherical(n1))
-            for n2 in (2.5, 3)
+            for n2 in (1.5, 2.5, 3)
                 CLU = Conversion(Ultraspherical(n1), Ultraspherical(n2))
                 @test !isdiag(CLU)
                 g = CLU * f
@@ -149,14 +149,17 @@ include("testutils.jl")
             end
         end
 
-        for n1 in (0.5, 1)
+        for n1 in (0.5, half(Odd(1)), 1)
             f = Fun(ff, Ultraspherical(n1))
-            for n2 in (1, 0.5)
+            for n2 in (1, 0.5, half(Odd(1)))
                 CLU = Conversion(Ultraspherical(n1), Ultraspherical(n2))
                 g = CLU * f
                 @test g ≈ Fun(ff, Ultraspherical(n2))
             end
         end
+
+        C = Conversion(Ultraspherical(half(Odd(1))), Ultraspherical(half(Odd(3))))
+        @test @inferred (C -> Val(bandwidths(C)))(C) == Val((0,2))
 
         @testset "Normalized" begin
             Tallowed = Union{
