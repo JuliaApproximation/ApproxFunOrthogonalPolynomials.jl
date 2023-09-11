@@ -166,6 +166,26 @@ end
 
 maxspace_rule(A::Ultraspherical,B::Chebyshev) = A
 
+function ultraconv_nonequal(A, B)
+    a=order(A); b=order(B)
+    d=domain(A)
+    if -0.5 ≤ b-a ≤ 1 # -0.5, 0.5 or 1
+            return ConcreteConversion(A,B)
+    elseif b-a > 1
+        r = b:-1:a+1
+        v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in r]
+        if !(last(r) ≈ a+1)
+            vlast = ConcreteConversion(A, Ultraspherical(last(r)-1, d))
+            v2 = Union{eltype(v), typeof(vlast)}[v; vlast]
+        else
+            v2 = v
+        end
+        bwsum = isapproxinteger(b-a) ? (0, 2length(v)) : (0,ℵ₀)
+        return ConversionWrapper(TimesOperator(v2, bwsum, (ℵ₀,ℵ₀), bwsum), A, B)
+    else
+        throw(ArgumentError("please implement $A → $B"))
+    end
+end
 
 function Conversion(A::Ultraspherical,B::Ultraspherical)
     @assert domain(A) == domain(B)
@@ -174,20 +194,7 @@ function Conversion(A::Ultraspherical,B::Ultraspherical)
     if b==a
         return ConversionWrapper(Operator(I,A))
     elseif isapproxinteger(b-a) || isapproxhalfoddinteger(b-a)
-        if -0.5 ≤ b-a ≤ 1 # -0.5, 0.5 or 1
-            return ConcreteConversion(A,B)
-        elseif b-a > 1
-            r = b:-1:a+1
-            v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in r]
-            if !(last(r) ≈ a+1)
-                vlast = ConcreteConversion(A, Ultraspherical(last(r)-1, d))
-                v2 = Union{eltype(v), typeof(vlast)}[v; vlast]
-            else
-                v2 = v
-            end
-            bwsum = isapproxinteger(b-a) ? (0, 2length(v)) : (0,ℵ₀)
-            return ConversionWrapper(TimesOperator(v2, bwsum, (ℵ₀,ℵ₀), bwsum), A, B)
-        end
+        return ultraconv_nonequal(A, B)
     end
     throw(ArgumentError("please implement $A → $B"))
 end
