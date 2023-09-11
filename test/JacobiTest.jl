@@ -75,14 +75,14 @@ include("testutils.jl")
                     @testset for J in (J1, NormalizedPolynomialSpace(J1))
                         g = Fun(f, J)
                         if !any(isnan, coefficients(g))
-                            @test Conversion(C, J) * f ≈ g
+                            @test @inferred(Conversion(C, J) * f) ≈ g
                         end
                     end
                 end
                 # Jacobi(-0.5, -0.5) to NormalizedJacobi(-0.5, -0.5) can have a NaN in the (1,1) index
                 # if the normalization is not carefully implemented,
                 # so this test checks that this is not the case
-                g = Conversion(Jacobi(-0.5,-0.5), NormalizedJacobi(-0.5,-0.5)) * Fun(x->x^3, Jacobi(-0.5, -0.5))
+                g = @inferred Conversion(Jacobi(-0.5,-0.5), NormalizedJacobi(-0.5,-0.5)) * Fun(x->x^3, Jacobi(-0.5, -0.5))
                 @test coefficients(g) ≈ coefficients(Fun(x->x^3, NormalizedChebyshev()))
             end
             @testset "Legendre" begin
@@ -93,7 +93,7 @@ include("testutils.jl")
                     @testset for J in (J1, NormalizedPolynomialSpace(J1))
                         g = Fun(f, J)
                         if !any(isnan, coefficients(g))
-                            @test Conversion(C, J) * f ≈ g
+                            @test @inferred(Conversion(C, J) * f) ≈ g
                         end
                     end
                 end
@@ -106,7 +106,7 @@ include("testutils.jl")
                     @testset for J in (J1, NormalizedPolynomialSpace(J1))
                         g = Fun(f, J)
                         if !any(isnan, coefficients(g))
-                            @test Conversion(U, J) * f ≈ g
+                            @test @inferred(Conversion(U, J) * f) ≈ g
                         end
                     end
                 end
@@ -119,7 +119,7 @@ include("testutils.jl")
                     @testset for J in (J1,)
                         g = Fun(f, J)
                         if !any(isnan, coefficients(g))
-                            @test Conversion(U, J) * f ≈ g
+                            @test @inferred(Conversion(U, J) * f) ≈ g
                         end
                     end
                 end
@@ -129,20 +129,20 @@ include("testutils.jl")
         @testset for (S1, S2) in ((Legendre(), Jacobi(-0.5, -0.5)), (Jacobi(-0.5, -0.5), Legendre()),
                 (Legendre(), Jacobi(1.5, 1.5)), (Legendre(), Ultraspherical(0.5)),
                 (Ultraspherical(0.5), Legendre()))
-            @test Conversion(S1, S2) * Fun(x->x^4, S1) ≈ Fun(x->x^4, S2)
+            @test @inferred(Conversion(S1, S2) * Fun(x->x^4, S1)) ≈ Fun(x->x^4, S2)
         end
 
         C = Conversion(Jacobi(Chebyshev()), Ultraspherical(1))
-        @test C * Fun(x->x^2, Jacobi(-0.5, -0.5)) ≈ Fun(x->x^2, Ultraspherical(1))
+        @test @inferred(C * Fun(x->x^2, Jacobi(-0.5, -0.5))) ≈ Fun(x->x^2, Ultraspherical(1))
 
         C = Conversion(Ultraspherical(0.5), Jacobi(Chebyshev()))
-        @test C * Fun(x->x^2, Ultraspherical(0.5)) ≈ Fun(x->x^2, Jacobi(Chebyshev()))
+        @test @inferred(C * Fun(x->x^2, Ultraspherical(0.5))) ≈ Fun(x->x^2, Jacobi(Chebyshev()))
 
         for Lb in -0.5:0.5:2, La in -0.5:0.5:2,
             Mb in Lb:1:4, Ma in La:1:4
                 f = Fun(x -> x^4, Jacobi(Lb, La))
                 g = Fun(x -> x^4, Jacobi(Mb, Ma))
-                h = Conversion(Jacobi(Lb, La), Jacobi(Mb, Ma)) * f
+                h = @inferred Conversion(Jacobi(Lb, La), Jacobi(Mb, Ma)) * f
                 @test space(h) == space(g)
                 @test h ≈ g
         end
@@ -151,7 +151,7 @@ include("testutils.jl")
             La = Lb; Ma = Mb
             f = Fun(x -> x^4, Jacobi(Lb, La))
             g = Fun(x -> x^4, Jacobi(Mb, Ma))
-            h = Conversion(Jacobi(Lb, La), Jacobi(Mb, Ma)) * f
+            h = @inferred Conversion(Jacobi(Lb, La), Jacobi(Mb, Ma)) * f
             @test space(h) == space(g)
             @test h ≈ g
         end
