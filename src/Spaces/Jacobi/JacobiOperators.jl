@@ -144,8 +144,15 @@ function _conversion_shiftordersbyone(L::Jacobi, M::Jacobi)
     # Conversion(J, M) = Conversion(Jacobi(M.b, L.a, dm), Jacobi(M.b, M.a, dm))
     CLJ = [ConcreteConversion(Jacobi(b-1,L.a,dm), Jacobi(b, L.a, dm)) for b in M.b:-1:L.b+1]
     CJM = [ConcreteConversion(Jacobi(M.b,a-1,dm), Jacobi(M.b, a, dm)) for a in M.a:-1:L.a+1]
-    C = [CJM; CLJ]
-    return ConversionWrapper(TimesOperator(C), L, M)
+    bw = bandwidthssum(bandwidths, CLJ) .+ bandwidthssum(bandwidths, CJM)
+    bbw = bandwidthssum(blockbandwidths, CLJ) .+ bandwidthssum(blockbandwidths, CJM)
+    sbbw = bandwidthssum(subblockbandwidths, CLJ) .+ bandwidthssum(subblockbandwidths, CJM)
+    op1 = isempty(CJM) ? CLJ[1] : CJM[1]
+    opend = isempty(CLJ) ? CJM[end] : CLJ[end]
+    ts = (size(op1, 1), size(opend, 2))
+    # we deliberately use Operator{T} to improve type-stability in Conversion
+    C = Operator{eltype(eltype(CLJ))}[CJM; CLJ]
+    return ConversionWrapper(TimesOperator(C, bw, ts, bbw, sbbw), L, M)
 end
 
 ## Conversion
@@ -162,43 +169,60 @@ function Conversion(L::Jacobi,M::Jacobi)
     dm=domain(M)
     dl=domain(L)
 
-    if isapproxinteger(L.a-M.a) && isapproxinteger(L.b-M.b) && M.b >= L.b && M.a >= L.a
-        if isapprox(L.a,M.a) && isapprox(L.b,M.b)
+    La, Lb = L.a, L.b
+    Ma, Mb = M.a, M.b
+
+    if isapproxinteger(La-Ma) && isapproxinteger(Lb-Mb) && Mb >= Lb && Ma >= La
+        if isapprox(La,Ma) && isapprox(Lb,Mb)
             return ConversionWrapper(Operator(I,L), L, M)
-        elseif (isapprox(L.b+1,M.b) && isapprox(L.a,M.a)) ||
-                (isapprox(L.b,M.b) && isapprox(L.a+1,M.a))
+        elseif (isapprox(Lb+1,Mb) && isapprox(La,Ma)) ||
+                (isapprox(Lb,Mb) && isapprox(La+1,Ma))
             return ConcreteConversion(L,M)
-        elseif L.a ≈ L.b && isapproxminhalf(L.a) && M.a ≈ M.b
+        elseif La ≈ Lb && isapproxminhalf(La) && Ma ≈ Mb
             C = Chebyshev(dl)
             Conv_LC = ConcreteConversion(L, C)
             U = Ultraspherical(M)
             Conv_UM = ConcreteConversion(U, M)
             return ConversionWrapper(Conv_UM * Conversion(C, U) * Conv_LC, L, M)
             # return Conversion(L,Chebyshev(dl),Ultraspherical(M),M)
-        elseif L.a ≈ L.b && M.a ≈ M.b && isapproxminhalf(M.a)
+        elseif La ≈ Lb && Ma ≈ Mb && isapproxminhalf(Ma)
             C = Chebyshev(dm)
             Conv_CM = ConcreteConversion(C, M)
             U = Ultraspherical(L)
             Conv_LU = ConcreteConversion(L, U)
             return ConversionWrapper(Conv_CM * Conversion(U, C) * Conv_LU, L, M)
             # return Conversion(L,Ultraspherical(L),Chebyshev(dm),M)
-        elseif L.a ≈ L.b && M.a ≈ M.b
+        elseif La ≈ Lb && Ma ≈ Mb
+            UL = Ultraspherical(L)
+            Conv_LU = ConcreteConversion(L, UL)
+            UM = Ultraspherical(M)
+            Conv_UM = ConcreteConversion(UM, M)
+            return ConversionWrapper(Conv_UM * ultraconv_nonequal(UL, UM) * Conv_LU, L, M)
+            # return Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
+        else
+            return _conversion_shiftordersbyone(L, M)
+        end
+    elseif isapproxhalfoddinteger(La - Ma) && isapproxhalfoddinteger(Lb - Mb)
+        if La ≈ Lb && Ma ≈ Mb && isapproxminhalf(Ma)
+            C = Chebyshev(dm)
+            Conv_CM = ConcreteConversion(C, M)
+            U = Ultraspherical(L)
+            Conv_LU = ConcreteConversion(L, U)
+            return ConversionWrapper(Conv_CM * Conversion(U, C) * Conv_LU, L, M)
+            # return Conversion(L,Ultraspherical(L),Chebyshev(dm),M)
+        elseif La ≈ Lb && isapproxminhalf(La) && Ma ≈ Mb && Ma >= La
+            C = Chebyshev(dl)
+            Conv_LC = ConcreteConversion(L, C)
+            U = Ultraspherical(M)
+            Conv_UM = ConcreteConversion(U, M)
+            return ConversionWrapper(Conv_UM * Conversion(C, U) * Conv_LC, L, M)
+            # return Conversion(L,Chebyshev(dl),Ultraspherical(M),M)
+        elseif La ≈ Lb && Ma ≈ Mb && Ma >= La
             UL = Ultraspherical(L)
             Conv_LU = ConcreteConversion(L, UL)
             UM = Ultraspherical(M)
             Conv_UM = ConcreteConversion(UM, M)
             return ConversionWrapper(Conv_UM * Conversion(UL, UM) * Conv_LU, L, M)
-            # return Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
-        else
-            return _conversion_shiftordersbyone(L, M)
-        end
-    elseif isapproxhalfoddinteger(L.a - M.a) && isapproxhalfoddinteger(L.b - M.b)
-        if L.a ≈ L.b && M.a ≈ M.b && isapproxminhalf(M.a)
-            return Conversion(L,Ultraspherical(L),Chebyshev(dm),M)
-        elseif L.a ≈ L.b && isapproxminhalf(L.a) && M.a ≈ M.b && M.a >= L.a
-            return Conversion(L,Chebyshev(dl),Ultraspherical(M),M)
-        elseif L.a ≈ L.b && M.a ≈ M.b && M.a >= L.a
-            return Conversion(L,Ultraspherical(L),Ultraspherical(M),M)
         end
     end
 
@@ -279,7 +303,7 @@ function Conversion(A::Jacobi, B::Chebyshev)
         ConversionWrapper(SpaceOperator(ConcreteConversion(Ultraspherical(A), B), A, B))
     elseif A.a == A.b
         US = Ultraspherical(A)
-        ConversionWrapper(SpaceOperator(TimesOperator(Conversion(US,B), ConcreteConversion(A,US)), A, B))
+        ConversionWrapper(TimesOperator(Conversion(US,B), ConcreteConversion(A,US)), A, B)
     else
         J = Jacobi(B)
         ConcreteConversion(J,B)*Conversion(A,J)
@@ -294,7 +318,7 @@ function Conversion(A::Chebyshev, B::Jacobi)
         ConversionWrapper(SpaceOperator(ConcreteConversion(A, Ultraspherical(B)), A, B))
     elseif B.a == B.b
         US = Ultraspherical(B)
-        ConversionWrapper(SpaceOperator(TimesOperator(ConcreteConversion(US,B), Conversion(A,US)), A, B))
+        ConversionWrapper(TimesOperator(ConcreteConversion(US,B), Conversion(A,US)), A, B)
     else
         J = Jacobi(A)
         Conversion(J,B)*ConcreteConversion(A,J)
@@ -306,16 +330,16 @@ end
     @assert domain(A) == domain(B)
     if isequalminhalf(A.a) && isequalminhalf(A.b)
         C = Chebyshev(domain(A))
-        ConversionWrapper(SpaceOperator(
-            TimesOperator(Conversion(C,B), ConcreteConversion(A,C)), A, B))
+        ConversionWrapper(
+            TimesOperator(Conversion(C,B), ConcreteConversion(A,C)), A, B)
     elseif isequalminhalf(A.a - order(B)) && isequalminhalf(A.b - order(B))
         ConcreteConversion(A,B)
     elseif A.a == A.b == 0
         ConversionWrapper(SpaceOperator(Conversion(Ultraspherical(A), B), A, B))
     elseif A.a == A.b
         US = Ultraspherical(A)
-        ConversionWrapper(SpaceOperator(
-            TimesOperator(Conversion(US,B), ConcreteConversion(A,US)), A, B))
+        ConversionWrapper(
+            TimesOperator(Conversion(US,B), ConcreteConversion(A,US)), A, B)
     else
         J = Jacobi(B)
         ConcreteConversion(J,B)*Conversion(A,J)
@@ -326,16 +350,16 @@ end
     @assert domain(A) == domain(B)
     if isequalminhalf(B.a) && isequalminhalf(B.b)
         C = Chebyshev(domain(B))
-        ConversionWrapper(SpaceOperator(
-            TimesOperator(ConcreteConversion(C, B), Conversion(A, C)), A, B))
+        ConversionWrapper(
+            TimesOperator(ConcreteConversion(C, B), Conversion(A, C)), A, B)
     elseif isequalminhalf(B.a - order(A)) && isequalminhalf(B.b - order(A))
         ConcreteConversion(A,B)
     elseif B.a == B.b == 0
         ConversionWrapper(SpaceOperator(Conversion(A, Ultraspherical(B)), A, B))
     elseif B.a == B.b
         US = Ultraspherical(B)
-        ConversionWrapper(SpaceOperator(
-            TimesOperator(ConcreteConversion(US,B), Conversion(A,US)), A, B))
+        ConversionWrapper(
+            TimesOperator(ConcreteConversion(US,B), Conversion(A,US)), A, B)
     else
         J = Jacobi(A)
         Conversion(J,B)*ConcreteConversion(A,J)

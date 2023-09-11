@@ -85,7 +85,7 @@ include("testutils.jl")
                 g = Conversion(Jacobi(-0.5,-0.5), NormalizedJacobi(-0.5,-0.5)) * Fun(x->x^3, Jacobi(-0.5, -0.5))
                 @test coefficients(g) ≈ coefficients(Fun(x->x^3, NormalizedChebyshev()))
             end
-            @testset "legendre" begin
+            @testset "Legendre" begin
                 f = Fun(x->x^2, Legendre(d))
                 C = space(f)
                 for J1 in (Jacobi(-0.5, -0.5, d), Legendre(d),
@@ -137,6 +137,24 @@ include("testutils.jl")
 
         C = Conversion(Ultraspherical(0.5), Jacobi(Chebyshev()))
         @test C * Fun(x->x^2, Ultraspherical(0.5)) ≈ Fun(x->x^2, Jacobi(Chebyshev()))
+
+        for Lb in -0.5:0.5:2, La in -0.5:0.5:2,
+            Mb in Lb:1:4, Ma in La:1:4
+                f = Fun(x -> x^4, Jacobi(Lb, La))
+                g = Fun(x -> x^4, Jacobi(Mb, Ma))
+                h = Conversion(Jacobi(Lb, La), Jacobi(Mb, Ma)) * f
+                @test space(h) == space(g)
+                @test h ≈ g
+        end
+
+        for Lb in -0.5:0.5:2, Mb in Lb:0.5:4
+            La = Lb; Ma = Mb
+            f = Fun(x -> x^4, Jacobi(Lb, La))
+            g = Fun(x -> x^4, Jacobi(Mb, Ma))
+            h = Conversion(Jacobi(Lb, La), Jacobi(Mb, Ma)) * f
+            @test space(h) == space(g)
+            @test h ≈ g
+        end
 
         @testset "inference tests" begin
             #= Note all cases are inferred as of now,
