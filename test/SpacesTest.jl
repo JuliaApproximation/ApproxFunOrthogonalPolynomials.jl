@@ -254,6 +254,12 @@ using ApproxFunBaseTest: testbandedoperator, testraggedbelowoperator,
         @test angle(f)(2.0) ≈ 0
     end
 
+    @testset "ConstantSpace" begin
+        f = Fun(3, ConstantSpace(0..1))
+
+        @test norm(f) == 3
+    end
+
     @testset "Jump Locations" begin
         x = Fun(UnionDomain(0..1, 2..3))
         @test length(jumplocations(sign(x))) == 0
