@@ -30,7 +30,7 @@ ApproxFunOrthogonalPolynomialsPolynomialsExt = "Polynomials"
 ApproxFunOrthogonalPolynomialsStaticExt = "Static"
 
 [compat]
-ApproxFunBase = "0.8.58, 0.9.15"
+ApproxFunBase = "0.8.60, 0.9.16"
 ApproxFunBaseTest = "0.1"
 Aqua = "0.7"
 BandedMatrices = "0.16, 0.17"

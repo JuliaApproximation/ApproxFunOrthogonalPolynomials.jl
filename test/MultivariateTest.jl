@@ -72,6 +72,12 @@ include("testutils.jl")
         end
     end
 
+    @testset "points" begin
+        S = Chebyshev(1..2) ⊗ Chebyshev(3..4)
+        @test all(p ∈ domain(factor(S, 1)) for p in points(S, 10, 10)[1])
+        @test all(p ∈ domain(factor(S, 2)) for p in points(S, 10, 10)[2])
+    end
+
     @testset "Evaluation" begin
 
         @testset "2D" begin
