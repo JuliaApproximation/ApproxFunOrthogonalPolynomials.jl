@@ -11,6 +11,7 @@ using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace,
                     testfunctional
 using ApproxFunOrthogonalPolynomials: jacobip
 using BandedMatrices
+using BandedMatrices: isbanded
 using BlockArrays
 using BlockBandedMatrices
 using StaticArrays: SVector
@@ -705,10 +706,10 @@ include("testutils.jl")
             xNC = Fun(NormalizedChebyshev())
             @test (Multiplication(xC) * xJ)(0.4) ≈ (0.4)^2
             @test (Multiplication(xNC) * xJ)(0.4) ≈ (0.4)^2
-            @test ApproxFunBase.isbanded(Multiplication(xC, NormalizedLegendre()))
-            @test ApproxFunBase.isbanded(Multiplication(xNC, NormalizedLegendre()))
-            @test ApproxFunBase.isbanded(Multiplication(xC, NormalizedJacobi(1,1)))
-            @test ApproxFunBase.isbanded(Multiplication(xNC, NormalizedJacobi(1,1)))
+            @test isbanded(Multiplication(xC, NormalizedLegendre()))
+            @test isbanded(Multiplication(xNC, NormalizedLegendre()))
+            @test isbanded(Multiplication(xC, NormalizedJacobi(1,1)))
+            @test isbanded(Multiplication(xNC, NormalizedJacobi(1,1)))
         end
 
         @testset "space promotion" begin
