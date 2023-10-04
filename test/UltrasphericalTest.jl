@@ -3,6 +3,7 @@ module UltrasphericalTest
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using BandedMatrices
+using BandedMatrices: isbanded
 using HalfIntegers
 using LinearAlgebra
 using OddEvenIntegers
