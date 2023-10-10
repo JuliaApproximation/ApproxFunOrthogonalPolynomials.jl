@@ -4,7 +4,6 @@ using ApproxFunOrthogonalPolynomials
 using SpecialFunctions
 using LinearAlgebra
 using Test
-using DomainSets
 using DomainSets: UnionDomain
 using ApproxFunBase: space, SpaceOperator
 using ApproxFunBaseTest: testbandedoperator, testraggedbelowoperator,
