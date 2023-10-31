@@ -2,7 +2,9 @@ module ApproxFunOrthogonalPolynomialsPolynomialsExt
 
 using ApproxFunOrthogonalPolynomials
 import Polynomials
-import ApproxFunBase: Fun
+# Specifying the full namespace is necessary because of https://github.com/JuliaLang/julia/issues/48533
+# See https://github.com/JuliaStats/LogExpFunctions.jl/pull/63
+import ApproxFunOrthogonalPolynomials.ApproxFunBase: Fun
 
 Fun(C::Polynomials.ChebyshevT, s::Chebyshev{<:ChebyshevInterval}) =
 	Fun(s, float.(Polynomials.coeffs(C)))
