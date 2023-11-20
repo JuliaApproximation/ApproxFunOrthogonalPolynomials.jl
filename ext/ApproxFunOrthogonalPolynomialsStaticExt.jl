@@ -99,5 +99,6 @@ AFOP.conversion_rule(a::Ultraspherical{<:Union{Integer, StaticInt}},
         b::Ultraspherical{<:Union{Integer, StaticInt}}) =
     AFOP._conversion_rule(a, b)
 
+AFOP.compare_op(::StaticInt, args...) = ==
 
 end
