@@ -324,7 +324,12 @@ include("testutils.jl")
             @test f1 == f2
             @test D1 * f1 == D2 * f2
 
-            @test (@inferred (D1 -> eltype(D1 + D1))(D1)) == eltype(D1)
+            if VERSION < v"1.10-"
+                ElT = @inferred (D1 -> eltype(D1 + D1))(D1)
+                @test ElT == eltype(D1)
+            else
+                @test_broken @inferred((D1 -> eltype(D1 + D1))(D1)) == eltype(D1)
+            end
         end
 
         @testset "space promotion" begin
