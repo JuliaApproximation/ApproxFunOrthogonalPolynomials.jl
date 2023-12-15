@@ -325,10 +325,10 @@ include("testutils.jl")
             @test D1 * f1 == D2 * f2
 
             if VERSION < v"1.10-"
-                @inferred (D1 -> eltype(D1 + D1))(D1)
+                ElT = @inferred (D1 -> eltype(D1 + D1))(D1)
                 @test ElT == eltype(D1)
             else
-                @test_broken @inferred (D1 -> eltype(D1 + D1))(D1)
+                @test_broken @inferred((D1 -> eltype(D1 + D1))(D1)) == eltype(D1)
             end
         end
 
