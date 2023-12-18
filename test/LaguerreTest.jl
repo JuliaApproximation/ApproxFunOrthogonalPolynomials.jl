@@ -10,11 +10,15 @@ include("testutils.jl")
 
 @verbose @testset "Laguerre and WeightedLaguerre" begin
     @testset "Ray" begin
-        r = VERSION >= v"1.8" ? @inferred(Ray(0..Inf)) : Ray(0..Inf)
+        r = Ray(0..Inf)
         L = Laguerre(1.0,r)
         f = x -> exp.(-x)
         F = Fun(f, L)
         @test F(.3) ≈ -F'(.3)
+    end
+    @testset "angle" begin
+        @test angle(Ray(complex(-Inf)..complex(0.0))) ≈ angle(Ray(-Inf..0.0))
+        @test angle(Ray(complex(0.0)..complex(Inf))) ≈ angle(Ray(0.0..Inf))
     end
     @testset "General scaled rays" begin
         r = @inferred (() -> Ray(-1.0,0.0,2.0,true))()

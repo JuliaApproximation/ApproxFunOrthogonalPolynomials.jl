@@ -48,7 +48,7 @@ Ray() = Ray{false}()
 ##deal with vector
 
 _rayangle(x) = angle(x)
-_rayangle(x::Real) = 0
+_rayangle(x::Real) = signbit(x) * oftype(float(x), pi)
 
 function convert(::Type{Ray}, d::AbstractInterval)
     a,b = endpoints(d)
