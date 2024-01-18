@@ -126,25 +126,6 @@ include("testutils.jl")
         end
     end
 
-    @testset "other domains" begin
-        ef = Fun(exp,1..2)
-        cf = Fun(cos,1..2)
-
-        ecf = Fun(x->cos(x).*exp(x),1..2)
-        eocf = Fun(x->cos(x)./exp(x),1..2)
-
-        x=1.5
-        @test ef(x) ≈ exp(x)
-
-        r=rand(100) .+ 1
-        @test maximum(abs,ef.(r)-exp.(r))<400eps()
-        @test maximum(abs,ecf.(r).-cos.(r).*exp.(r))<100eps()
-
-        @testset "setdomain" begin
-            @test setdomain(NormalizedChebyshev(0..1), 1..2) == NormalizedChebyshev(1..2)
-        end
-    end
-
     @testset "Other interval" begin
         ef = Fun(exp,1..2)
         cf = Fun(cos,1..2)
@@ -170,6 +151,13 @@ include("testutils.jl")
 
         @test sum(ef) ≈ 4.670774270471604
         @test norm(ef) ≈ 4.858451087240335
+
+        @testset "setdomain" begin
+            @test setdomain(NormalizedChebyshev(0..1), 1..2) == NormalizedChebyshev(1..2)
+        end
+
+        fexp = @inferred Fun(exp, Chebyshev(big(-1.0) .. big(1.0)))
+        @test fexp(0.5) ≈ exp(big(0.5))
     end
 
     @testset "Roots" begin
