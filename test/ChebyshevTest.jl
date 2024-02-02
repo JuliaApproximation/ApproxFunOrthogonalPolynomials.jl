@@ -329,6 +329,18 @@ include("testutils.jl")
             @test space(1 + Fun(NormalizedChebyshev())) == NormalizedChebyshev()
             @test space(1 + Fun(NormalizedChebyshev(0..1))) == NormalizedChebyshev(0..1)
         end
+
+        @testset "evaluate with OneElement" begin
+            g = NormalizedChebyshev()(3)
+            f = Fun(Chebyshev(), [0,0,0,√(2/π)])
+            @test g(0.1) ≈ f(0.1)
+        end
+
+        @testset "Conversion * OneElement" begin
+            g = Chebyshev()(3)
+            f = Conversion(Chebyshev(), NormalizedChebyshev()) * g
+            @test f ≈ Fun(x->-3x+4x^3, NormalizedChebyshev())
+        end
     end
 
     @testset "Operator exponentiation" begin
