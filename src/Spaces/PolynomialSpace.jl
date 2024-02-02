@@ -503,6 +503,8 @@ function maxspace_rule(a::NormalizedPolynomialSpace, b::NormalizedPolynomialSpac
     S isa NoSpace ? S : NormalizedPolynomialSpace(S)
 end
 
+# Conversion
+
 bandwidths(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S}) where {S,D,R} = (0, 0)
 bandwidths(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R}}) where {S,D,R} = (0, 0)
 
@@ -538,6 +540,26 @@ function getindex(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R},T},k:
     end
 end
 
+# this is only evaluated if FillArrays >= v1 is used
+@static if isdefined(FillArrays, :OneElement)
+    ## Special OneElement conversion
+    function _mul_coefficients_concreteconv(C, v)
+        Base.require_one_based_indexing(v)
+        nzind = v.ind[1]
+        Cnzind = C[nzind, nzind]
+        OneElement(Cnzind * v.val, v.ind, axes(v))
+    end
+    function mul_coefficients(C::ConcreteConversion{<:NormalizedPolynomialSpace{S}, S},
+                                v::OneElement{<:Any,1}) where {S<:PolynomialSpace}
+        _mul_coefficients_concreteconv(C, v)
+    end
+    function mul_coefficients(C::ConcreteConversion{S, <:NormalizedPolynomialSpace{S}},
+                                v::OneElement{<:Any,1}) where {S<:PolynomialSpace}
+        _mul_coefficients_concreteconv(C, v)
+    end
+end
+
+# Evaluation
 function getindex(op::ConcreteEvaluation{<:NormalizedPolynomialSpace}, k::Integer)
     S = domainspace(op)
     ec = Evaluation(canonicalspace(S), op.x, op.order)[k]
@@ -610,3 +632,12 @@ ApproxFunBase.hasconcreteconversion_canonical(
 
 rangespace(M::MultiplicationWrapper{<:PolynomialSpace,
         <:NormalizedPolynomialSpace}) = domainspace(M)
+
+# evaluation in a normalized space may use the fact that the conversion is concrete
+# this improves type-inference, and hence performance
+function evaluate(f::AbstractVector, S::NormalizedPolynomialSpace, x...)
+    csp = canonicalspace(S)
+    C = Conversion_normalizedspace(csp, Val(:backward))
+    f_csp = mul_coefficients(C, f)
+    evaluate(f_csp, csp, x...)
+end
