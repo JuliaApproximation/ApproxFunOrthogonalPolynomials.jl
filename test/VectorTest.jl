@@ -229,7 +229,7 @@ include("testutils.jl")
 
         L = [Dg; B_row]
         testraggedbelowoperator(L)
-        @test ([Dg; B_row]*[f;f;f;f])(0.1) ≈ [fill(1.0,4);0]
+        @test ([Dg; B_row]*[f;f;f;f])(leftendpoint(d)) ≈ [fill(1.0,4);0]
 
         @test hcat(Dg).ops == Dg.ops
 
