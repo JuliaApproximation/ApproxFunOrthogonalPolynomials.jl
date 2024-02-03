@@ -274,6 +274,11 @@ include("testutils.jl")
         end
     end
 
+    @testset "transform with immutable coeffs" begin
+        @test transform(Chebyshev(), itransform(Chebyshev(), 1:3)) ≈ 1:3
+        @test itransform(Chebyshev(), transform(Chebyshev(), 1:3)) ≈ 1:3
+    end
+
     @testset "Normalized space" begin
         @test NormalizedChebyshev() isa NormalizedChebyshev
         for f in (x -> 3x^3 + 5x^2 + 2, x->x, identity)
