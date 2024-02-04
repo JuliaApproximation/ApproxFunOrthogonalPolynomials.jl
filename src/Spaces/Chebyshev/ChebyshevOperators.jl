@@ -13,9 +13,9 @@ recγ(::Type{T},::Chebyshev,k) where {T} = one(T)/2   # one(T) ensures we get co
 
 ## Evaluation
 
-Evaluation(S::MaybeNormalized{<:Chebyshev},x::Number,o::Integer) = ConcreteEvaluation(S,x,o)
+Evaluation(S::MaybeNormalized{<:Chebyshev}, x::Number, o::Integer) = ConcreteEvaluation(S,x,o)
 
-function evaluatechebyshev(n::Integer,x::T) where T<:Number
+function evaluatechebyshev(n::Integer, x::T) where T<:Number
     if n == 1
         [one(T)]
     else
@@ -33,7 +33,7 @@ function evaluatechebyshev(n::Integer,x::T) where T<:Number
 end
 
 # We assume that x is already scaled to the canonical domain. S is unused here
-function forwardrecurrence(::Type{T},S::Chebyshev,r::AbstractUnitRange{<:Integer},x::Number) where {T}
+function forwardrecurrence(::Type{T}, S::Chebyshev, r::AbstractUnitRange{<:Integer}, x::Number) where {T}
     @assert !isempty(r) && first(r) >= 0
     v = evaluatechebyshev(maximum(r)+1, T(x))
     first(r) == 0 ? v : v[r .+ 1]
@@ -64,7 +64,8 @@ function _getindex_eval_leftendpoint(op::ConcreteEvaluation{<:Chebyshev{<:Interv
         op[j:j][1]
     end
 end
-function _getindex_eval_rightendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}}, x, j::Integer)
+function _getindex_eval_rightendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}},
+                                        x, j::Integer)
     T=eltype(op)
     if op.order == 0
         one(T)
@@ -73,7 +74,8 @@ function _getindex_eval_rightendpoint(op::ConcreteEvaluation{<:Chebyshev{<:Inter
         op[j:j][1]
     end
 end
-function _getindex_eval_leftendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}}, x, k::AbstractUnitRange)
+function _getindex_eval_leftendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}},
+                                        x, k::AbstractUnitRange)
     Base.require_one_based_indexing(k)
     T=eltype(op)
     x = op.x
@@ -96,7 +98,8 @@ function _getindex_eval_leftendpoint(op::ConcreteEvaluation{<:Chebyshev{<:Interv
 
     scal!(cst,ret)
 end
-function _getindex_eval_rightendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}}, x, k::AbstractUnitRange)
+function _getindex_eval_rightendpoint(op::ConcreteEvaluation{<:Chebyshev{<:IntervalOrSegment}},
+                                        x, k::AbstractUnitRange)
     Base.require_one_based_indexing(k)
     T=eltype(op)
     x = op.x
@@ -134,8 +137,7 @@ else
     end
 end
 
-function getindex(op::ConcreteDirichlet{<:Chebyshev},
-                                             k::Integer,j::Integer)
+function getindex(op::ConcreteDirichlet{<:Chebyshev}, k::Integer, j::Integer)
     if op.order == 0
         k == 1 && iseven(j) && return -one(eltype(op))
         return one(eltype(op))
@@ -144,8 +146,8 @@ function getindex(op::ConcreteDirichlet{<:Chebyshev},
     end
 end
 
-function Matrix(S::SubOperator{T,ConcreteDirichlet{C,V,T},
-                                NTuple{2,UnitRange{Int}}}) where {C<:Chebyshev,V,T}
+function Matrix(S::SubOperator{T,<:ConcreteDirichlet{<:Chebyshev,<:Any,T},
+                                NTuple{2,UnitRange{Int}}}) where {T}
     ret = Array{T}(undef, size(S)...)
     kr,jr = parentindices(S)
     isempty(kr) && return ret
@@ -168,13 +170,12 @@ end
 
 # Multiplication
 
-Base.stride(M::ConcreteMultiplication{U,V}) where {U<:Chebyshev,V<:Chebyshev} =
-    stride(M.f)
+Base.stride(M::ConcreteMultiplication{<:Chebyshev,<:Chebyshev}) = stride(M.f)
 
-getindex(M::ConcreteMultiplication{C,C,T},k::Integer,j::Integer) where {T,C<:Chebyshev} =
+getindex(M::ConcreteMultiplication{C,C},k::Integer,j::Integer) where {C<:Chebyshev} =
     chebmult_getindex(coefficients(M.f),k,j)
 
-getindex(M::ConcreteMultiplication{C,PS,T},k::Integer,j::Integer) where {PS<:PolynomialSpace,T,C<:Chebyshev} =
+getindex(M::ConcreteMultiplication{<:Chebyshev,<:PolynomialSpace},k::Integer,j::Integer) =
     M[k:k,j:j][1,1]
 
 
@@ -211,21 +212,21 @@ end
 
 ## Derivative
 
-function Derivative(sp::Chebyshev{DD},order::Number) where {DD<:IntervalOrSegment}
+function Derivative(sp::Chebyshev{<:IntervalOrSegment}, order::Number)
     assert_integer(order)
     ConcreteDerivative(sp,order)
 end
 
 
-rangespace(D::ConcreteDerivative{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment,RR} =
+rangespace(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}) =
     Ultraspherical(D.order,domain(D))
 
-bandwidths(D::ConcreteDerivative{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment,RR} = -D.order,D.order
-Base.stride(D::ConcreteDerivative{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment,RR} = D.order
+bandwidths(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}) = -D.order,D.order
+Base.stride(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}) = D.order
 
 isdiag(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}) = false
 
-function getindex(D::ConcreteDerivative{Chebyshev{DD,RR},K,T},k::Integer,j::Integer) where {DD<:IntervalOrSegment,RR,K,T}
+function getindex(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment},<:Any,T},k::Integer,j::Integer) where {T}
     m=D.order
     d=domain(D)
 
@@ -237,7 +238,7 @@ function getindex(D::ConcreteDerivative{Chebyshev{DD,RR},K,T},k::Integer,j::Inte
     end
 end
 
-linesum(f::Fun{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment,RR} =
+linesum(f::Fun{<:Chebyshev{<:IntervalOrSegment}}) =
     sum(setcanonicaldomain(f))*arclength(domain(f))/2
 
 
@@ -247,8 +248,8 @@ linesum(f::Fun{Chebyshev{DD,RR}}) where {DD<:IntervalOrSegment,RR} =
 for (Func,Len) in ((:DefiniteIntegral,:complexlength),(:DefiniteLineIntegral,:arclength))
     ConcFunc = Symbol(:Concrete, Func)
     @eval begin
-        $Func(S::Chebyshev{D}) where {D<:IntervalOrSegment} = $ConcFunc(S)
-        function getindex(Σ::$ConcFunc{Chebyshev{D,R},T},k::Integer) where {D<:IntervalOrSegment,R,T}
+        $Func(S::Chebyshev{<:IntervalOrSegment}) = $ConcFunc(S)
+        function getindex(Σ::$ConcFunc{<:Chebyshev{<:IntervalOrSegment},T}, k::Integer) where {T}
             d = domain(Σ)
             C = $Len(d)/2
 
