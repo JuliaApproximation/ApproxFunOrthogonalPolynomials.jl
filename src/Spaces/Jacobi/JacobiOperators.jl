@@ -1,7 +1,7 @@
 ## Derivative
 
 # specialize Derivative so that this is type-inferred even without constant propagation
-Derivative(J::Jacobi) = ConcreteDerivative(J,1)
+Derivative(J::MaybeNormalized{<:Jacobi}) = ConcreteDerivative(J,1)
 @inline function _Derivative(J::Jacobi, k::Number)
     assert_integer(k)
     if k==1
@@ -20,9 +20,9 @@ else
 end
 
 
-rangespace(D::ConcreteDerivative{<:Jacobi}) = Jacobi(D.space.b+D.order,D.space.a+D.order,domain(D))
-bandwidths(D::ConcreteDerivative{<:Jacobi}) = -D.order,D.order
-isdiag(D::ConcreteDerivative{<:Jacobi}) = false
+rangespace(D::ConcreteDerivative{<:MaybeNormalized{<:Jacobi}}) = Jacobi(D.space.b+D.order,D.space.a+D.order,domain(D))
+bandwidths(D::ConcreteDerivative{<:MaybeNormalized{<:Jacobi}}) = -D.order,D.order
+isdiag(D::ConcreteDerivative{<:MaybeNormalized{<:Jacobi}}) = false
 
 getindex(T::ConcreteDerivative{<:Jacobi}, k::Integer, j::Integer) =
     j==k+1 ? eltype(T)((k+1+T.space.a+T.space.b)/complexlength(domain(T))) : zero(eltype(T))
