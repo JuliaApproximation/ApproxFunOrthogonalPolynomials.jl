@@ -641,3 +641,12 @@ function evaluate(f::AbstractVector, S::NormalizedPolynomialSpace, x...)
     f_csp = mul_coefficients(C, f)
     evaluate(f_csp, csp, x...)
 end
+
+# Methods for concrete operators in normalized spaces
+function getindex(D::ConcreteDerivative{<:NormalizedPolynomialSpace}, k::Integer, j::Integer)
+    sp = domainspace(D)
+    csp = canonicalspace(sp)
+    Dcsp = ConcreteDerivative(csp, D.order)
+    C = Conversion_normalizedspace(csp, Val(:backward))
+    Dcsp[k, j] * C[j, j]
+end
