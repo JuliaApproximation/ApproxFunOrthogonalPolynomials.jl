@@ -404,6 +404,33 @@ include("testutils.jl")
         @test D * Fun(x->x^3, Legendre(0..1)) ≈ Fun(x->6x, Legendre(0..1))
     end
 
+    @testset "derivative in normalized space" begin
+        s1 = NormalizedLegendre(-1..1)
+        s2 = NormalizedLegendre()
+        @test s1 == s2
+        D1 = if VERSION >= v"1.8"
+            @inferred Derivative(s1)
+        else
+            Derivative(s1)
+        end
+        D2 = if VERSION >= v"1.8"
+            @inferred Derivative(s2)
+        else
+            Derivative(s2)
+        end
+        @test D1 isa ApproxFunBase.ConcreteDerivative
+        @test D2 isa ApproxFunBase.ConcreteDerivative
+        @test !isdiag(D1)
+        @test !isdiag(D2)
+        @test D1[1,2] ≈ D2[1,2]
+        @test D1[1:10, 1:10] ≈ D2[1:10, 1:10]
+        f = x -> 3x^2 + 5x
+        f1 = Fun(f, s1)
+        f2 = Fun(f, s2)
+        @test f1 == f2
+        @test D1 * f1 == D2 * f2
+    end
+
     @testset "identity Fun for interval domains" begin
         for d in [1..2, -1..1, 10..20], s in Any[Legendre(d), Jacobi(1, 2, d), Jacobi(1.2, 2.3, d)]
             f = Fun(identity, s)
