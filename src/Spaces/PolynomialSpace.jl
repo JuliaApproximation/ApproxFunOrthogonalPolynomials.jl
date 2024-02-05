@@ -430,6 +430,11 @@ end
 
 @containsconstants NormalizedPolynomialSpace
 
+@inline function getproperty(N::NormalizedPolynomialSpace, v::Symbol)
+    ((v == :a) || (v == :b)) && return getproperty(getfield(N, :space), v)
+    getfield(N, v)
+end
+
 domain(S::NormalizedPolynomialSpace) = domain(S.space)
 canonicalspace(S::NormalizedPolynomialSpace) = S.space
 setdomain(NS::NormalizedPolynomialSpace, d::Domain) = NormalizedPolynomialSpace(setdomain(canonicalspace(NS), d))
@@ -505,8 +510,8 @@ end
 
 # Conversion
 
-bandwidths(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S}) where {S,D,R} = (0, 0)
-bandwidths(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R}}) where {S,D,R} = (0, 0)
+bandwidths(::ConcreteConversion{<:NormalizedPolynomialSpace{S},S}) where {S} = (0, 0)
+bandwidths(::ConcreteConversion{S,<:NormalizedPolynomialSpace{S}}) where {S} = (0, 0)
 
 function getindex(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S,T},k::Integer,j::Integer) where {S,D<:IntervalOrSegment,R,T}
     if j==k
@@ -640,4 +645,13 @@ function evaluate(f::AbstractVector, S::NormalizedPolynomialSpace, x...)
     C = Conversion_normalizedspace(csp, Val(:backward))
     f_csp = mul_coefficients(C, f)
     evaluate(f_csp, csp, x...)
+end
+
+# Methods for concrete operators in normalized spaces
+function getindex(D::ConcreteDerivative{<:NormalizedPolynomialSpace}, k::Integer, j::Integer)
+    sp = domainspace(D)
+    csp = canonicalspace(sp)
+    Dcsp = ConcreteDerivative(csp, D.order)
+    C = Conversion_normalizedspace(csp, Val(:backward))
+    Dcsp[k, j] * C[j, j]
 end

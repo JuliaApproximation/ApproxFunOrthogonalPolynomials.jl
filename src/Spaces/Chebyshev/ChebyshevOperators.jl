@@ -212,23 +212,24 @@ end
 
 ## Derivative
 
-function Derivative(sp::Chebyshev{<:IntervalOrSegment}, order::Number)
+function Derivative(sp::MaybeNormalized{<:Chebyshev{<:IntervalOrSegment}}, order::Number)
     assert_integer(order)
     ConcreteDerivative(sp,order)
 end
 
 
-rangespace(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}) =
+rangespace(D::ConcreteDerivative{<:MaybeNormalized{<:Chebyshev{<:IntervalOrSegment}}}) =
     Ultraspherical(D.order,domain(D))
 
-bandwidths(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}) = -D.order,D.order
-Base.stride(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}) = D.order
+bandwidths(D::ConcreteDerivative{<:MaybeNormalized{<:Chebyshev{<:IntervalOrSegment}}}) = -D.order,D.order
+Base.stride(D::ConcreteDerivative{<:MaybeNormalized{<:Chebyshev{<:IntervalOrSegment}}}) = D.order
 
-isdiag(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}) = false
+isdiag(D::ConcreteDerivative{<:MaybeNormalized{<:Chebyshev{<:IntervalOrSegment}}}) = false
 
-function getindex(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment},<:Any,T},k::Integer,j::Integer) where {T}
+function getindex(D::ConcreteDerivative{<:Chebyshev{<:IntervalOrSegment}}, k::Integer, j::Integer)
     m=D.order
     d=domain(D)
+    T = eltype(D)
 
     if j==k+m
         C=strictconvert(T,pochhammer(one(T),m-1)/2*(4/complexlength(d))^m)

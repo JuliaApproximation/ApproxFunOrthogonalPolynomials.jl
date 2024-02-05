@@ -311,6 +311,12 @@ include("testutils.jl")
             else
                 Derivative(s2)
             end
+            @test D1 isa ApproxFunBase.ConcreteDerivative
+            @test D2 isa ApproxFunBase.ConcreteDerivative
+            @test !isdiag(D1)
+            @test !isdiag(D2)
+            @test D1[1,2] ≈ D2[1,2]
+            @test D1[1:10, 1:10] ≈ D2[1:10, 1:10]
             f = x -> 3x^2 + 5x
             f1 = Fun(f, s1)
             f2 = Fun(f, s2)

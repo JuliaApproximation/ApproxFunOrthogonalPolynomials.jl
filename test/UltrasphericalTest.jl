@@ -401,6 +401,34 @@ include("testutils.jl")
         @test M * f ≈ f2
     end
 
+    @testset "Derivative in a normalized space" begin
+        s1 = NormalizedUltraspherical(1,-1..1)
+        s2 = NormalizedUltraspherical(1)
+        @test s1 == s2
+        D1 = if VERSION >= v"1.8"
+            @inferred Derivative(s1)
+        else
+            Derivative(s1)
+        end
+        D2 = if VERSION >= v"1.8"
+            @inferred Derivative(s2)
+        else
+            Derivative(s2)
+        end
+        @test D1 isa ApproxFunBase.ConcreteDerivative
+        @test D2 isa ApproxFunBase.ConcreteDerivative
+        @test !isdiag(D1)
+        @test !isdiag(D2)
+        @test D1[1,2] ≈ D2[1,2]
+        @test D1[1:10, 1:10] ≈ D2[1:10, 1:10]
+        f = x -> 3x^2 + 5x
+        f1 = Fun(f, s1)
+        f2 = Fun(f, s2)
+        @test f1 == f2
+        df = x -> 6x + 5
+        @test D1 * f1 == D2 * f2 ≈ Fun(df, s2)
+    end
+
     @testset "Integral" begin
         d = 0..1
         A = @inferred Integral(0..1)

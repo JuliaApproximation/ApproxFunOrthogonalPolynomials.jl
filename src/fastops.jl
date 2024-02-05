@@ -72,8 +72,8 @@ end
 
 
 
-function BandedMatrix(S::SubOperator{T,ConcreteDerivative{Chebyshev{DD,RR},K,T},
-                                                     NTuple{2,UnitRange{Int}}}) where {T,K,DD,RR}
+function BandedMatrix(S::SubOperator{T,<:ConcreteDerivative{<:Chebyshev,<:Any,T},
+                                                     NTuple{2,UnitRange{Int}}}) where {T}
 
     n,m = size(S)
     ret = BandedMatrix{eltype(S)}(undef, (n,m), bandwidths(S))
@@ -98,8 +98,8 @@ function BandedMatrix(S::SubOperator{T,ConcreteDerivative{Chebyshev{DD,RR},K,T},
 end
 
 
-function BandedMatrix(S::SubOperator{T,ConcreteDerivative{Ultraspherical{LT,DD,RR},K,T},
-                                                  NTuple{2,UnitRange{Int}}}) where {T,K,DD,RR,LT}
+function BandedMatrix(S::SubOperator{T,<:ConcreteDerivative{<:Ultraspherical,T},
+                                                  NTuple{2,UnitRange{Int}}}) where {T}
     n,m = size(S)
     ret = BandedMatrix{eltype(S)}(undef, (n,m), bandwidths(S))
     kr,jr = parentindices(S)
@@ -116,3 +116,18 @@ function BandedMatrix(S::SubOperator{T,ConcreteDerivative{Ultraspherical{LT,DD,R
     ret
 end
 
+function BandedMatrix(S::SubOperator{T,<:ConcreteDerivative{<:NormalizedPolynomialSpace,<:Any,T},
+                                                     NTuple{2,UnitRange{Int}}}) where {T}
+
+    D = parent(S)
+    sp = domainspace(D)
+    csp = canonicalspace(sp)
+    ind1, ind2 = parentindices(S)
+    B = BandedMatrix(view(ConcreteDerivative(csp, D.order), ind1, ind2))
+    data = BandedMatrices.bandeddata(B)
+    C = ConcreteConversion(sp, csp)
+    for (ind, col) in enumerate(ind2)
+        @views data[:, ind] .*= C[col, col]
+    end
+    B
+end

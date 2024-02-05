@@ -57,7 +57,7 @@ end
 #Derivative(d::IntervalOrSegment)=Derivative(1,d)
 
 
-function Derivative(sp::Ultraspherical{LT,DD}, m::Number) where {LT,DD<:IntervalOrSegment}
+function Derivative(sp::MaybeNormalized{<:Ultraspherical{<:Any,<:IntervalOrSegment}}, m::Number)
     assert_integer(m)
     ConcreteDerivative(sp,m)
 end
@@ -75,15 +75,15 @@ function Integral(sp::Ultraspherical{<:Any,<:IntervalOrSegment}, m::Number)
 end
 
 
-rangespace(D::ConcreteDerivative{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} =
+rangespace(D::ConcreteDerivative{<:MaybeNormalized{<:Ultraspherical{<:Any,<:IntervalOrSegment}}}) =
     Ultraspherical(order(domainspace(D))+D.order,domain(D))
 
-bandwidths(D::ConcreteDerivative{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} = -D.order,D.order
-bandwidths(D::ConcreteIntegral{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} = D.order,-D.order
-Base.stride(D::ConcreteDerivative{<:Ultraspherical{LT,DD}}) where {LT,DD<:IntervalOrSegment} = D.order
+bandwidths(D::ConcreteDerivative{<:MaybeNormalized{<:Ultraspherical{<:Any,<:IntervalOrSegment}}}) = -D.order,D.order
+bandwidths(D::ConcreteIntegral{<:MaybeNormalized{<:Ultraspherical{<:Any,<:IntervalOrSegment}}}) = D.order,-D.order
+Base.stride(D::ConcreteDerivative{<:MaybeNormalized{<:Ultraspherical{<:Any,<:IntervalOrSegment}}}) = D.order
 
-isdiag(D::ConcreteDerivative{<:Ultraspherical{<:Any,<:IntervalOrSegment}}) = false
-isdiag(D::ConcreteIntegral{<:Ultraspherical{<:Any,<:IntervalOrSegment}}) = false
+isdiag(D::ConcreteDerivative{<:MaybeNormalized{<:Ultraspherical{<:Any,<:IntervalOrSegment}}}) = false
+isdiag(D::ConcreteIntegral{<:MaybeNormalized{<:Ultraspherical{<:Any,<:IntervalOrSegment}}}) = false
 
 function getindex(D::ConcreteDerivative{<:Ultraspherical{TT,DD},K,T},
                k::Integer,j::Integer) where {TT,DD<:IntervalOrSegment,K,T}
