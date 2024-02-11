@@ -4,6 +4,7 @@ using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using BandedMatrices
 using BandedMatrices: isbanded
+using FillArrays
 using HalfIntegers
 using LinearAlgebra
 using OddEvenIntegers

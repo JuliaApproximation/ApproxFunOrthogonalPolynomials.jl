@@ -2,9 +2,6 @@ module JacobiTest
 
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
-using Test
-using SpecialFunctions
-using LinearAlgebra
 using ApproxFunBase: maxspace, NoSpace, hasconversion,
                     reverseorientation, ReverseOrientation, transform!, itransform!
 using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
@@ -14,10 +11,14 @@ using BandedMatrices
 using BandedMatrices: isbanded
 using BlockArrays
 using BlockBandedMatrices
+using FillArrays
+using HalfIntegers
+using LinearAlgebra
+using OddEvenIntegers
+using SpecialFunctions
 using StaticArrays: SVector
 using Static
-using HalfIntegers
-using OddEvenIntegers
+using Test
 
 include("testutils.jl")
 
@@ -777,14 +778,23 @@ include("testutils.jl")
                 @test coefficients(Derivative() * g) isa OneElement
             end
 
-            g = Jacobi(1,2)(3)
+            g = Jacobi(1.5,2)(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            if coefficients(g) isa OneElement
+                @test coefficients(Derivative() * g) isa OneElement
+            end
 
             g = NormalizedLegendre()(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            if coefficients(g) isa OneElement
+                @test coefficients(Derivative() * g) isa OneElement
+            end
 
-            g = NormalizedJacobi(1,2)(3)
+            g = NormalizedJacobi(1,2.5)(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            if coefficients(g) isa OneElement
+                @test coefficients(Derivative() * g) isa OneElement
+            end
         end
     end
 
