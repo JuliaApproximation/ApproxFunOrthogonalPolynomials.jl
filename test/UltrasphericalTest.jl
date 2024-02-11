@@ -4,6 +4,7 @@ using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using BandedMatrices
 using BandedMatrices: isbanded
+using FillArrays
 using HalfIntegers
 using LinearAlgebra
 using OddEvenIntegers
@@ -297,6 +298,46 @@ include("testutils.jl")
             @test Number(E * f) ≈ (0.5)^3
             E = Evaluation(S, 0.5, 2)
             @test Number(E * f) ≈ 6 * (0.5)
+        end
+
+        @testset "Conversion * OneElement" begin
+            g = Ultraspherical(3)(3)
+            f = Conversion(Ultraspherical(3), NormalizedUltraspherical(3)) * g
+            @test f ≈ g
+            @test space(f) == NormalizedUltraspherical(3)
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(f) isa OneElement
+                end
+            end
+
+            g = NormalizedUltraspherical(3)(3)
+            f = Conversion(NormalizedUltraspherical(3), Ultraspherical(3)) * g
+            @test f ≈ g
+            @test space(f) == Ultraspherical(3)
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(f) isa OneElement
+                end
+            end
+        end
+
+        @testset "Derivative * OneElement" begin
+            g = Ultraspherical(3)(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(Derivative() * g) isa OneElement
+                end
+            end
+
+            g = NormalizedUltraspherical(3)(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(Derivative() * g) isa OneElement
+                end
+            end
         end
     end
 

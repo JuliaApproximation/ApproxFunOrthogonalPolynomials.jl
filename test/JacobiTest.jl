@@ -2,9 +2,6 @@ module JacobiTest
 
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
-using Test
-using SpecialFunctions
-using LinearAlgebra
 using ApproxFunBase: maxspace, NoSpace, hasconversion,
                     reverseorientation, ReverseOrientation, transform!, itransform!
 using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
@@ -14,10 +11,14 @@ using BandedMatrices
 using BandedMatrices: isbanded
 using BlockArrays
 using BlockBandedMatrices
+using FillArrays
+using HalfIntegers
+using LinearAlgebra
+using OddEvenIntegers
+using SpecialFunctions
 using StaticArrays: SVector
 using Static
-using HalfIntegers
-using OddEvenIntegers
+using Test
 
 include("testutils.jl")
 
@@ -756,6 +757,52 @@ include("testutils.jl")
             @test S == NormalizedJacobi(Ultraspherical(2))
             S = @inferred maxspace(NormalizedChebyshev(), NormalizedJacobi(Ultraspherical(2)))
             @test S == NormalizedJacobi(Ultraspherical(2))
+        end
+
+        @testset "Conversion * OneElement" begin
+            g = Legendre()(3)
+            f = Conversion(Legendre(), NormalizedLegendre()) * g
+            @test f ≈ g
+            @test space(f) == NormalizedLegendre()
+
+            g = NormalizedLegendre()(3)
+            f = Conversion(NormalizedLegendre(), Legendre()) * g
+            @test f ≈ g
+            @test space(f) == Legendre()
+        end
+
+        @testset "Derivative * OneElement" begin
+            g = Legendre()(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(Derivative() * g) isa OneElement
+                end
+            end
+
+            g = Jacobi(1.5,2)(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(Derivative() * g) isa OneElement
+                end
+            end
+
+            g = NormalizedLegendre()(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test_broken coefficients(Derivative() * g) isa OneElement
+                end
+            end
+
+            g = NormalizedJacobi(1,2.5)(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test_broken coefficients(Derivative() * g) isa OneElement
+                end
+            end
         end
     end
 

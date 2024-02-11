@@ -545,10 +545,13 @@ function getindex(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R},T},k:
     end
 end
 
+const MaybeNormalized{S<:PolynomialSpace} = Union{S, NormalizedPolynomialSpace{S}}
+const MaybeNormalizedTensorSpace{P1,P2} = TensorSpace{<:Tuple{MaybeNormalized{P1},MaybeNormalized{P2}}}
+
 # this is only evaluated if FillArrays >= v1 is used
 @static if isdefined(FillArrays, :OneElement)
     ## Special OneElement conversion
-    function _mul_coefficients_concreteconv(C, v)
+    function _mul_coefficients_concreteconv(C, v::OneElement)
         Base.require_one_based_indexing(v)
         nzind = v.ind[1]
         Cnzind = C[nzind, nzind]
@@ -561,6 +564,17 @@ end
     function mul_coefficients(C::ConcreteConversion{S, <:NormalizedPolynomialSpace{S}},
                                 v::OneElement{<:Any,1}) where {S<:PolynomialSpace}
         _mul_coefficients_concreteconv(C, v)
+    end
+    function _mul_coefficients_deriv(D::ConcreteDerivative, v::OneElement)
+        Base.require_one_based_indexing(v)
+        nzind = v.ind[1]
+        order = D.order
+        rowind = nzind-D.order
+        Dnzind = D[rowind, nzind]
+        OneElement(Dnzind * v.val, rowind, rowind)
+    end
+    function mul_coefficients(C::ConcreteDerivative{<:MaybeNormalized}, v::OneElement{<:Any,1})
+        _mul_coefficients_deriv(C, v)
     end
 end
 
@@ -600,8 +614,6 @@ function _hasconversion_tensor(A, B)
 
     _stripnorm(A1) == _stripnorm(B1) && _stripnorm(A2) == _stripnorm(B2)
 end
-const MaybeNormalized{S<:PolynomialSpace} = Union{S, NormalizedPolynomialSpace{S}}
-const MaybeNormalizedTensorSpace{P1,P2} = TensorSpace{<:Tuple{MaybeNormalized{P1},MaybeNormalized{P2}}}
 
 function hasconversion(A::MaybeNormalizedTensorSpace{<:P1, <:P2},
         B::MaybeNormalizedTensorSpace{<:P1, <:P2}) where {P1<:PolynomialSpace,P2<:PolynomialSpace}
