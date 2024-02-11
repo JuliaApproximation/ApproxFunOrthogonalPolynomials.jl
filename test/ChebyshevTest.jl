@@ -302,16 +302,10 @@ include("testutils.jl")
             s1 = NormalizedChebyshev(-1..1)
             s2 = NormalizedChebyshev()
             @test s1 == s2
-            D1 = if VERSION >= v"1.8"
-                @inferred Derivative(s1)
-            else
-                Derivative(s1)
-            end
-            D2 = if VERSION >= v"1.8"
-                @inferred Derivative(s2)
-            else
-                Derivative(s2)
-            end
+
+            D1 = @inferred Derivative(s1)
+            D2 = Derivative(s2)
+
             @test D1 isa ApproxFunBase.ConcreteDerivative
             @test D2 isa ApproxFunBase.ConcreteDerivative
             @test !isdiag(D1)
@@ -323,12 +317,27 @@ include("testutils.jl")
             f2 = Fun(f, s2)
             @test f1 == f2
             @test D1 * f1 == D2 * f2
+            @test D1 * f1 ≈ Fun(x -> 6x + 5, Chebyshev())
 
             if VERSION < v"1.10-"
                 ElT = @inferred (D1 -> eltype(D1 + D1))(D1)
                 @test ElT == eltype(D1)
             else
                 @test_broken @inferred((D1 -> eltype(D1 + D1))(D1)) == eltype(D1)
+            end
+
+            ST = Chebyshev
+            for d in ((), (0..1,))
+                S1 = ST(d...)
+                for S in (S1, NormalizedPolynomialSpace(S1))
+                    @test Derivative(S) == Derivative(S,1)
+                    @test Derivative(S)^2 == Derivative(S,2)
+                    f = Fun(x->x^3, S)
+                    @test Derivative(S) * f ≈ Fun(x->3x^2, S)
+                    @test Derivative(S,2) * f ≈ Fun(x->6x, S)
+                    @test Derivative(S,3) * f ≈ Fun(x->6, S)
+                    @test Derivative(S,4) * f ≈ zeros(S)
+                end
             end
         end
 
