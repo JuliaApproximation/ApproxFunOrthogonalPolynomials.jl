@@ -757,6 +757,32 @@ include("testutils.jl")
             S = @inferred maxspace(NormalizedChebyshev(), NormalizedJacobi(Ultraspherical(2)))
             @test S == NormalizedJacobi(Ultraspherical(2))
         end
+
+        @testset "Conversion * OneElement" begin
+            g = Legendre()(3)
+            f = Conversion(Legendre(), NormalizedLegendre()) * g
+            @test f ≈ g
+            @test space(f) == NormalizedLegendre()
+
+            g = NormalizedLegendre()(3)
+            f = Conversion(NormalizedLegendre(), Legendre()) * g
+            @test f ≈ g
+            @test space(f) == Legendre()
+        end
+
+        @testset "Derivative * OneElement" begin
+            g = Legendre()(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+
+            g = Jacobi(1,2)(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+
+            g = NormalizedLegendre()(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+
+            g = NormalizedJacobi(1,2)(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+        end
     end
 
     @testset "casting bug ApproxFun.jl#770" begin

@@ -298,6 +298,26 @@ include("testutils.jl")
             E = Evaluation(S, 0.5, 2)
             @test Number(E * f) ≈ 6 * (0.5)
         end
+
+        @testset "Conversion * OneElement" begin
+            g = Ultraspherical(3)(3)
+            f = Conversion(Ultraspherical(3), NormalizedUltraspherical(3)) * g
+            @test f ≈ g
+            @test space(f) == NormalizedUltraspherical(3)
+
+            g = NormalizedUltraspherical(3)(3)
+            f = Conversion(NormalizedUltraspherical(3), Ultraspherical(3)) * g
+            @test f ≈ g
+            @test space(f) == Ultraspherical(3)
+        end
+
+        @testset "Derivative * OneElement" begin
+            g = Ultraspherical(3)(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+
+            g = NormalizedUltraspherical(3)(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+        end
     end
 
     @testset "inplace transform" begin

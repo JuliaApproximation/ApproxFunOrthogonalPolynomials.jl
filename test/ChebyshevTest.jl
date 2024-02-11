@@ -351,6 +351,21 @@ include("testutils.jl")
             g = Chebyshev()(3)
             f = Conversion(Chebyshev(), NormalizedChebyshev()) * g
             @test f ≈ Fun(x->-3x+4x^3, NormalizedChebyshev())
+            @test space(f) == NormalizedChebyshev()
+
+            g = NormalizedChebyshev()(3)
+            f = Conversion(NormalizedChebyshev(), Chebyshev()) * g
+            @test f ≈ g
+            @test space(f) == Chebyshev()
+        end
+
+        @testset "Derivative * OneElement" begin
+            g = Chebyshev()(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            @test Derivative() * g === 3 * Ultraspherical(1)(2)
+
+            g = NormalizedChebyshev()(3)
+            @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
         end
     end
 
