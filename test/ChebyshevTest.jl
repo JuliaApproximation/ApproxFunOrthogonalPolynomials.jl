@@ -304,7 +304,7 @@ include("testutils.jl")
             @test s1 == s2
 
             D1 = @inferred Derivative(s1)
-            D2 = Derivative(s2)
+            D2 = @inferred Derivative(s2)
 
             @test D1 isa ApproxFunBase.ConcreteDerivative
             @test D2 isa ApproxFunBase.ConcreteDerivative

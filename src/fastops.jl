@@ -98,7 +98,7 @@ function BandedMatrix(S::SubOperator{T,<:ConcreteDerivative{<:Chebyshev,<:Any,T}
 end
 
 
-function BandedMatrix(S::SubOperator{T,<:ConcreteDerivative{<:Ultraspherical,T},
+function BandedMatrix(S::SubOperator{T,<:ConcreteDerivative{<:Ultraspherical,<:Any,T},
                                                   NTuple{2,UnitRange{Int}}}) where {T}
     n,m = size(S)
     ret = BandedMatrix{eltype(S)}(undef, (n,m), bandwidths(S))
