@@ -792,7 +792,7 @@ include("testutils.jl")
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
             @static if isdefined(FillArrays, :OneElement)
                 if coefficients(g) isa OneElement
-                    @test_broken coefficients(Derivative() * g) isa OneElement
+                    @test coefficients(Derivative() * g) isa OneElement
                 end
             end
 
@@ -800,7 +800,7 @@ include("testutils.jl")
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
             @static if isdefined(FillArrays, :OneElement)
                 if coefficients(g) isa OneElement
-                    @test_broken coefficients(Derivative() * g) isa OneElement
+                    @test coefficients(Derivative() * g) isa OneElement
                 end
             end
         end

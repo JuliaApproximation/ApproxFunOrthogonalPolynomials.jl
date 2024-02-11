@@ -1,31 +1,21 @@
 ## Derivative
 
-# specialize Derivative so that this is type-inferred even without constant propagation
-Derivative(J::MaybeNormalized{<:Jacobi}) = ConcreteDerivative(J,1)
-@inline function _Derivative(J::Jacobi, k::Number)
+function Derivative(J::MaybeNormalized{<:Jacobi}, k::Number)
     assert_integer(k)
-    if k==1
-        return ConcreteDerivative(J,1)
-    else
-        d = domain(J)
-        v = [ConcreteDerivative(Jacobi(J.b+i-1, J.a+i-1, d)) for i in k:-1:1]
-        DerivativeWrapper(TimesOperator(v), k, J)
-    end
+    return ConcreteDerivative(J,k)
 end
-@static if VERSION >= v"1.8"
-    Base.@constprop :aggressive Derivative(J::Jacobi, k::Number) =
-        _Derivative(J, k)
-else
-    Derivative(J::Jacobi, k::Number) = _Derivative(J, k)
-end
-
 
 rangespace(D::ConcreteDerivative{<:MaybeNormalized{<:Jacobi}}) = Jacobi(D.space.b+D.order,D.space.a+D.order,domain(D))
 bandwidths(D::ConcreteDerivative{<:MaybeNormalized{<:Jacobi}}) = -D.order,D.order
 isdiag(D::ConcreteDerivative{<:MaybeNormalized{<:Jacobi}}) = false
 
-getindex(T::ConcreteDerivative{<:Jacobi}, k::Integer, j::Integer) =
-    j==k+1 ? eltype(T)((k+1+T.space.a+T.space.b)/complexlength(domain(T))) : zero(eltype(T))
+function getindex(D::ConcreteDerivative{<:Jacobi}, k::Integer, j::Integer)
+    m = D.order
+    sp = domainspace(D)
+    a, b = sp.a, sp.b
+    x = j + a + b
+    j == k+m ? eltype(D)(pochhammer(x, m)/complexlength(domain(D))^m) : zero(eltype(D))
+end
 
 
 # Evaluation
