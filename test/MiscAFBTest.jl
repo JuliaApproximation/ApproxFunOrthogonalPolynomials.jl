@@ -257,7 +257,7 @@ Base.:(==)(a::UniqueInterval, b::UniqueInterval) = (@assert a.parentinterval == 
                 for ST in Any[Chebyshev, Legendre,
                         (x...) -> Jacobi(2,2,x...), (x...) -> Jacobi(1.5,2.5,x...)]
                     S1 = ST(d...)
-                    for S in [S1, NormalizedPolynomialSpace(S1)]
+                    @testset for S in [S1, NormalizedPolynomialSpace(S1)]
                         @test Derivative(S) == Derivative(S,1)
                         @test Derivative(S)^2 == Derivative(S,2)
                         f = Fun(x->x^3, S)

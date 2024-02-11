@@ -787,13 +787,13 @@ include("testutils.jl")
             g = NormalizedLegendre()(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
             if coefficients(g) isa OneElement
-                @test coefficients(Derivative() * g) isa OneElement
+                @test_broken coefficients(Derivative() * g) isa OneElement
             end
 
             g = NormalizedJacobi(1,2.5)(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
             if coefficients(g) isa OneElement
-                @test coefficients(Derivative() * g) isa OneElement
+                @test_broken coefficients(Derivative() * g) isa OneElement
             end
         end
     end

@@ -2,7 +2,7 @@
 
 # specialize Derivative so that this is type-inferred even without constant propagation
 Derivative(J::MaybeNormalized{<:Jacobi}) = ConcreteDerivative(J,1)
-@inline function _Derivative(J::MaybeNormalized{<:Jacobi}, k::Number)
+@inline function _Derivative(J::Jacobi, k::Number)
     assert_integer(k)
     if k==1
         return ConcreteDerivative(J,1)
@@ -13,10 +13,10 @@ Derivative(J::MaybeNormalized{<:Jacobi}) = ConcreteDerivative(J,1)
     end
 end
 @static if VERSION >= v"1.8"
-    Base.@constprop :aggressive Derivative(J::MaybeNormalized{<:Jacobi}, k::Number) =
+    Base.@constprop :aggressive Derivative(J::Jacobi, k::Number) =
         _Derivative(J, k)
 else
-    Derivative(J::MaybeNormalized{<:Jacobi}, k::Number) = _Derivative(J, k)
+    Derivative(J::Jacobi, k::Number) = _Derivative(J, k)
 end
 
 
