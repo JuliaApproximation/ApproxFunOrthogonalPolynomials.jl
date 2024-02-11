@@ -353,30 +353,38 @@ include("testutils.jl")
             f = Conversion(Chebyshev(), NormalizedChebyshev()) * g
             @test f ≈ Fun(x->-3x+4x^3, NormalizedChebyshev())
             @test space(f) == NormalizedChebyshev()
-            if coefficients(g) isa OneElement
-                @test coefficients(f) isa OneElement
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(f) isa OneElement
+                end
             end
 
             g = NormalizedChebyshev()(3)
             f = Conversion(NormalizedChebyshev(), Chebyshev()) * g
             @test f ≈ g
             @test space(f) == Chebyshev()
-            if coefficients(g) isa OneElement
-                @test coefficients(f) isa OneElement
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(f) isa OneElement
+                end
             end
         end
 
         @testset "Derivative * OneElement" begin
             g = Chebyshev()(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
-            if coefficients(g) isa OneElement
-                @test coefficients(Derivative() * g) isa OneElement
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(Derivative() * g) isa OneElement
+                end
             end
 
             g = NormalizedChebyshev()(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
-            if coefficients(g) isa OneElement
-                @test coefficients(Derivative() * g) isa OneElement
+            @static if isdefined(FillArrays, :OneElement)
+                if coefficients(g) isa OneElement
+                    @test coefficients(Derivative() * g) isa OneElement
+                end
             end
         end
     end
