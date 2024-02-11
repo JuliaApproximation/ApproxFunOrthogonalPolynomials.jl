@@ -304,19 +304,31 @@ include("testutils.jl")
             f = Conversion(Ultraspherical(3), NormalizedUltraspherical(3)) * g
             @test f ≈ g
             @test space(f) == NormalizedUltraspherical(3)
+            if coefficients(g) isa OneElement
+                @test coefficients(f) isa OneElement
+            end
 
             g = NormalizedUltraspherical(3)(3)
             f = Conversion(NormalizedUltraspherical(3), Ultraspherical(3)) * g
             @test f ≈ g
             @test space(f) == Ultraspherical(3)
+            if coefficients(g) isa OneElement
+                @test coefficients(f) isa OneElement
+            end
         end
 
         @testset "Derivative * OneElement" begin
             g = Ultraspherical(3)(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            if coefficients(g) isa OneElement
+                @test coefficients(Derivative() * g) isa OneElement
+            end
 
             g = NormalizedUltraspherical(3)(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            if coefficients(g) isa OneElement
+                @test coefficients(Derivative() * g) isa OneElement
+            end
         end
     end
 

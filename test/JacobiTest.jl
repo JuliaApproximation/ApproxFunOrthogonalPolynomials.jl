@@ -773,6 +773,9 @@ include("testutils.jl")
         @testset "Derivative * OneElement" begin
             g = Legendre()(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
+            if coefficients(g) isa OneElement
+                @test coefficients(Derivative() * g) isa OneElement
+            end
 
             g = Jacobi(1,2)(3)
             @test Derivative() * g == Derivative() * Fun(space(g), collect(coefficients(g)))
