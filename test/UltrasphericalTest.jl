@@ -442,20 +442,19 @@ include("testutils.jl")
         @test M * f ≈ f2
     end
 
+    @testset "Derivative" begin
+        f = Fun(x -> 3x^3 + 4x + 5, Ultraspherical(2))
+        @test Derivative() * f ≈ Fun(x -> 9x^2 + 4, Ultraspherical(2))
+    end
+
     @testset "Derivative in a normalized space" begin
         s1 = NormalizedUltraspherical(1,-1..1)
         s2 = NormalizedUltraspherical(1)
         @test s1 == s2
-        D1 = if VERSION >= v"1.8"
-            @inferred Derivative(s1)
-        else
-            Derivative(s1)
-        end
-        D2 = if VERSION >= v"1.8"
-            @inferred Derivative(s2)
-        else
-            Derivative(s2)
-        end
+
+        D1 = @inferred Derivative(s1)
+        D2 = @inferred Derivative(s2)
+
         @test D1 isa ApproxFunBase.ConcreteDerivative
         @test D2 isa ApproxFunBase.ConcreteDerivative
         @test !isdiag(D1)
