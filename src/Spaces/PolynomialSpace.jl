@@ -513,7 +513,7 @@ end
 bandwidths(::ConcreteConversion{<:NormalizedPolynomialSpace{S},S}) where {S} = (0, 0)
 bandwidths(::ConcreteConversion{S,<:NormalizedPolynomialSpace{S}}) where {S} = (0, 0)
 
-function getindex(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S,T},k::Integer,j::Integer) where {S,D<:IntervalOrSegment,R,T}
+function getindex(C::ConcreteConversion{<:NormalizedPolynomialSpace{S,<:IntervalOrSegment},S,T},k::Integer,j::Integer) where {S,T}
     if j==k
         inv(sqrt(normalization(T, C.rangespace, k-1)*arclength(domain(C.rangespace))/2))
     else
@@ -521,7 +521,7 @@ function getindex(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S,T},k:
     end
 end
 
-function getindex(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R},T},k::Integer,j::Integer) where {S,D<:IntervalOrSegment,R,T}
+function getindex(C::ConcreteConversion{S,<:NormalizedPolynomialSpace{S,<:IntervalOrSegment},T},k::Integer,j::Integer) where {S,T}
     if j==k
         sqrt(normalization(T, C.domainspace, k-1)*arclength(domain(C.domainspace))/2)
     else
@@ -529,7 +529,7 @@ function getindex(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R},T},k:
     end
 end
 
-function getindex(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S,T},k::Integer,j::Integer) where {S,D<:Ray,R,T}
+function getindex(C::ConcreteConversion{<:NormalizedPolynomialSpace{S,<:Ray},S,T},k::Integer,j::Integer) where {S,T}
     if j==k
         inv(sqrt(normalization(T, C.rangespace, k-1)))
     else
@@ -537,7 +537,7 @@ function getindex(C::ConcreteConversion{NormalizedPolynomialSpace{S,D,R},S,T},k:
     end
 end
 
-function getindex(C::ConcreteConversion{S,NormalizedPolynomialSpace{S,D,R},T},k::Integer,j::Integer) where {S,D<:Ray,R,T}
+function getindex(C::ConcreteConversion{S,<:NormalizedPolynomialSpace{S,<:Ray},T},k::Integer,j::Integer) where {S,T}
     if j==k
         sqrt(normalization(T, C.domainspace, k-1))
     else
