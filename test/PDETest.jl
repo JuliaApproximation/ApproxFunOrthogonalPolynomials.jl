@@ -2,6 +2,7 @@ module PDETest
 
 using ApproxFunBase
 using ApproxFunOrthogonalPolynomials
+using DomainSets: setdiffdomain
 using LinearAlgebra
 using Test
 using ApproxFunBase: Block, ldiv_coefficients
@@ -275,7 +276,7 @@ include("testutils.jl")
     end
 
     @testset "concatenate InterlaceOperator" begin
-        a=Fun(x -> 0 ≤ x ≤ 0.5 ? 0.5 : 1, Domain(-1..1) \ [0,0.5])
+        a=Fun(x -> 0 ≤ x ≤ 0.5 ? 0.5 : 1, setdiffdomain(Domain(-1..1), [0,0.5]))
         @test a(0.1) == 0.5
         @test a(0.7) == 1.0
         s=space(a)
