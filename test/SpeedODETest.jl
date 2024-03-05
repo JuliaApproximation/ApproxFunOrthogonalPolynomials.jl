@@ -1,6 +1,7 @@
 module SpeedODETest
 using ApproxFunOrthogonalPolynomials
 using SpecialFunctions
+using DomainSets: setdiffdomain
 using Test
 using ApproxFunBase: ldiv_coefficients
 using LinearAlgebra
@@ -82,7 +83,7 @@ println("Complex exp: Time should be 0.03")
 
 
 ## Piecewise
-x=Fun(identity,Domain(-20..15) \ [-10.,-5.,0.,1.])
+x=Fun(identity, setdiffdomain(Domain(-20..15), [-10.,-5.,0.,1.]))
 sp=space(x)
 D=Derivative(sp)
 B=[Dirichlet(sp);continuity(sp,0:1)]

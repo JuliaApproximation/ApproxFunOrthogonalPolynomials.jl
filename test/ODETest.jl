@@ -2,6 +2,7 @@ module ODETest
 
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
+using DomainSets: setdiffdomain
 using SpecialFunctions
 using Test
 using LazyArrays
@@ -130,7 +131,7 @@ include("testutils.jl")
     end
 
     @testset "Union of intervals" begin
-        x=Fun(identity,(-2..15) \ [-1,0])
+        x=Fun(identity, setdiffdomain(-2..15, [-1,0]))
         sp=space(x)
 
         B = [Dirichlet(sp);continuity(sp,0:1)]
