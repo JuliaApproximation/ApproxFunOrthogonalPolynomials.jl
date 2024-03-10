@@ -5,4 +5,5 @@ deps/deps.jl
 test/.DS_Store
 .DS_Store
 Manifest.toml
+Manifest-v*.*.toml
 dev_code.jl
