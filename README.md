@@ -6,7 +6,7 @@ Support for orthogonal polynomial-based spaces in ApproxFun
 [![codecov](https://codecov.io/gh/JuliaApproximation/ApproxFunOrthogonalPolynomials.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaApproximation/ApproxFunOrthogonalPolynomials.jl)
 [![deps](https://juliahub.com/docs/ApproxFunOrthogonalPolynomials/deps.svg)](https://juliahub.com/ui/Packages/ApproxFunOrthogonalPolynomials/bk9eW?t=2)
 [![version](https://juliahub.com/docs/ApproxFunOrthogonalPolynomials/version.svg)](https://juliahub.com/ui/Packages/ApproxFunOrthogonalPolynomials/bk9eW)
-[![pkgeval](https://juliahub.com/docs/General/ApproxFunOrthogonalPolynomials/stable/pkgeval.svg)](https://juliahub.com/ui/Packages/General/ApproxFunOrthogonalPolynomials)
+[![pkgeval](https://juliahub.com/docs/General/ApproxFunOrthogonalPolynomials/stable/pkgeval.svg)](https://juliaci.github.io/NanosoldierReports/pkgeval_badges/report.html)
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaApproximation.github.io/ApproxFun.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaApproximation.github.io/ApproxFun.jl/dev)
