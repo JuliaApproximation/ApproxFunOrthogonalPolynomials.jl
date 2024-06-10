@@ -6,7 +6,7 @@ using DomainSets: setdiffdomain
 using LinearAlgebra
 using Test
 using ApproxFunBase: Block, ldiv_coefficients
-using ApproxFunBaseTest: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator
+using ApproxFunBase.TestUtils: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator
 
 include("testutils.jl")
 

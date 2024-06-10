@@ -2,7 +2,7 @@ module HermiteTest
 
 using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
-using ApproxFunBaseTest: testbandedoperator
+using ApproxFunBase.TestUtils: testbandedoperator
 using LinearAlgebra
 using SpecialFunctions
 using Test

@@ -7,7 +7,7 @@ using FillArrays
 using LinearAlgebra
 using Test
 using ApproxFunBase: transform!, itransform!
-using ApproxFunBaseTest: testspace
+using ApproxFunBase.TestUtils: testspace
 using ApproxFunOrthogonalPolynomials: forwardrecurrence
 import Polynomials
 

@@ -6,7 +6,7 @@ using LinearAlgebra
 using Test
 using DomainSets: UnionDomain, setdiffdomain
 using ApproxFunBase: space, SpaceOperator
-using ApproxFunBaseTest: testbandedoperator, testraggedbelowoperator,
+using ApproxFunBase.TestUtils: testbandedoperator, testraggedbelowoperator,
                         testtransforms, testfunctional
 
 @testset "Spaces" begin

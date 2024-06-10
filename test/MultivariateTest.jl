@@ -8,7 +8,7 @@ using SpecialFunctions
 using BlockBandedMatrices
 using Test
 using ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, ArraySpace, ∞
-using ApproxFunBaseTest: testbandedblockbandedoperator, testraggedbelowoperator,
+using ApproxFunBase.TestUtils: testbandedblockbandedoperator, testraggedbelowoperator,
                     testblockbandedoperator
 using ApproxFunOrthogonalPolynomials: chebyshevtransform
 using StaticArrays: SVector

@@ -4,7 +4,7 @@ using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using ApproxFunBase: maxspace, NoSpace, hasconversion,
                     reverseorientation, ReverseOrientation, transform!, itransform!
-using ApproxFunBaseTest: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
+using ApproxFunBase.TestUtils: testbandedbelowoperator, testbandedoperator, testspace, testtransforms,
                     testfunctional
 using ApproxFunOrthogonalPolynomials: jacobip
 using BandedMatrices

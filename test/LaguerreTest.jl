@@ -4,7 +4,7 @@ using ApproxFunOrthogonalPolynomials
 using ApproxFunBase
 using SpecialFunctions
 using Test
-using ApproxFunBaseTest: testbandedoperator
+using ApproxFunBase.TestUtils: testbandedoperator
 
 include("testutils.jl")
 
