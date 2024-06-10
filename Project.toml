@@ -1,6 +1,6 @@
 name = "ApproxFunOrthogonalPolynomials"
 uuid = "b70543e2-c0d9-56b8-a290-0d4d6d4de211"
-version = "0.6.55"
+version = "0.6.56"
 
 [deps]
 ApproxFunBase = "fbd15aa5-315a-5a7d-a8a4-24992e37be05"
@@ -30,12 +30,11 @@ ApproxFunOrthogonalPolynomialsPolynomialsExt = "Polynomials"
 ApproxFunOrthogonalPolynomialsStaticExt = "Static"
 
 [compat]
-ApproxFunBase = "0.8.64, 0.9.22"
-ApproxFunBaseTest = "0.1"
+ApproxFunBase = "0.8.67, 0.9.28"
 Aqua = "0.8"
 BandedMatrices = "0.16, 0.17, 1"
-BlockArrays = "0.14, 0.15, 0.16"
-BlockBandedMatrices = "0.10, 0.11, 0.12"
+BlockArrays = "0.14, 0.15, 0.16, 1"
+BlockBandedMatrices = "0.10, 0.11, 0.12, 0.13"
 DomainSets = "0.5, 0.6, 0.7"
 DualNumbers = "0.6.2"
 FastGaussQuadrature = "0.4, 0.5, 1"
@@ -43,19 +42,18 @@ FastTransforms = "0.12, 0.13, 0.14, 0.15.1, 0.16"
 FillArrays = "0.11, 0.12, 0.13, 1"
 HalfIntegers = "1.5"
 IntervalSets = "0.5, 0.6, 0.7"
-LazyArrays = "0.22, 1"
-LinearAlgebra = "1.6"
+LazyArrays = "0.22, 1, 2"
+LinearAlgebra = "1"
 OddEvenIntegers = "0.1.8"
 Polynomials = "2, 3, 4"
 Reexport = "0.2, 1"
 SpecialFunctions = "0.10, 1.0, 2"
 Static = "0.8"
 StaticArrays = "1"
-Test = "1.6"
+Test = "1"
 julia = "1.6"
 
 [extras]
-ApproxFunBaseTest = "a931bfaf-0cfd-4a5c-b69c-bf2eed002b43"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 DualNumbers = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
 LazyArrays = "5078a376-72f3-5289-bfd5-ec5146d43c02"
@@ -65,4 +63,4 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["ApproxFunBaseTest", "Aqua", "DualNumbers", "Test", "Static", "StaticArrays", "LazyArrays", "Polynomials"]
+test = ["Aqua", "DualNumbers", "Test", "Static", "StaticArrays", "LazyArrays", "Polynomials"]

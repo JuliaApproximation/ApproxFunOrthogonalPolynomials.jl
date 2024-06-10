@@ -8,7 +8,7 @@ using Test
 using LazyArrays
 using LinearAlgebra
 using ApproxFunBase: Multiplication, interlace, ∞, ℵ₀
-using ApproxFunBaseTest: testraggedbelowoperator, testbandedoperator
+using ApproxFunBase.TestUtils: testraggedbelowoperator, testbandedoperator
 
 include("testutils.jl")
 

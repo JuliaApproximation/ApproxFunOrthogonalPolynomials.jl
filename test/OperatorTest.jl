@@ -6,7 +6,7 @@ using BlockBandedMatrices
 using LinearAlgebra
 using Test
 using ApproxFunBase: Multiplication, InterlaceOperator, Block, ∞
-using ApproxFunBaseTest: testfunctional, testbandedoperator, testraggedbelowoperator,
+using ApproxFunBase.TestUtils: testfunctional, testbandedoperator, testraggedbelowoperator,
                         testblockbandedoperator
 using ApproxFunOrthogonalPolynomials: JacobiZ
 

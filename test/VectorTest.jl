@@ -11,7 +11,7 @@ using ApproxFunBase: interlace, Multiplication, ConstantSpace, PointSpace,
                         ArraySpace, blocklengths, ∞
 using StaticArrays: SVector
 
-using ApproxFunBaseTest: testblockbandedoperator, testraggedbelowoperator
+using ApproxFunBase.TestUtils: testblockbandedoperator, testraggedbelowoperator
 
 include("testutils.jl")
 

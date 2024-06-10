@@ -10,8 +10,7 @@ using HalfIntegers
 using OddEvenIntegers
 
 @testset "Project quality" begin
-    Aqua.test_all(ApproxFunOrthogonalPolynomials, ambiguities=false,
-        stale_deps=(; ignore=[:ApproxFunBaseTest]), piracies = false)
+    Aqua.test_all(ApproxFunOrthogonalPolynomials, ambiguities=false, piracies = false)
 end
 
 @testset "Domain" begin
