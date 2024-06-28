@@ -1,6 +1,6 @@
 name = "ApproxFunOrthogonalPolynomials"
 uuid = "b70543e2-c0d9-56b8-a290-0d4d6d4de211"
-version = "0.6.56"
+version = "0.6.57"
 
 [deps]
 ApproxFunBase = "fbd15aa5-315a-5a7d-a8a4-24992e37be05"
@@ -48,7 +48,7 @@ OddEvenIntegers = "0.1.8"
 Polynomials = "2, 3, 4"
 Reexport = "0.2, 1"
 SpecialFunctions = "0.10, 1.0, 2"
-Static = "0.8"
+Static = "0.8, 1"
 StaticArrays = "1"
 Test = "1"
 julia = "1.6"
