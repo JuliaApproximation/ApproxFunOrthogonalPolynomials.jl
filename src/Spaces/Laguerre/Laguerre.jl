@@ -32,7 +32,8 @@ Laguerre(α) = Laguerre(α,Ray())
 Laguerre() = Laguerre(0)
 
 const NormalizedLaguerre{T<:Real,D<:Ray} = NormalizedPolynomialSpace{Laguerre{T,D},D,T}
-NormalizedLaguerre(α) = NormalizedPolynomialSpace(Laguerre(α))
+NormalizedLaguerre(α, d) = NormalizedPolynomialSpace(Laguerre(α, d))
+NormalizedLaguerre(α) = NormalizedLaguerre(α, Ray())
 NormalizedLaguerre() = NormalizedLaguerre(0)
 
 spacescompatible(A::Laguerre,B::Laguerre) = compare_orders(A.α, B.α) && B.domain == A.domain
@@ -49,9 +50,9 @@ fromcanonical(d::Laguerre,x) = mappoint(Ray(),domain(d),x)
 @inline laguerrerecγ(::Type{T},α,k) where {T} = strictconvert(T,-(k-1+α))
 
 
-@inline laguerrerecA(::Type{T},_,k) where {T} = strictconvert(T,-1/(k+1))
-@inline laguerrerecB(::Type{T},α,k) where {T} = strictconvert(T,(2k+α+1)/(k+1))
-@inline laguerrerecC(::Type{T},α,k) where {T} = strictconvert(T,(k+α)/(k+1))
+@inline laguerrerecA(::Type{T},_,k) where {T} = strictconvert(T,-1)/(k+1)
+@inline laguerrerecB(::Type{T},α,k) where {T} = strictconvert(T,2k+α+1)/(k+1)
+@inline laguerrerecC(::Type{T},α,k) where {T} = strictconvert(T,k+α)/(k+1)
 
 for (REC,JREC) in ((:recα,:laguerrerecα),(:recβ,:laguerrerecβ),(:recγ,:laguerrerecγ),
                    (:recA,:laguerrerecA),(:recB,:laguerrerecB),(:recC,:laguerrerecC))
