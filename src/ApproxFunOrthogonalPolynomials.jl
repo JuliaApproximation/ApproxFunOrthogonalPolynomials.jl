@@ -81,7 +81,7 @@ using FastTransforms: plan_chebyshevtransform, plan_chebyshevtransform!,
                         plan_ichebyshevtransform, plan_ichebyshevtransform!,
                         pochhammer, lgamma
 
-import BlockBandedMatrices: blockbandwidths
+import BlockBandedMatrices: blockbandwidths, BlockBandedMatrix
 
 # we need to import all special functions to use Calculus.symbolic_derivatives_1arg
 import SpecialFunctions: erfcx, dawson,
