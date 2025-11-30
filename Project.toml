@@ -45,6 +45,7 @@ IntervalSets = "0.5, 0.6, 0.7"
 LazyArrays = "0.22, 1, 2"
 LinearAlgebra = "1"
 OddEvenIntegers = "0.1.8"
+ParallelTestRunner = "2"
 Polynomials = "2, 3, 4"
 Reexport = "0.2, 1"
 SpecialFunctions = "0.10, 1.0, 2"
@@ -57,10 +58,11 @@ julia = "1.6"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 DualNumbers = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
 LazyArrays = "5078a376-72f3-5289-bfd5-ec5146d43c02"
+ParallelTestRunner = "d3525ed8-44d0-4b2c-a655-542cee43accc"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
 Static = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "DualNumbers", "Test", "Static", "StaticArrays", "LazyArrays", "Polynomials"]
+test = ["Aqua", "DualNumbers", "ParallelTestRunner", "Test", "Static", "StaticArrays", "LazyArrays", "Polynomials"]
