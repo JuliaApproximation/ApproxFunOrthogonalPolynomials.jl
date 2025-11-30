@@ -24,9 +24,9 @@ args = parse_args(ARGS)
 if filter_tests!(testsuite, args)
     # There are weird non-deterministic `ReadOnlyMemoryError`s on Windows,
     # so this test is disabled for now
-    delete!(testsuite, "testutils.jl")
+    delete!(testsuite, "testutils")
     if Sys.iswindows()
-        delete!(testsuite, "UltrasphericalTest.jl")
+        delete!(testsuite, "UltrasphericalTest")
     end
 end
 
