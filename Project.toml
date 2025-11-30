@@ -25,9 +25,6 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
 Static = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
 
-[sources]
-ApproxFunBase = {path = "../ApproxFunBase.jl"}
-
 [extensions]
 ApproxFunOrthogonalPolynomialsPolynomialsExt = "Polynomials"
 ApproxFunOrthogonalPolynomialsStaticExt = "Static"
