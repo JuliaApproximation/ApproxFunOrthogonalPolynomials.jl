@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        julia-version: [1, 'lts']
+        julia-version: [1, 'min']
         os: [ubuntu-latest]
         package:
           - {repo: ApproxFun.jl, group: JuliaApproximation}
