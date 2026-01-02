@@ -1,6 +1,6 @@
 name = "ApproxFunOrthogonalPolynomials"
 uuid = "b70543e2-c0d9-56b8-a290-0d4d6d4de211"
-version = "0.6.61"
+version = "0.6.62"
 
 [deps]
 ApproxFunBase = "fbd15aa5-315a-5a7d-a8a4-24992e37be05"
@@ -44,7 +44,7 @@ HalfIntegers = "1.5"
 IntervalSets = "0.5, 0.6, 0.7"
 LazyArrays = "0.22, 1, 2"
 LinearAlgebra = "1"
-OddEvenIntegers = "0.1.8"
+OddEvenIntegers = "0.1.8, 0.2"
 ParallelTestRunner = "2"
 Polynomials = "2, 3, 4"
 Reexport = "0.2, 1"
