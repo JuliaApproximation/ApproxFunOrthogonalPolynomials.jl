@@ -7,7 +7,7 @@ using LinearAlgebra
 using SpecialFunctions
 using BlockBandedMatrices
 using Test
-using ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, ArraySpace, ∞
+using ApproxFunBase: factor, Block, cfstype, blocklengths, block, tensorizer, ArraySpace, ∞, cartesianproduct
 using ApproxFunBase.TestUtils: testbandedblockbandedoperator, testraggedbelowoperator,
                     testblockbandedoperator
 using ApproxFunOrthogonalPolynomials: chebyshevtransform
@@ -339,7 +339,7 @@ include("testutils.jl")
 
     @testset "conversion between" begin
         dx = dy = ChebyshevInterval()
-        d = dx × dy
+        d = cartesianproduct(dx, dy)
         x,y=Fun(d)
         @test x(0.1,0.2) ≈ 0.1
         @test y(0.1,0.2) ≈ 0.2
@@ -421,7 +421,7 @@ include("testutils.jl")
 
     @testset "Dirichlet" begin
         testblockbandedoperator(@inferred Dirichlet((0..1)^2))
-        testblockbandedoperator(@inferred Dirichlet((0..1) × (0.0 .. 1)))
+        testblockbandedoperator(@inferred Dirichlet(cartesianproduct(0..1, 0.0 .. 1)))
         testraggedbelowoperator(Dirichlet(Chebyshev()^2))
         testraggedbelowoperator(Dirichlet(Chebyshev(0..1) * Chebyshev(0.0..1)))
     end
@@ -576,13 +576,13 @@ include("testutils.jl")
     @testset "inference in TensorSpace" begin
         s = @inferred TensorSpace((Chebyshev(0..1), Chebyshev(0.0..2.0)))
         d = @inferred domain(s)
-        @test d == (0..1) × (0.0..2.0)
+        @test d == cartesianproduct(0..1, 0.0..2.0)
         f = Fun((x,y)->x^2*y^3, s)
         @test f(0.1, 0.2) ≈ 0.1^2 * 0.2^3
 
         s2 = TensorSpace((Chebyshev(0..1), Chebyshev(0.0..2.0), Chebyshev(0..2)))
         d2 = @inferred domain(s2)
-        @test d2 == (0..1) × (0.0..2.0) × (0..2)
+        @test d2 == cartesianproduct(0..1, 0.0..2.0, 0..2)
     end
 end
 
