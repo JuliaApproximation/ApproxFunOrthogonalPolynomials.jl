@@ -5,7 +5,7 @@ using ApproxFunOrthogonalPolynomials
 using DomainSets: setdiffdomain
 using LinearAlgebra
 using Test
-using ApproxFunBase: Block, ldiv_coefficients
+using ApproxFunBase: Block, ldiv_coefficients, cartesianproduct
 using ApproxFunBase.TestUtils: testbandedblockbandedoperator, testblockbandedoperator, testraggedbelowoperator
 
 include("testutils.jl")
@@ -13,7 +13,7 @@ include("testutils.jl")
 @verbose @testset "PDE" begin
     @testset "Rectangle Laplace/Poisson" begin
         dx = dy = ChebyshevInterval()
-        d = dx × dy
+        d = cartesianproduct(dx, dy)
         g = Fun((x,y)->exp(x)*cos(y),∂(d))
 
         B = Dirichlet(d)
@@ -42,7 +42,7 @@ include("testutils.jl")
 
     @testset "Bilaplacian" begin
         dx = dy = ChebyshevInterval()
-        d = dx × dy
+        d = cartesianproduct(dx, dy)
         Dx = Derivative(dx); Dy = Derivative(dy)
         L = Dx^4⊗I + 2*Dx^2⊗Dy^2 + I⊗Dy^4
 
@@ -69,7 +69,7 @@ include("testutils.jl")
         testbandedblockbandedoperator(C)
         testbandedblockbandedoperator(Operator{ComplexF64}(C))
 
-        d = dx × dt
+        d = cartesianproduct(dx, dt)
 
         x,y = Fun(d)
         @test x(0.1,0.0001) ≈ 0.1
@@ -97,7 +97,7 @@ include("testutils.jl")
 
     @testset "Transport" begin
         dx=ChebyshevInterval(); dt=Interval(0,2.)
-        d=dx × dt
+        d = cartesianproduct(dx, dt)
         Dx=Derivative(d,[1,0]);Dt=Derivative(d,[0,1])
         x,y=Fun(identity,d)
         @time u=\([I⊗ldirichlet(dt);Dt+x*Dx],[Fun(x->exp(-20x^2),dx);0.];tolerance=1E-12)
@@ -107,7 +107,7 @@ include("testutils.jl")
 
     @testset "Bilaplacian" begin
         dx=dy=ChebyshevInterval()
-        d=dx × dy
+        d = cartesianproduct(dx, dy)
         Dx=Derivative(dx);Dy=Derivative(dy)
         L=Dx^4⊗I+2*Dx^2⊗Dy^2+I⊗Dy^4
 
@@ -146,7 +146,7 @@ include("testutils.jl")
         @test u(0.1,0.2)  ≈ exp(0.1)*cos(0.2)
 
         dx=dy=ChebyshevInterval()
-        d=dx×dy
+        d = cartesianproduct(dx, dy)
         Dx=Derivative(dx);Dy=Derivative(dy)
         L=Dx^4⊗I+2*Dx^2⊗Dy^2+I⊗Dy^4
 
@@ -256,9 +256,9 @@ include("testutils.jl")
 
     @testset "Small diffusion" begin
         dx=ChebyshevInterval();dt=Interval(0,0.2)
-        d=dx×dt
+        d = cartesianproduct(dx, dt)
         Dx=Derivative(d,[1,0]);Dt=Derivative(d,[0,1])
-        x,t=Fun(dx×dt)
+        x,t=Fun(cartesianproduct(dx, dt))
 
         B=0.0
         C=0.0
