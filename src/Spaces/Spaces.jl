@@ -31,17 +31,17 @@ include("CurveSpace.jl")
 ## Heaviside
 
 
-conversion_rule(sp::HeavisideSpace,sp2::PiecewiseSpace{<:NTuple{<:Any,<:PolynomialSpace}}) = sp
+conversion_rule(sp::HeavisideSpace,sp2::PiecewiseSpace{<:TupleOrVector{PolynomialSpace}}) = sp
 
 
 Conversion(a::HeavisideSpace,
-        b::PiecewiseSpace{<:NTuple{<:Any,<:PolynomialSpace},<:Domain{<:Number},<:Real}) =
+        b::PiecewiseSpace{<:TupleOrVector{PolynomialSpace},<:Domain{<:Number},<:Real}) =
     ConcreteConversion(a,b)
 bandwidths(::ConcreteConversion{<:HeavisideSpace,
-    <:PiecewiseSpace{<:NTuple{<:Any,<:PolynomialSpace},<:Domain{<:Number},<:Real}}) = 0,0
+    <:PiecewiseSpace{<:TupleOrVector{PolynomialSpace},<:Domain{<:Number},<:Real}}) = 0,0
 
 function getindex(C::ConcreteConversion{<:HeavisideSpace,
-            <:PiecewiseSpace{<:NTuple{<:Any,<:PolynomialSpace},<:Domain{<:Number},<:Real}},
+            <:PiecewiseSpace{<:TupleOrVector{PolynomialSpace},<:Domain{<:Number},<:Real}},
         k::Integer,j::Integer)
     k ≤ dimension(domainspace(C)) && j==k ? one(eltype(C)) : zero(eltype(C))
 end
