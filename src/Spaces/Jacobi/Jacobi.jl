@@ -11,7 +11,7 @@ struct Jacobi{D<:Domain,R,T} <: PolynomialSpace{D,R}
     Jacobi{D,R}(b::T,a::T,d::D) where {D,R,T<:Number} = new{D,R,T}(b,a,d)
 end
 Jacobi(b::T,a::T,d::Domain) where {T<:Number} =
-    Jacobi{typeof(d),promote_type(T,real(prectype(d)))}(b, a, d)
+    Jacobi{typeof(d),promote_type(_dynamictype(T),real(prectype(d)))}(b, a, d)
 Legendre(domain = ChebyshevInterval()) = Jacobi(0,0,Domain(domain)::Domain)
 Legendre(s::PolynomialSpace) = Legendre(Jacobi(s))
 Legendre(s::Jacobi) = s.a == s.b == 0 ? s : throw(ArgumentError("can't convert $s to Legendre"))

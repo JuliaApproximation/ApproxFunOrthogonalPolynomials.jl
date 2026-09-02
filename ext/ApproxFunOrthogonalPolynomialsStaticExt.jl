@@ -4,6 +4,9 @@ using ApproxFunOrthogonalPolynomials
 import ApproxFunOrthogonalPolynomials as AFOP
 using Static
 
+AFOP._dynamictype(::Type{<:StaticInt}) = Int
+AFOP._dynamictype(::Type{<:StaticFloat64}) = Float64
+
 AFOP._onehalf(::Union{StaticInt, StaticFloat64}) = static(0.5)
 AFOP._minonehalf(@nospecialize(_::Union{StaticInt, StaticFloat64})) = static(-0.5)
 AFOP.isapproxminhalf(@nospecialize(a::StaticInt)) = AFOP.isequalminhalf(a)

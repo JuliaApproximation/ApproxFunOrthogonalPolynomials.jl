@@ -136,6 +136,49 @@ end
 
 ## Conversion Operator
 
+# Assemble a chain of conversions into a `ConversionWrapper` around a `TimesOperator`.
+#
+# The chain is stored as a `Vector{Operator{T}}` rather than as a vector of the concrete
+# operator types: the latter is a small `Union` here, which makes inference union-split the
+# entire operator algebra downstream, and one such chain was responsible for a 23s method
+# compilation. `_conversion_shiftordersbyone` stores its chain the same way.
+#
+# Every field of the `TimesOperator` is computed here from the concretely typed arguments and
+# passed explicitly, so that inference never has to reason about the abstract element type of
+# the stored vector. Leaving them to the constructor's defaults makes the type parameters of
+# the `TimesOperator` uninferrable.
+function _conversionchain(A, B, v::AbstractVector{<:Operator}, bwsum)
+    ops = Operator{eltype(eltype(v))}[v;]
+    _conversionchainwrapper(A, B, ops, bwsum,
+        bandwidthssum(subblockbandwidths, v),
+        all(isbandedblockbanded, v),
+        all(israggedbelow, v))
+end
+function _conversionchain(A, B, v::AbstractVector{<:Operator}, tail::Operator, bwsum)
+    ops = Operator{promote_type(eltype(eltype(v)), eltype(tail))}[v; tail]
+    _conversionchainwrapper(A, B, ops, bwsum,
+        bandwidthssum(subblockbandwidths, v) .+ subblockbandwidths(tail),
+        all(isbandedblockbanded, v) && isbandedblockbanded(tail),
+        all(israggedbelow, v) && israggedbelow(tail))
+end
+# The type parameters BW and SBBW are named after the corresponding ones of `TimesOperator`
+function _conversionchainwrapper(A::SA, B::SB, ops::Vector{Operator{T}},
+        bwsum::BW, subblockbwsum::SBBW, bandedblockbanded::Bool, raggedbelow::Bool
+        ) where {SA<:Space, SB<:Space, T, BW, SBBW}
+
+    sz = (ℵ₀,ℵ₀)
+    # the chain is square and infinite, so it is never a functional
+    isafunctional = false
+    # The types below are fully determined by the method signature. We spell them out and
+    # assert them, so that the inferred return type cannot depend on how well inference
+    # manages to fold the `TimesOperator` constructor -- it widened to `Any` on Julia v1.10
+    # otherwise, which broke the `@inferred` tests for `Conversion`.
+    TimesOp = TimesOperator{T, BW, typeof(sz), Operator{T}, BW, SBBW}
+    chain = TimesOperator(ops, bwsum, sz, bwsum, subblockbwsum,
+        bandedblockbanded, raggedbelow, isafunctional, anytimesop = false)::TimesOp
+    ConversionWrapper(chain, A, B)::ConversionWrapper{SA, SB, T, TimesOp}
+end
+
 function Conversion(A::Chebyshev, B::Ultraspherical)
     @assert domain(A) == domain(B)
     mB = order(B)
@@ -148,9 +191,8 @@ function Conversion(A::Chebyshev, B::Ultraspherical)
         v = [ConcreteConversion(Ultraspherical(i-1, d), Ultraspherical(i,d)) for i in r]
         U = domainspace(last(v))
         CAU = ConcreteConversion(A, U)
-        v2 = Union{eltype(v), typeof(CAU)}[v; CAU]
-        bwsum = isapproxinteger(mB) ? (0, 2length(v2)) : (0,ℵ₀)
-        return ConversionWrapper(TimesOperator(v2, bwsum, (ℵ₀,ℵ₀), bwsum), A, B)
+        bwsum = isapproxinteger(mB) ? (0, 2(length(v)+1)) : (0,ℵ₀)
+        return _conversionchain(A, B, v, CAU, bwsum)
     end
     throw(ArgumentError("please implement $A → $B"))
 end
@@ -174,14 +216,15 @@ function ultraconv_nonequal(A, B)
     elseif b-a > 1
         r = b:-1:a+1
         v = [ConcreteConversion(Ultraspherical(i-1,d), Ultraspherical(i,d)) for i in r]
+        bwsum = isapproxinteger(b-a) ? (0, 2length(v)) : (0,ℵ₀)
+        # using the same element type in both branches also makes the return type
+        # of this function independent of the branch that is taken
         if !(last(r) ≈ a+1)
             vlast = ConcreteConversion(A, Ultraspherical(last(r)-1, d))
-            v2 = Union{eltype(v), typeof(vlast)}[v; vlast]
+            return _conversionchain(A, B, v, vlast, bwsum)
         else
-            v2 = v
+            return _conversionchain(A, B, v, bwsum)
         end
-        bwsum = isapproxinteger(b-a) ? (0, 2length(v)) : (0,ℵ₀)
-        return ConversionWrapper(TimesOperator(v2, bwsum, (ℵ₀,ℵ₀), bwsum), A, B)
     else
         throw(ArgumentError("please implement $A → $B"))
     end

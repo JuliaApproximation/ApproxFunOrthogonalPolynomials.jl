@@ -57,7 +57,7 @@ import ApproxFunBase: Fun, SubSpace, WeightSpace, NoSpace, HeavisideSpace,
                     LeftEndPoint, RightEndPoint, normalizedspace, promotedomainspace,
                     bandmatrices_eigen, SymmetricEigensystem, SkewSymmetricEigensystem,
                     mean, # differs from Statistics.mean after https://github.com/JuliaApproximation/ApproxFunBase.jl/pull/506
-                    israggedbelow, bandwidthssum
+                    israggedbelow, isbandedblockbanded, bandwidthssum
 
 import DomainSets: Domain, indomain, UnionDomain, FullSpace, Point,
             Interval, ChebyshevInterval, boundary, rightendpoint, leftendpoint,
@@ -148,6 +148,12 @@ compare_orders(a::Number, b::Number) = compare_op(a, b)(a, b)
 
 # work around type promotions to preserve types for StepRanges involving HalfOddIntegers with a unit step
 const HalfOddInteger{T<:Integer} = Half{Odd{T}}
+
+# `promote_type` may return an abstract type such as `Real` for certain static
+# number types (see https://github.com/SciML/Static.jl/issues/97), which would
+# leak into the type parameters of a space. We therefore strip the static wrapper
+# before promoting the order of a space with the precision of its domain.
+_dynamictype(::Type{T}) where {T<:Number} = T
 
 # return 1/2, possibly preserving types but not being too fussy
 _onehalf(x) = onehalf(x)
