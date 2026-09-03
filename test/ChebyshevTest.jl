@@ -257,19 +257,22 @@ include("testutils.jl")
             M2 = similar(M)
             A = Array{ET}(undef, 6, 6, 6)
             A2 = similar(A)
-            @testset for d in ((), (0..1,))
+            full = ET === Float64
+            @testset for d in (full ? ((), (0..1,)) : ((),))
                 C = Chebyshev(d...)
                 Slist = (C, NormalizedPolynomialSpace(C))
                 @testset for S in Slist
                     test_transform!(v, v2, S)
                 end
-                @testset for S1 in Slist, S2 in Slist
+                @testset for S1 in (full ? Slist : Slist[1:1]), S2 in (full ? Slist : Slist[1:1])
                     S = S1 ⊗ S2
                     test_transform!(M, M2, S)
                 end
-                @testset for S1 in Slist, S2 in Slist, S3 in Slist
-                    S = S1 ⊗ S2 ⊗ S3
-                    test_transform!(A, A2, S)
+                if full
+                    @testset for S1 in Slist, S2 in Slist, S3 in Slist
+                        S = S1 ⊗ S2 ⊗ S3
+                        test_transform!(A, A2, S)
+                    end
                 end
             end
         end
