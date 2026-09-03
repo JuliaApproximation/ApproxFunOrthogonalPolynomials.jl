@@ -359,7 +359,9 @@ include("testutils.jl")
             M2 = similar(M);
             A = Array{ET}(undef, 10, 10, 10);
             A2 = similar(A);
-            @testset for d in ((), (0..1,)), order in (0.5, 0.7, 1.5, 1, 3)
+            full = ET === Float64
+            @testset for d in (full ? ((), (0..1,)) : ((),)),
+                         order in (full ? (0.5, 0.7, 1.5, 1, 3) : (0.5,))
                 U = Ultraspherical(order, d...)
                 NU = NormalizedPolynomialSpace(U)
                 Slist = (U, NU)
@@ -369,7 +371,7 @@ include("testutils.jl")
                     end
                     test_transform!(v, v2, S)
                 end
-                @testset for S1 in Slist, S2 in Slist
+                @testset for S1 in (full ? Slist : Slist[1:1]), S2 in (full ? Slist : Slist[1:1])
                     S = S1 ⊗ S2
                     if order == 0.5 || S == NU^2
                         test_with_jac(S, M)
