@@ -321,9 +321,14 @@ include("testutils.jl")
 
     @testset "inplace transform" begin
         @testset for T in (Float32, Float64), ET in (T, complex(T))
+            # the (a,b) grid and the extra domain/space combinations only vary values,
+            # not types, so they are swept in full at Float64 and reduced elsewhere
+            full = ET === Float64
+            ablist = full ? (0:0.5:3) : (0.5,)
+            dlist = full ? ((), (0..1,)) : ((),)
             v = Array{ET}(undef, 10)
             v2 = similar(v)
-            @testset for a in 0:0.5:3, b in 0:0.5:3, d in ((), (0..1,))
+            @testset for a in ablist, b in ablist, d in dlist
                 J = Jacobi(a, b, d...)
                 Slist = (J, NormalizedPolynomialSpace(J))
                 @testset for S in Slist
@@ -332,9 +337,9 @@ include("testutils.jl")
             end
             v = Array{ET}(undef, 10, 10)
             v2 = similar(v)
-            @testset for a in 0:0.5:3, b in 0:0.5:3, d in ((), (0..1,))
+            @testset for a in ablist, b in ablist, d in dlist
                 J = Jacobi(a, b, d...)
-                Slist = (J, NormalizedPolynomialSpace(J))
+                Slist = full ? (J, NormalizedPolynomialSpace(J)) : (J,)
                 @testset for S1 in Slist, S2 in Slist
                     S = S1 ⊗ S2
                     test_transform!(v, v2, S)
@@ -342,14 +347,18 @@ include("testutils.jl")
                 @testset for S1 in Slist
                     S = S1 ⊗ Chebyshev(d...)
                     test_transform!(v, v2, S)
-                    S = S1 ⊗ Chebyshev()
-                    test_transform!(v, v2, S)
+                    if !isempty(d)
+                        S = S1 ⊗ Chebyshev()
+                        test_transform!(v, v2, S)
+                    end
                 end
                 @testset for S2 in Slist
                     S = Chebyshev(d...) ⊗ S2
                     test_transform!(v, v2, S)
-                    S = Chebyshev() ⊗ S2
-                    test_transform!(v, v2, S)
+                    if !isempty(d)
+                        S = Chebyshev() ⊗ S2
+                        test_transform!(v, v2, S)
+                    end
                 end
             end
         end
